@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">VisionPackage</string>
+    <string name="hello_world">Hello world!</string>
+
+    
+    
+    <string name="vision_take_a_picture">Take a Picture</string>
+    <string name="vision_show_gallery">Show Gallery</string>    
+    
+    <string name="title_activity_camera_preview">Camera Preview Activity</string>
+    <string name="title_activity_gallery_full_screen_view">Gallery FullScreen View Activity</string>
+    <string name="title_activity_gallery">Gallery Activity</string>
+</resources>
