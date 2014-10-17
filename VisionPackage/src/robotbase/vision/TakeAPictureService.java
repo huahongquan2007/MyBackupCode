@@ -58,11 +58,8 @@ public class TakeAPictureService extends Service{
 		faceDetectionReceiver = new FaceDetectionReceiver(this);
 		IntentFilter filterFaceDetection  = new IntentFilter(RobotIntent.CAM_FACE_DETECTION);
 		registerReceiver(faceDetectionReceiver, filterFaceDetection);
-
-		String MY_SPEECH_RECOGNITION_NLP = "robotbase.vision.NLP";
-		
+	
 		listenRecognitionReceiver = new ListenRecognitionReceiver();
-//			IntentFilter filterListenVision  = new IntentFilter(MY_SPEECH_RECOGNITION_NLP);
 		IntentFilter filterListenVision  = new IntentFilter(RobotIntent.SPEECH_RECOGNITION_NLP);
 		
 		registerReceiver(listenRecognitionReceiver, filterListenVision);
@@ -100,21 +97,7 @@ public class TakeAPictureService extends Service{
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			Log.i("MyLog", "TAP Service: ListenRecognition: onReceive");
-			
-//			Log.e("MyNLP", "NLP onReceive TAP");
-//			String data = intent.getStringExtra("data");
-//			if(data.equals("take_a_picture")){
-//				curState = SERVICE_STATE.START;
-//				Intent dialogIntent = new Intent(getBaseContext(), robotbase.vision.CameraPreviewActivity.class);
-//				dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//				getApplication().startActivity(dialogIntent);				
-//			}else{
-//				Log.e("MyLog"," NLP ERROR : " + data);
-//			}
-//			return;
-			
-			// End hardcode
-			
+						
 			if (RobotIntent.SPEECH_RECOGNITION_NLP.equals(intent
 					.getAction().toString())) { 
 				String nlp_data = intent.getStringExtra("data"); 

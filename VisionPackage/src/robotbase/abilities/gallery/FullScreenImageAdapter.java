@@ -2,6 +2,7 @@ package robotbase.abilities.gallery;
 
 import java.util.ArrayList;
 
+import robotbase.vision.FakeNLP;
 import robotbase.vision.R;
 import android.app.Activity;
 import android.content.Context;
@@ -19,7 +20,8 @@ public class FullScreenImageAdapter extends PagerAdapter {
 	private Activity _activity;
 	private ArrayList<String> _imagePaths;
 	private LayoutInflater inflater;
-
+	
+	private FakeNLP fakeNLP;
 	// constructor
 	public FullScreenImageAdapter(Activity activity,
 			ArrayList<String> imagePaths) {
@@ -66,6 +68,18 @@ public class FullScreenImageAdapter extends PagerAdapter {
 
 		((ViewPager) container).addView(viewLayout);
 
+		
+		
+		// FAKE NLP
+		fakeNLP = new FakeNLP(_activity);
+		Button btnShareFB = (Button) viewLayout.findViewById(R.id.btnShareFB);
+		btnShareFB.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) { 
+            	fakeNLP.command("share this photo on facebook");
+            }
+        });
+		
+		
 		return viewLayout;
 	}
 

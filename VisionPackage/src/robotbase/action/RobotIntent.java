@@ -26,6 +26,7 @@ public class  RobotIntent{
 	public static String SPEECH_RECOGNITION_NLP  = "robotbase.speech._NLP"; 
 	public static String TEXT_TO_SPEECH  = "robotbase.speech.SPEAKER";
 	
-	
+	// Vision Intent
+	public static String SHARE_PHOTO  = "robotbase.abilities.SHARE_PHOTO";
 }
 

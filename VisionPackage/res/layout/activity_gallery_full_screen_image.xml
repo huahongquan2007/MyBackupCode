@@ -22,5 +22,13 @@
         android:background="@drawable/button_background_gallery"
         android:textColor="#ffffff"
         android:text="Close" />
- 
+
+ 	<Button
+ 	    android:id="@+id/btnShareFB"
+ 	    android:layout_width="wrap_content"
+ 	    android:layout_height="50dp"
+ 	    android:layout_alignParentBottom="true"
+ 	    android:layout_centerHorizontal="true"
+ 	    android:layout_marginBottom="30dp"
+ 	    android:text="Share to FaceBook" />
 </RelativeLayout>

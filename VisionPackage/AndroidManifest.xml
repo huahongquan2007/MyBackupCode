@@ -78,6 +78,11 @@
         </service>
         <service android:name="robotbase.vision.AndroidCameraService" >
         </service>
+        
+        <service android:name="robotbase.abilities.FacebookAbility" >
+        </service>
+        
+                
     </application>
 
 </manifest>
