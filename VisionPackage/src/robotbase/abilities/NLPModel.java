@@ -139,10 +139,8 @@ public class NLPModel {
 				this.nlp.expression.module = expression.getString("module");
 				this.nlp.expression.name = expression.getString("name");
 				this.nlp.expression.note = expression.getString("note");
-				this.nlp.expression.provider_name = expression
-						.getString("provider_name");
+				this.nlp.expression.provider_name = expression.getString("provider_name");
 				this.nlp.expression.status = expression.getBoolean("status");
-
 				// params
 				this.nlp.params = nlp.getJSONObject("params");
 

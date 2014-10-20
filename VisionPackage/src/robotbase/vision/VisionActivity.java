@@ -11,6 +11,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 
 import robotbase.abilities.FacebookAbility;
 import robotbase.abilities.ShowGallery;
+import robotbase.abilities.TwitterAbility;
 import robotbase.action.RobotIntent;
 import robotbase.vision.camera.CameraService;
 import robotbase.vision.R;
@@ -48,6 +49,7 @@ public class VisionActivity extends Activity {
 		startService(new Intent(this, robotbase.speech.TextToSpeech.class));
 
 		startService(new Intent(this, FacebookAbility.class));
+		startService(new Intent(this, TwitterAbility.class));
 		
 		
 		// FakeNLP
@@ -79,7 +81,7 @@ public class VisionActivity extends Activity {
 		else
 			stopService(new Intent(this, CameraService.class));
 
-		
+		stopService(new Intent(this, TwitterAbility.class));
 		stopService(new Intent(this, FacebookAbility.class));
 		
 		stopService(new Intent(this, robotbase.speech.TextToSpeech.class));

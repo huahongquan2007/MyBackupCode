@@ -62,13 +62,10 @@ public class GalleryFullScreenViewActivity extends Activity {
 		mPager = (ViewPager) findViewById(R.id.pager);
 
 		mPager.setAdapter(mPagerAdapter);
-
 		mPager.setCurrentItem(curPosition);
-
 		// ImageView imageView = (ImageView) findViewById(R.id.imgDisplay);
 		// imageView.setImageResource(imageAdapter.mThumbIds[position]);
-		
-		
+				
 		// SETUP NLP
 		listenRecognitionReceiver = new ListenRecognitionReceiver();
 		IntentFilter filterListen  = new IntentFilter(RobotIntent.SPEECH_RECOGNITION_NLP);
@@ -103,18 +100,28 @@ public class GalleryFullScreenViewActivity extends Activity {
 						if( ("computer_vision".equals(expression.getString("provider_name")) == false)){
 							return;
 						}
-						if( ("share_this_photo".equals(expression.getString("name")) == false)){
-							return;
+						if( ("share_this_photo".equals(expression.getString("name")) == true)){
+							String value = nlp.getJSONObject("params").getJSONObject("network").getString("value");
+							// Process Command
+							Log.i("MyLog", "GFSView: SHARE THIS PHOTO " + value);
+							
+							Intent intentSP = new Intent();
+							intentSP.putExtra("value", value);
+							intentSP.putExtra("data", imagePaths.get(curPosition));
+							intentSP.setAction(RobotIntent.SHARE_PHOTO);
+							sendBroadcast(intentSP);
+						}else if("next_photo".equals(expression.getString("name")) == true){
+							int curPos = mPager.getCurrentItem();
+							int len = imagePaths.size();
+							int finalPos = (curPos + 1) > len ? 0 : curPos + 1;
+							mPager.setCurrentItem(finalPos);
+						}else if("previous_photo".equals(expression.getString("name")) == true){
+							int curPos = mPager.getCurrentItem();
+							int len = imagePaths.size();
+							int finalPos = (curPos - 1) < 0 ? len : curPos - 1;
+							mPager.setCurrentItem(finalPos);
 						}
-						String value = nlp.getJSONObject("params").getJSONObject("network").getString("value");
-						// Process Command
-						Log.i("MyLog", "GFSView: SHARE THIS PHOTO " + value);
-						
-						Intent intentSP = new Intent();
-						intentSP.putExtra("value", value);
-						intentSP.putExtra("data", imagePaths.get(curPosition));
-						intentSP.setAction(RobotIntent.SHARE_PHOTO);
-						sendBroadcast(intentSP);
+
 					} 
 					
 				} catch (JSONException e) {

@@ -3,12 +3,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
  
-    <robotbase.abilities.gallery.TouchImageView
-        android:id="@+id/imgDisplay"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:scaleType="fitCenter" />
- 
+ 	<robotbase.abilities.gallery.TouchImageView
+ 	    android:id="@+id/imgDisplay"
+ 	    android:layout_width="fill_parent"
+ 	    android:layout_height="fill_parent"
+ 	    android:layout_alignParentLeft="true"
+ 	    android:layout_alignParentTop="true"
+ 	    android:scaleType="fitCenter" />
+ 	
     <Button
         android:id="@+id/btnClose"
         android:layout_width="wrap_content"
@@ -24,11 +26,38 @@
         android:text="Close" />
 
  	<Button
+ 	    android:id="@+id/btnPrevious"
+ 	    android:layout_width="wrap_content"
+ 	    android:layout_height="50dp"
+ 	    android:layout_alignBaseline="@+id/btnShareFB"
+ 	    android:layout_alignBottom="@+id/btnShareFB"
+ 	    android:layout_toLeftOf="@+id/btnNext"
+ 	    android:text="Previous" />
+
+ 	<Button
+ 	    android:id="@+id/btnNext"
+ 	    android:layout_width="wrap_content"
+ 	    android:layout_height="50dp"
+ 	    android:layout_alignBaseline="@+id/btnPrevious"
+ 	    android:layout_alignBottom="@+id/btnPrevious"
+ 	    android:layout_alignRight="@+id/btnClose"
+ 	    android:layout_marginRight="19dp"
+ 	    android:text="Next" />
+
+ 	<Button
+ 	    android:id="@+id/btnShareTW"
+ 	    android:layout_width="wrap_content"
+ 	    android:layout_height="50dp"
+ 	    android:layout_above="@+id/btnShareFB"
+ 	    android:layout_alignParentLeft="true"
+ 	    android:text="ShareTW" />
+
+ 	<Button
  	    android:id="@+id/btnShareFB"
  	    android:layout_width="wrap_content"
  	    android:layout_height="50dp"
  	    android:layout_alignParentBottom="true"
- 	    android:layout_centerHorizontal="true"
- 	    android:layout_marginBottom="30dp"
- 	    android:text="Share to FaceBook" />
+ 	    android:layout_alignParentLeft="true"
+ 	    android:text="ShareFB" />
+
 </RelativeLayout>

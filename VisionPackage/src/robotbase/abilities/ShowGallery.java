@@ -38,19 +38,7 @@ public class ShowGallery  extends Service{
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			Log.i("MyLog", "Show Gallery Service: ListenRecognition: onReceive");
-			
-//			Log.e("MyNLP", "NLP onReceive TAP");
-//			String data = intent.getStringExtra("data");
-//			if(data.equals("show_gallery")){
-//				Intent dialogIntent = new Intent(getBaseContext(), robotbase.abilities.gallery.GalleryActivity.class);
-//				dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//				getApplication().startActivity(dialogIntent);	
-//			}else{
-//				Log.e("MyLog"," NLP ERROR : " + data);
-//			}
-//			return;
-//			
-			
+						
 			if (RobotIntent.SPEECH_RECOGNITION_NLP.equals(intent
 					.getAction().toString())) { 
 				String nlp_data = intent.getStringExtra("data"); 

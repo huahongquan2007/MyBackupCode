@@ -78,6 +78,25 @@ public class FullScreenImageAdapter extends PagerAdapter {
             	fakeNLP.command("share this photo on facebook");
             }
         });
+		Button btnShareTW = (Button) viewLayout.findViewById(R.id.btnShareTW);
+		btnShareTW.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) { 
+            	fakeNLP.command("share this photo on twitter");
+            }
+        });
+		
+		Button btnPrevious = (Button) viewLayout.findViewById(R.id.btnPrevious);
+		btnPrevious.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) { 
+            	fakeNLP.command("next photo");
+            }
+        });
+		Button btnNext = (Button) viewLayout.findViewById(R.id.btnNext);
+		btnNext.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) { 
+            	fakeNLP.command("previous photo");
+            }
+        });
 		
 		
 		return viewLayout;
