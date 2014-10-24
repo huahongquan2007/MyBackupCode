@@ -28,5 +28,6 @@ public class  RobotIntent{
 	
 	// Vision Intent
 	public static String SHARE_PHOTO  = "robotbase.abilities.SHARE_PHOTO";
+	public static String CAM_FACE_TRACKING  = "robotbase.abilities.FACE_TRACKING";
 }
 

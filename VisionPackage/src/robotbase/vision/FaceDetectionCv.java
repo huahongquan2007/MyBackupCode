@@ -6,8 +6,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.opencv.core.Mat;
+
+import robotbase.action.RobotIntent;
 import robotbase.vision.R;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -16,10 +20,9 @@ public class FaceDetectionCv extends VisionAlgorithm{
 	private int[] xArr, yArr, wArr, hArr;
 	private int size;
 	private long time;
-
 	public FaceDetectionCv(float fps, Context ctx) {
-		super(fps);
-		initOpenCV(ctx);
+		super(fps, ctx);
+		initOpenCV(context);
 		xArr = new int [100];
 		yArr = new int [100];
 		wArr = new int [100];
@@ -29,6 +32,7 @@ public class FaceDetectionCv extends VisionAlgorithm{
 	
 	@Override
 	public void start(){
+		System.loadLibrary(NativeFaceDetection.name);
 		NativeFaceDetection.initCascade(mCascadeFile.getAbsolutePath());
 		NativeFaceDetection.setPreviewSize(frameWidth, frameHeight);
 	}
@@ -84,6 +88,25 @@ public class FaceDetectionCv extends VisionAlgorithm{
 			e.printStackTrace();
 		}
 		Log.d("HHQ", "HHQ " + mCascadeFile.getAbsolutePath());
+	}
+
+	@Override
+	public void runRGB(Mat frame) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void broadcast() {
+		try{
+			Intent intent = new Intent();
+			intent.putExtra("faceDetection", getResultBundle());
+			intent.setAction(RobotIntent.CAM_FACE_DETECTION);
+			context.sendBroadcast(intent); 				
+		}
+		catch(Exception e){
+			e.printStackTrace();	
+		}
 	}
 
 }

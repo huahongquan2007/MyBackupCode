@@ -55,39 +55,26 @@ public class CameraPreviewActivity extends Activity {
 		}else{
 			filterVision = new IntentFilter(CameraService.CAMERA_INTENT_BITMAP);
 		}
-		
-		
-		// // registerReceiver(frameDataReceiver, filterVision);
-		// Using Handler
 		HandlerThread handlerThread = new HandlerThread("MyNewThread");
 		handlerThread.start();
 		Looper looper = handlerThread.getLooper();
-		// Create a handler for the service
 		handler = new Handler(looper);
-		// Register the broadcast receiver to run on the separate Thread
 		registerReceiver (frameDataReceiver, filterVision, null, handler);
 		
 		
-		// End Using Handler
 		frameOverlayReceiver = new FrameOverlayReceiver();
 		IntentFilter filterOverlayVision  = new IntentFilter(RobotIntent.CAM_TAKE_PICKTURE);
-		// // registerReceiver(frameOverlayReceiver, filterOverlayVision);
-		// Using Handler
 		HandlerThread handlerThreadOverlay = new HandlerThread("MyNewThreadOverlay");
 		handlerThreadOverlay.start();
 		Looper looperOverlay = handlerThreadOverlay.getLooper();
-		// Create a handler for the service
 		handlerOverlay = new Handler(looperOverlay);
-		// Register the broadcast receiver to run on the separate Thread
 		registerReceiver (frameOverlayReceiver, filterOverlayVision, null, handlerOverlay);
 		
 	}
 	@Override
 	protected void onStart() {
-		// TODO Auto-generated method stub
 		super.onStart();
 		Log.i("MyLog", "CAP: onStart");
-//		CameraPreviewActivity.this.finish();
 	}
 	
 	@Override

@@ -2,7 +2,9 @@ package robotbase.vision;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.opencv.core.Mat;
 
+import android.content.Context;
 import android.hardware.Camera;
 import android.hardware.Camera.Face;
 import android.hardware.Camera.FaceDetectionListener;
@@ -10,8 +12,8 @@ import android.os.Bundle;
 import android.util.Log;
 
 public class FaceDetection extends VisionAlgorithm{
-	public FaceDetection(float fps) {
-		super(fps);
+	public FaceDetection(float fps, Context ctx) {
+		super(fps, ctx);
 	}
 	private Face[] mFaces;
 	protected Camera cam;
@@ -72,5 +74,15 @@ public class FaceDetection extends VisionAlgorithm{
 	        return result;
 		}
 		return null;
+	}
+	@Override
+	public void runRGB(Mat frame) {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public void broadcast() {
+		// TODO Auto-generated method stub
+		
 	}
 }

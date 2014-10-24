@@ -11,6 +11,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import robotbase.abilities.gallery.GalleryConfig;
+import robotbase.action.NeckInstruction;
 import robotbase.action.NeckIntent;
 import robotbase.action.RobotIntent;
 import robotbase.utility.Utilities;
@@ -162,8 +163,8 @@ public class TakeAPictureService extends Service{
 			case START:
 				Log.i("MyLog", "TAP Service: CurState: START");
 				curState = SERVICE_STATE.ROTATE;
-				context.sendBroadcast(new NeckIntent(NeckIntent.PAN_JOINT_ID, 4).speed_intent);
-				context.sendBroadcast(new NeckIntent(NeckIntent.TILT_JOINT_ID, 4).speed_intent);
+//				context.sendBroadcast(new NeckIntent(NeckInstruction.PAN_JOINT_ID, 4).speed_intent);
+//				context.sendBroadcast(new NeckIntent(NeckInstruction.TILT_JOINT_ID, 4).speed_intent);
 						
 				break;
 			case ROTATE:
@@ -191,6 +192,8 @@ public class TakeAPictureService extends Service{
 						curState = SERVICE_STATE.CAPTURE;
 						countDownTime = System.currentTimeMillis();
 						Log.i("MyLog", "TAP Service: CurState: ROTATE -> CAPTURE");
+					}else{
+						Log.i("MyLog", "CenterOnTarget isCenter FALSE");
 					}
 				}
 				break;

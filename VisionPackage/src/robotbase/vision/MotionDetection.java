@@ -1,16 +1,18 @@
 package robotbase.vision;
 
+import org.opencv.core.Mat;
+
+import android.content.Context;
 import android.os.Bundle;
 
 public class MotionDetection extends VisionAlgorithm{
-	public MotionDetection(float fps) {
-		super(fps);
+	public MotionDetection(float fps, Context ctx) {
+		super(fps, ctx);
 	}
 
 	@Override
 	public void start() {
-		// TODO Auto-generated method stub
-		
+		System.loadLibrary(NativeMotionDetection.name);
 	}
 
 	@Override
@@ -34,5 +36,17 @@ public class MotionDetection extends VisionAlgorithm{
 	public Bundle getResultBundle() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public void runRGB(Mat frame) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void broadcast() {
+		// TODO Auto-generated method stub
+		
 	}
 }

@@ -7,7 +7,8 @@
     <uses-sdk
         android:minSdkVersion="14"
         android:targetSdkVersion="19" />
-	<uses-permission android:name="android.permission.INTERNET" />
+
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
@@ -29,15 +30,50 @@
     <uses-permission android:name="android.permission.BROADCAST_STICKY" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="com.android.alarm.permission.SET_ALARM" />
-	<uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+
     <uses-feature android:name="android.hardware.camera" />
-    
+
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/AppTheme"
+        android:screenOrientation="portrait" >
+        
+<!--         <activity
+            android:name=".TrackingTLDActivity"
+            android:screenOrientation="portrait" 
+            android:label="@string/title_activity_tracking_tld" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        
+        <activity
+            android:name=".FaceTrackingTestActivity"
+            android:label="@string/title_activity_face_tracking_test"
+            android:screenOrientation="landscape" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".FaceTrackingActivity"
+            android:label="@string/title_activity_face_tracking"
+            android:screenOrientation="landscape" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity> -->
+        
         <activity
             android:name=".VisionActivity"
             android:label="@string/app_name" >
@@ -45,16 +81,19 @@
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
-                <meta-data
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
+            </intent-filter>
+            <meta-data
                 android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
                 android:resource="@xml/usb2dynamixel" />
-            </intent-filter>
         </activity>
-         <activity
-            android:name="robotbase.vision.CameraPreviewActivity"
+        <activity
+            android:name=".CameraPreviewActivity"
+            android:label="@string/title_activity_camera_preview"
             android:screenOrientation="portrait"
-            android:theme="@android:style/Theme.Holo.Light.NoActionBar"
-            android:label="@string/title_activity_camera_preview" >
+            android:theme="@android:style/Theme.Holo.Light.NoActionBar" >
         </activity>
         <activity
             android:name="robotbase.abilities.gallery.GalleryActivity"
@@ -68,22 +107,24 @@
             android:screenOrientation="portrait"
             android:theme="@android:style/Theme.Holo.Light.NoActionBar.Fullscreen" >
         </activity>
-        <service android:name="robotbase.vision.VisionService" >
-        </service>  
-        <service android:name="robotbase.vision.TakeAPictureService" >
-        </service> 
+
+        <service android:name=".VisionService" >
+        </service>
+        <service android:name=".TakeAPictureService" >
+        </service>
         <service android:name="robotbase.abilities.ShowGallery" >
         </service>
-        <service android:name="robotbase.vision.camera.CameraService" >
+        <service android:name=".camera.CameraService" >
         </service>
-        <service android:name="robotbase.vision.AndroidCameraService" >
+        <service android:name=".AndroidCameraService" >
         </service>
-        
         <service android:name="robotbase.abilities.FacebookAbility" >
         </service>
         <service android:name="robotbase.abilities.TwitterAbility" >
-        </service>        
-                
+        </service>
+		<service android:name="robotbase.action.NeckServices">
+		</service>
+
     </application>
 
 </manifest>

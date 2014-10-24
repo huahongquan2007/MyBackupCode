@@ -16,8 +16,8 @@ using namespace std;
 
 // Face detection
 CascadeClassifier faceDetector;
-int IMG_WIDTH = 320;
-int IMG_HEIGHT = 240;
+int IMG_WIDTH = 240;
+int IMG_HEIGHT = 320;
 string myPath;
 int width = 0, height = 0;
 bool myPathWrite = true;
@@ -29,11 +29,11 @@ bool myPathWrite = true;
 JNIEXPORT jint JNICALL Java_robotbase_vision_NativeFaceDetection_getPos
   (JNIEnv * env, jclass clazz, jbyteArray NV21FrameData, jintArray xArr, jintArray yArr, jintArray wArr, jintArray hArr, jlong pixelsArr){
 
-	Mat& pixelsMat = *(Mat*)pixelsArr;
+//	Mat& pixelsMat = *(Mat*)pixelsArr;
 
     jbyte * pNV21FrameData = env->GetByteArrayElements(NV21FrameData, 0);
 	Mat mGray(height, width, CV_8UC1, (unsigned char *) pNV21FrameData);
-	cvtColor(mGray, pixelsMat, CV_GRAY2BGRA);
+//	cvtColor(mGray, pixelsMat, CV_GRAY2BGRA);
 
 	float scale_w = float(IMG_WIDTH) / mGray.cols;
 	float scale_h = float(IMG_HEIGHT) / mGray.rows;
@@ -66,6 +66,7 @@ JNIEXPORT jint JNICALL Java_robotbase_vision_NativeFaceDetection_getPos
 	    env->ReleaseIntArrayElements(hArr, nhArr, false);
 	}
 
+	faces.clear();
 	env->ReleaseByteArrayElements(NV21FrameData, pNV21FrameData, 0);
 	return sizeArr;
 }

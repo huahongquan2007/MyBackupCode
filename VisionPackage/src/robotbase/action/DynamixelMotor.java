@@ -11,6 +11,7 @@ public class DynamixelMotor  {
 		// Serial Port 
 		// Offset
 		public   UsbSerialDriver dxl_serial;
+		public  float DXL_SIGN = 1;
 		// Speed
 		public   int   MAX_SPEED_RESGISTER; //1023
 		public   float   MIN_SPEED; // 1 rpm
@@ -36,8 +37,8 @@ public class DynamixelMotor  {
 		public	 float TORQUE_RESOLUTION;
 		public   float   DEFAULT_TORQUE = 100;
 		// Motor type
-		public   int   DXL_ID				= 0;
-		public   String DXL_TYPE			= "AX12";
+		public   int   DXL_ID;
+		public   String DXL_TYPE;
 	// Control Table  definition////
 		int 	   DXL_BAUDRATE				= 1000000;
 		final  int MODEL_NUM_L				= 1;
@@ -112,17 +113,37 @@ public class DynamixelMotor  {
 		byte[] gbStatusPacket 				= new byte[MAXNUM_RXPARAM+10]; 
 		int checksum 						=0;
 		// Constructor
-		public  DynamixelMotor(UsbSerialDriver driver, String dynamixel_type, int dynamixel_ID, float home_pos, float range)
+//		public  DynamixelMotor(UsbSerialDriver driver, String dynamixel_type, int dynamixel_ID, float home_pos,
+//				float range, float min_speed, float max_speed, float sign)
+//		{
+//			this.dxl_serial = driver;
+//			this.DXL_ID = dynamixel_ID;
+//			this.DXL_TYPE = dynamixel_type;
+//			this.HOME_POS = home_pos;
+//			this.MAX_POS_LIMIT = this.HOME_POS + range/2;
+//			this.MIN_POS_LIMIT = this.HOME_POS - range/2;
+//			this.MIN_SPEED_LIMIT = min_speed;
+//			this.MAX_SPEED_LIMIT = max_speed;
+//			this.DXL_SIGN = sign;
+//			
+//			this.dxl_init();
+//		}
+		public  DynamixelMotor(UsbSerialDriver driver,Joint joint )
 		{
 			this.dxl_serial = driver;
-			this.DXL_ID = dynamixel_ID;
-			this.DXL_TYPE = dynamixel_type;
-			this.HOME_POS = home_pos;
-			this.MAX_POS_LIMIT = this.HOME_POS + range/2;
-			this.MIN_POS_LIMIT = this.HOME_POS - range/2;
-			
-			this.dxl_init();
+			this.DXL_ID = joint.ID;
+			Log.i("Neck", String.format("ID init = %d", this.DXL_ID));
+			this.DXL_TYPE = joint.TYPE;
+			this.HOME_POS = joint.HOME_POS;
+			this.MAX_POS_LIMIT = this.HOME_POS + joint.POS_RANGE/2;
+			this.MIN_POS_LIMIT = this.HOME_POS - joint.POS_RANGE/2;
+			this.MAX_SPEED_LIMIT = joint.MAX_SPEED_LIMIT;
+			this.MIN_SPEED_LIMIT = joint.MIN_SPEED_LIMIT;
+			this.DXL_SIGN = joint.SIGN;
+			this.dxl_init();		
 		}
+		
+		
 		private void dxl_init()
 		{
 			if (this.DXL_TYPE.equals("AX12"))
@@ -234,6 +255,7 @@ public class DynamixelMotor  {
 		}
 		private float dxl_pos_check(float pos)
 		{
+			pos = this.HOME_POS + this.DXL_SIGN*pos;
 			if (pos > this.MAX_POS_LIMIT) pos = this.MAX_POS_LIMIT;
 			if (pos < this.MIN_POS_LIMIT) pos = this.MIN_POS_LIMIT;
 			return pos;
@@ -396,9 +418,8 @@ public class DynamixelMotor  {
 		}
 		void dxl_set_home_position()
 		{
-			this.dxl_set_speed_act(this.DEFAULT_SPEED);
-			this.dxl_set_position_act(this.HOME_POS);
-			this.CURRENT_POS = this.HOME_POS;
+			this.dxl_set_position_act(0);
+			this.CURRENT_POS = 0;
 		}
 		void dxl_get_position()
 		{

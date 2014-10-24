@@ -3,6 +3,8 @@ package robotbase.vision;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.opencv.core.Mat;
+
 public class VisionAlgorithmManager {
 	private List<VisionAlgorithm> listAlgo;
 	public VisionAlgorithmManager() {
@@ -39,6 +41,11 @@ public class VisionAlgorithmManager {
 			algo.update(frame);
 		}
 	}
+	public void updateRGB(Mat frame){
+		for(VisionAlgorithm algo : listAlgo){
+			algo.updateRGB(frame);
+		}
+	}
 	public String getResult(String name){
 		for(VisionAlgorithm algo : listAlgo){
 			if(algo.getName().equals(name)){
@@ -54,5 +61,10 @@ public class VisionAlgorithmManager {
 			}
 		}
 		return null;
+	}
+	public void broadcast() {
+		for(VisionAlgorithm algo : listAlgo){
+			algo.broadcast();
+		}
 	}
 }

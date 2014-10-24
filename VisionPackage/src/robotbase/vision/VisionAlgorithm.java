@@ -6,6 +6,7 @@ import org.opencv.android.Utils;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,10 +17,11 @@ public abstract class VisionAlgorithm {
 	protected long lastUpdate;
 	protected long frequence;
 	protected int[] patch;
+	protected Context context;
 	
-	protected int frameWidth = 320, frameHeight = 240; 
+	protected int frameWidth = AndroidCameraService.camWidth, frameHeight = AndroidCameraService.camHeight; 
 	
-	public VisionAlgorithm(float fps){
+	public VisionAlgorithm(float fps, Context ctx){
 		name = this.getClass().getSimpleName();
 		frequence = (long) (1000 / fps);
 		lastUpdate = System.currentTimeMillis();
@@ -27,6 +29,7 @@ public abstract class VisionAlgorithm {
 		pixels = new Mat(frameHeight, frameWidth, CvType.CV_8UC4);
 		int size = (int) (pixels.total()  * pixels.channels());
         patch = new int[size];   
+        context = ctx;
 	}
 	public String getName(){
 		return name;
@@ -38,7 +41,14 @@ public abstract class VisionAlgorithm {
 			run(frame);
 		}
 	}
-	public abstract Bundle getResultBundle();
+	public void updateRGB(Mat frame){
+		long curTime = System.currentTimeMillis();
+		if(curTime - lastUpdate > frequence){
+			lastUpdate = curTime;
+			runRGB(frame);
+		}
+	}
+
 	public Bitmap getFrame(){
 		Bitmap frame = Bitmap.createBitmap(frameWidth, frameHeight, Bitmap.Config.ARGB_8888);
 
@@ -67,5 +77,8 @@ public abstract class VisionAlgorithm {
 	abstract public void start();
 	abstract public void stop();
 	abstract public void run(byte[] frame);
+	abstract public void runRGB(Mat frame);
 	abstract public String getResult();
+	abstract public Bundle getResultBundle();
+	abstract public void broadcast();
 }

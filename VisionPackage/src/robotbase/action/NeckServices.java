@@ -21,7 +21,7 @@ public class NeckServices extends Service {
 	UsbManager manager;
 	public static UsbSerialDriver serial_obj;
 	DynamixelMotor pan_joint, tilt_joint;
-	BroadcastReceiver yourReceiver;
+	BroadcastReceiver neck_receiver;
 	boolean i;
 	@Override
 	  public void onCreate() {
@@ -43,48 +43,53 @@ public class NeckServices extends Service {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-        this.tilt_joint = new DynamixelMotor(serial_obj, "MX28", NeckIntent.TILT_JOINT_ID, NeckIntent.TILT_HOME_POS, NeckIntent.TILT_RANGE );
-        this.pan_joint = new DynamixelMotor(serial_obj, "AX12", NeckIntent.PAN_JOINT_ID,NeckIntent.PAN_HOME_POS , NeckIntent.PAN_RANGE);
+        this.tilt_joint = new DynamixelMotor(serial_obj, new Joint("MX28"));
+        this.tilt_joint.dxl_set_speed_act(2);
+      
+        
+        this.pan_joint = new DynamixelMotor(serial_obj, new Joint("AX12"));
+        this.pan_joint.dxl_set_speed_act(10);
+        
         this.pan_joint.dxl_set_home_position();
         this.tilt_joint.dxl_set_home_position();
-        this.yourReceiver = new BroadcastReceiver() {
+        
+        this.neck_receiver = new BroadcastReceiver() {
 
             @Override
             public void onReceive(Context context, Intent intent) {
-                // Do whatever you need it to do when it receives the broadcast
-                // Example show a Toast message...
-            	Bundle bundle = intent.getBundleExtra(NeckIntent.NECK_PACKAGE);
-        		int ID = (int)bundle.getInt(NeckIntent.KEY_ID);
-        		float Value = (float) bundle.getFloat(NeckIntent.KEY_VALUE);
-        		int ins = (int)bundle.getInt(NeckIntent.KEY_INSTRUCTION);
+            	Bundle bundle = intent.getBundleExtra(NeckInstruction.NECK_PACKAGE);
+        		int id = (int)bundle.getInt(NeckInstruction.KEY_ID);
+        		float value = (float) bundle.getFloat(NeckInstruction.KEY_VALUE);
+        		int ins = (int)bundle.getInt(NeckInstruction.KEY_INSTRUCTION);
         		
-        		if (ins == NeckIntent.INST_SPEED)
-        			if (ID == NeckIntent.PAN_JOINT_ID)
-        				pan_joint.dxl_set_speed_act(Value);
-        			else if (ID==NeckIntent.TILT_JOINT_ID)
-        				tilt_joint.dxl_set_speed_act(Value);
-        			else if (ID == DynamixelMotor.BROADCAST_ID)
+        		if (ins == NeckInstruction.INST_SPEED)
+        			if (id == NeckInstruction.PAN_JOINT_ID)
+        				pan_joint.dxl_set_speed_act(value);
+        			else if (id==NeckInstruction.TILT_JOINT_ID)
+        				tilt_joint.dxl_set_speed_act(value);
+        			else if (id == DynamixelMotor.BROADCAST_ID)
         				{
-        					pan_joint.dxl_set_speed(Value);
-        					tilt_joint.dxl_set_speed( Value);
+        					pan_joint.dxl_set_speed(value);
+        					tilt_joint.dxl_set_speed( value);
         					pan_joint.dxl_trigger();
         				}
         				
         			
-        		if (ins == NeckIntent.INST_POSITION)
-        			if (ID == NeckIntent.PAN_JOINT_ID)
-        				pan_joint.dxl_set_position_act(Value);
-        			else if (ID==NeckIntent.TILT_JOINT_ID)
-        				tilt_joint.dxl_set_position_act(Value);
-        			else if (ID == DynamixelMotor.BROADCAST_ID)
+        		if (ins == NeckInstruction.INST_POSITION)
+        			if (id == NeckInstruction.PAN_JOINT_ID)
+        				pan_joint.dxl_set_position_act(value);
+        			else if (id==NeckInstruction.TILT_JOINT_ID)
+        				tilt_joint.dxl_set_position_act(value);
+        			else if (id == DynamixelMotor.BROADCAST_ID)
         			{
-        				pan_joint.dxl_set_position(Value);
-        				tilt_joint.dxl_set_position(Value);
+        				pan_joint.dxl_set_position(value);
+        				tilt_joint.dxl_set_position(value);
         				pan_joint.dxl_trigger();
         			}
         		Log.i("Neck", "Neck On receive");
             	Log.i("Neck", pan_joint.dxl_tx_data_str());
-        		if (ID == 5)
+            	Log.i("Neck", tilt_joint.dxl_tx_data_str());
+        		if (id == 5)
         		{
         			pan_joint.dxl_read_word_act(30);
         			Log.i("Neck", pan_joint.dxl_rx_data_str());
@@ -95,7 +100,7 @@ public class NeckServices extends Service {
         };
         // Registers the receiver so that your service will listen for
         // broadcasts
-        this.registerReceiver(this.yourReceiver, theFilter);
+        this.registerReceiver(this.neck_receiver, theFilter);
         Log.i("Neck", "Service On Create");
 
     }
@@ -111,7 +116,7 @@ public class NeckServices extends Service {
 	public void onDestroy()
 	{
 		super.onDestroy();
-		unregisterReceiver(this.yourReceiver);
+		unregisterReceiver(this.neck_receiver);
 		Log.i("Neck", "Service On destroy");
 	}
 	@Override
