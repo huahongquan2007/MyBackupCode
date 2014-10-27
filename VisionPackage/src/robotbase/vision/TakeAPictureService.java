@@ -91,6 +91,7 @@ public class TakeAPictureService extends Service{
 		unregisterReceiver(faceDetectionReceiver);
 		unregisterReceiver(listenRecognitionReceiver);
 		unregisterReceiver(frameHighQualityReceiver);
+		stopSelf();
 		super.onDestroy();
 	}
 	public class ListenRecognitionReceiver extends BroadcastReceiver{
@@ -163,9 +164,16 @@ public class TakeAPictureService extends Service{
 			case START:
 				Log.i("MyLog", "TAP Service: CurState: START");
 				curState = SERVICE_STATE.ROTATE;
-//				context.sendBroadcast(new NeckIntent(NeckInstruction.PAN_JOINT_ID, 4).speed_intent);
-//				context.sendBroadcast(new NeckIntent(NeckInstruction.TILT_JOINT_ID, 4).speed_intent);
-						
+				context.sendBroadcast(new NeckIntent(NeckInstruction.PAN_JOINT_ID, 10).speed_intent);
+				context.sendBroadcast(new NeckIntent(NeckInstruction.TILT_JOINT_ID, 2).speed_intent);
+				// Send Speech
+				Intent intentTTSSTART = new Intent();
+				Bundle bundleTTSSTART = new Bundle();
+				bundleTTSSTART.putString("text", "Let's take a picture.");
+				intentTTSSTART.putExtras(bundleTTSSTART);
+				intentTTSSTART.setAction(RobotIntent.TEXT_TO_SPEECH);
+				sendBroadcast(intentTTSSTART);
+				
 				break;
 			case ROTATE:
 				Log.i("MyLog", "TAP Service: CurState: ROTATE");
@@ -199,7 +207,7 @@ public class TakeAPictureService extends Service{
 				break;
 			case CAPTURE:
 				long curTime = System.currentTimeMillis();
-				int countSecond = Math.round((curTime - countDownTime) / 2000 );
+				int countSecond = Math.round((curTime - countDownTime) / 1500 );
 				
 				Log.i("MyLog", "TAP Service: CurState: CAPTURE: " + String.valueOf(countSecond) + " CurrentMillis: " + String.valueOf(curTime) + " CountTime: " + String.valueOf(countDownTime));
 				Intent targetIntent = new Intent();
@@ -254,7 +262,7 @@ public class TakeAPictureService extends Service{
 					// Send Speech
 					Intent intentTTS = new Intent();
 					Bundle bundleTTS = new Bundle();
-					bundleTTS.putString("text", "OK. I take your photo.");
+					bundleTTS.putString("text", "OK. I took your photo.");
 					intentTTS.putExtras(bundleTTS);
 					intentTTS.setAction(RobotIntent.TEXT_TO_SPEECH);
 					sendBroadcast(intentTTS);

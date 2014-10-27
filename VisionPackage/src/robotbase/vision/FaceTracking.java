@@ -51,7 +51,8 @@ public class FaceTracking extends VisionAlgorithm {
 	private Rect _trackedBox = null;
 	private Paint rectPaint;
 	private android.graphics.Rect rectTrack;
-
+	private long lastProcessTime = 0;
+	
 	private static final Size WORKING_FRAME_SIZE = new Size(144, 80);
 	private Mat _workingFrame;
 	private Mat _currentGray;
@@ -209,6 +210,7 @@ public class FaceTracking extends VisionAlgorithm {
 					Rect opencv_rect = scaleUp(_processFrameStruct.currentBBox,
 							workingRatio);
 					if (opencv_rect != null) {
+						lastProcessTime = System.currentTimeMillis();
 						rectTrack.set(opencv_rect.x, opencv_rect.y,
 								opencv_rect.x + opencv_rect.width,
 								opencv_rect.y + opencv_rect.height);
@@ -254,10 +256,12 @@ public class FaceTracking extends VisionAlgorithm {
 
 	@Override
 	public void broadcast() {
-		Intent intent = new Intent();
-		intent.putExtra("data", rectTrack);
-		intent.setAction(RobotIntent.CAM_FACE_TRACKING);
-		context.sendBroadcast(intent);
+		if(System.currentTimeMillis() - lastProcessTime > 0){
+			Intent intent = new Intent();
+			intent.putExtra("data", rectTrack);
+			intent.setAction(RobotIntent.CAM_FACE_TRACKING);
+			context.sendBroadcast(intent);			
+		}
 	}
 	
 	// HELPER

@@ -27,7 +27,6 @@ public class FaceDetectionCv extends VisionAlgorithm{
 		yArr = new int [100];
 		wArr = new int [100];
 		hArr = new int [100];
-
 	}
 	
 	@Override

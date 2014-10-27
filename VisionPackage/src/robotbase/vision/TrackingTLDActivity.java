@@ -99,7 +99,7 @@ public class TrackingTLDActivity extends Activity {
 			startService(new Intent(this, AndroidCameraService.class));
 		else
 			startService(new Intent(this, CameraService.class));
-//		startService(new Intent(this, VisionService.class));
+		startService(new Intent(this, VisionService.class));
 		
 		frameDataReceiver = new FrameDataReceiver();
 		IntentFilter filterVision = (VisionConfig.isAndroidCamera) ? new IntentFilter(

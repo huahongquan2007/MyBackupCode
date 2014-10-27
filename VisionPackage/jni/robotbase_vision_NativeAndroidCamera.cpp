@@ -54,6 +54,10 @@ JNIEXPORT void JNICALL Java_robotbase_vision_NativeAndroidCamera_getFrame
 	Mat& pixel = *(Mat*)matAdd; // CV_8UC4
 	rotate(mRgb, pixel);
 
+	mRgb.release();
+	mGray.release();
+	mGrayRotated.release();
+
 	env->ReleaseByteArrayElements(NV21FrameData, pNV21FrameData, 0);
 	env->ReleaseByteArrayElements(byteAdd, poutPixels, 0);
 	return;

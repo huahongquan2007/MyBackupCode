@@ -1,14 +1,5 @@
 package robotbase.vision;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.BasicResponseHandler;
-import org.apache.http.impl.client.DefaultHttpClient;
-
 import robotbase.abilities.FacebookAbility;
 import robotbase.abilities.ShowGallery;
 import robotbase.abilities.TwitterAbility;
@@ -48,10 +39,9 @@ public class VisionActivity extends Activity {
 		startService(new Intent(this, TakeAPictureService.class));
 		startService(new Intent(this, ShowGallery.class));
 		startService(new Intent(this, robotbase.speech.TextToSpeech.class));
-
 		startService(new Intent(this, FacebookAbility.class));
 		startService(new Intent(this, TwitterAbility.class));
-		startService(new Intent(this, NeckServices.class));
+//		startService(new Intent(this, NeckServices.class));
 		
 		// FakeNLP
 		fakeNLP = new FakeNLP(this);
@@ -67,8 +57,7 @@ public class VisionActivity extends Activity {
             public void onClick(View v) { 
             	fakeNLP.command("show gallery");
             }
-        });
-		
+        });	
 	}
 
 	@Override
@@ -84,14 +73,11 @@ public class VisionActivity extends Activity {
 
 		stopService(new Intent(this, TwitterAbility.class));
 		stopService(new Intent(this, FacebookAbility.class));
-		
 		stopService(new Intent(this, robotbase.speech.TextToSpeech.class));
 		stopService(new Intent(this, TakeAPictureService.class));
-		stopService(new Intent(this, ShowGallery.class));
-		
+		stopService(new Intent(this, ShowGallery.class));	
 		stopService(new Intent(this, NeckServices.class));
 		
 		super.onDestroy();
 	}
-
 }

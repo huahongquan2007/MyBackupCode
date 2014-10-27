@@ -58,7 +58,8 @@ public class TextToSpeech extends Service {
 	}
 	
 	private void talk(String text) {
-		tts_obj.speak(text, android.speech.tts.TextToSpeech.QUEUE_ADD, null);
+		int result = tts_obj.speak(text, android.speech.tts.TextToSpeech.QUEUE_ADD, null);
+		Log.e("MyLog", "TTS: onTalk + " + String.valueOf(result));
 	}
 
 	public class TextReceiver extends BroadcastReceiver {

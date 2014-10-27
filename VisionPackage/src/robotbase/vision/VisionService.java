@@ -16,12 +16,8 @@ import android.os.IBinder;
 import android.util.Log;
 
 public class VisionService extends Service{
-
 	private VisionAlgorithmManager visionManager;
-	private VisionAlgorithmManager visionManagerRGB;
-	
 	private CameraDataReceiver cameraDataReceiver;
-//	private RGBCameraDataReceiver rgbCameraDataReceiver;
 	@Override
 	public IBinder onBind(Intent intent) {
 		return null;
@@ -38,7 +34,6 @@ public class VisionService extends Service{
 
 		// visionManager
 		visionManager = new VisionAlgorithmManager();
-		visionManagerRGB = new VisionAlgorithmManager();
 	}
 
 	@Override
@@ -49,6 +44,8 @@ public class VisionService extends Service{
 		// Setup visionALgorithm
 		FaceDetectionCv faceDetectionCv = new FaceDetectionCv(3, getApplicationContext());
 		visionManager.addAlgo(faceDetectionCv);
+//		FaceTracking faceTracking = new FaceTracking(3, getApplicationContext());
+//		visionManager.addAlgo(faceTracking);
 		// Motion Detection
 //		MotionDetection motionDetection = new MotionDetection(30, getApplicationContext());
 //		visionManager.addAlgo(motionDetection);

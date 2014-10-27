@@ -1,9 +1,5 @@
 package robotbase.vision;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-
 import robotbase.action.RobotIntent;
 import robotbase.vision.camera.CameraService;
 import android.app.Activity;
@@ -12,19 +8,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Paint.Style;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.SurfaceView;
-import android.widget.Toast;
 
 public class FaceTrackingActivity extends Activity {
 	private SurfaceView mCamSV;
@@ -32,6 +25,8 @@ public class FaceTrackingActivity extends Activity {
 	private FrameOverlayReceiver frameOverlayReceiver;
 	private Handler handler; // Handler for the separate Thread
 	private Handler handlerOverlay; // Handler for the separate Thread
+	
+	private android.graphics.Rect rectTrack;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -98,18 +93,27 @@ public class FaceTrackingActivity extends Activity {
 				Log.i("MyLog","FaceTrackActivity: BITMAP NULL");
 			}
 			
+			if(rectTrack != null){
+				Paint pt = new Paint();
+				pt.setColor(Color.RED);
+				pt.setTextSize(50);
+				pt.setStrokeWidth(3);
+				pt.setStyle(Style.STROKE);
+				cover.drawRect(rectTrack,  pt);
+			}
+			
 			mCamSV.getHolder().unlockCanvasAndPost(cover);
 		}
 	}
 
 	public class FrameOverlayReceiver extends BroadcastReceiver {
-
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			Log.i("MyLog","FaceTrackActivity: FrameOverlay onReceive");
-
+			rectTrack = (android.graphics.Rect)intent.getParcelableExtra("data");
+			if(rectTrack != null)
+				Log.i("MyLog","FaceTrackActivity: FrameOverlay onReceive " + rectTrack.centerX());
+			
 		}
-	
 	}
 	
 	@Override
@@ -123,24 +127,5 @@ public class FaceTrackingActivity extends Activity {
 			stopService(new Intent(this, CameraService.class));
 		
 		super.onDestroy();
-	}
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.face_tracking, menu);
-		return true;
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		// Handle action bar item clicks here. The action bar will
-		// automatically handle clicks on the Home/Up button, so long
-		// as you specify a parent activity in AndroidManifest.xml.
-		int id = item.getItemId();
-		if (id == R.id.action_settings) {
-			return true;
-		}
-		return super.onOptionsItemSelected(item);
 	}
 }

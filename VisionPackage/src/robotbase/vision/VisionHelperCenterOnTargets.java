@@ -9,7 +9,7 @@ public class VisionHelperCenterOnTargets {
 	public static float minX = 30, minY = 30;
 	
 	public static float curPan = 0, curTilt = 0;
-	public static float STEP = 1;
+	public static float STEP = 0.5f;
 	public static boolean run(Context context, float x , float y){
 		// Input: Target Center coordinates x(-1000, 1000), y(-1000, 1000)
 		// Output: True if mean of targets is in the center. Otherwise, False

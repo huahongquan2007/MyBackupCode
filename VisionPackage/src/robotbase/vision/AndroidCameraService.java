@@ -38,6 +38,7 @@ public class AndroidCameraService extends Service {
 		mCam.stopPreview();
 		mCam.setPreviewCallback(null);
 		mCam.release();
+		stopSelf();
 		super.onDestroy();
 	}
 	@Override
@@ -54,39 +55,40 @@ public class AndroidCameraService extends Service {
 		
 		try {
 			mCam = Camera.open(1);
-		
-			for(int i =0; i< mCam.getParameters().getSupportedPreviewSizes().size(); i++){
-                Size size = mCam.getParameters().getSupportedPreviewSizes().get(i);
-                Log.d("MyLog", "supported preview size: " + size.width + " " + size.height);
-            }
-			
-			Camera.Parameters p = mCam.getParameters();
-//			p.setPreviewSize(camWidth, camHeight);
-			p.setPreviewSize(camHeight, camWidth);
-			p.setPreviewFpsRange(30000, 30000);
-			mCam.setParameters(p);
-			mCam.setDisplayOrientation(90);
-			texture = new SurfaceTexture(10);
-			mCam.setPreviewTexture(texture);       
-			mCam.startPreview();
 
+			int minFps = 0, maxFps = 0;
+			for(int i =0; i< mCam.getParameters().getSupportedPreviewFpsRange().size(); i++){
+                int[] size = mCam.getParameters().getSupportedPreviewFpsRange().get(i);
+                Log.d("MyLog", "supported fps: " + String.valueOf(size[0]) + " " + String.valueOf(size[1]));
+            	minFps = size[0]; maxFps = size[1];
+                if(size[0] > 10000){
+                	break;
+                }
+            }
+
+			Camera.Parameters p = mCam.getParameters();
+			p.setPreviewSize(camHeight, camWidth);
+			p.setPreviewFpsRange(minFps, maxFps);
+			mCam.setParameters(p);
+//			texture = new SurfaceTexture(10);
+//			mCam.setPreviewTexture(texture);       
+			mCam.startPreview();
+//			pixelsByte = new byte[camWidth * camHeight];
 			mCam.setPreviewCallback(new PreviewCallback() {
 				@Override
 				public void onPreviewFrame(byte[] data, Camera camera) {
-//					Log.e("MyLog", "AndroidCameraService onPreviewFrame");
-					pixelsByte = new byte[camWidth * camHeight];
-					NativeAndroidCamera.getFrame(data, camWidth, camHeight, pixels.getNativeObjAddr(), pixelsByte);
-
-					Intent intent = new Intent();
-					intent.putExtra(CAMERA_DATA, pixelsByte);
-					intent.setAction(CAMERA_INTENT_BYTE);
-					sendBroadcast(intent); 				
-					
-					Utils.matToBitmap(pixels, bitmap);
-					Intent intentBM = new Intent();
-					intentBM.putExtra(CAMERA_DATA, bitmap);
-					intentBM.setAction(CAMERA_INTENT_BITMAP);
-					sendBroadcast(intentBM); 				
+					Log.e("MyLog", "AndroidCameraService onPreviewFrame");
+//					NativeAndroidCamera.getFrame(data, camWidth, camHeight, pixels.getNativeObjAddr(), pixelsByte);
+//					Intent intent = new Intent();
+//					intent.putExtra(CAMERA_DATA, pixelsByte);
+//					intent.setAction(CAMERA_INTENT_BYTE);
+//					sendBroadcast(intent); 				
+//					
+//					Utils.matToBitmap(pixels, bitmap);
+//					Intent intentBM = new Intent();
+//					intentBM.putExtra(CAMERA_DATA, bitmap);
+//					intentBM.setAction(CAMERA_INTENT_BITMAP);
+//					sendBroadcast(intentBM); 				
 					
 				}});
 		} catch (Exception e){

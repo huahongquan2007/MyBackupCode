@@ -118,6 +118,8 @@
         </service>
         <service android:name=".AndroidCameraService" >
         </service>
+        <service android:name="robotbase.vision.camera.NativeCameraService" >
+        </service>
         <service android:name="robotbase.abilities.FacebookAbility" >
         </service>
         <service android:name="robotbase.abilities.TwitterAbility" >
