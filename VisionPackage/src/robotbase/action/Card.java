@@ -12,6 +12,15 @@ public class Card {
 		
 	}
 	
+	public static String getBlueMessageCardSmall(String icon, String message){
+		
+		String html = "<div class=\"panel panel-default\"><div class=\"panel-body blue_card_left\">"
+						+ message + "</div></div>";	
+		return html;
+		
+		
+	}
+	
 	public static String getRedMessageCard(String icon, String message){
 		
 		String html = "<div class=\"panel panel-default\"><div class=\"panel-body red_card\">"

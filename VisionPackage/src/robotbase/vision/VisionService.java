@@ -1,31 +1,32 @@
 package robotbase.vision;
 
-import org.opencv.android.Utils;
-import org.opencv.core.Mat;
-import org.opencv.imgproc.Imgproc;
+import java.util.Timer;
+import java.util.TimerTask;
 
-import robotbase.action.RobotIntent;
-import robotbase.vision.camera.CameraService;
+import robotbase.vision.BaseCameraService.LocalBinder;
+
 import android.app.Service;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Bitmap;
+import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.util.Log;
+import android.widget.Toast;
 
 public class VisionService extends Service{
+	private Timer timer;
+
 	private VisionAlgorithmManager visionManager;
-	private CameraDataReceiver cameraDataReceiver;
 	@Override
 	public IBinder onBind(Intent intent) {
 		return null;
 	}
 
 	@Override
-	public void onCreate() {
-		
+	public void onCreate() {		
 		super.onCreate();
 		
 		Log.e("MyLog", "VisionService onCreate");
@@ -42,9 +43,11 @@ public class VisionService extends Service{
 		
 		//=========================================== IMAGE GRAY ====================================
 		// Setup visionALgorithm
-		FaceDetectionCv faceDetectionCv = new FaceDetectionCv(3, getApplicationContext());
-		visionManager.addAlgo(faceDetectionCv);
-//		FaceTracking faceTracking = new FaceTracking(3, getApplicationContext());
+//		FaceDetectionCv faceDetectionCv = new FaceDetectionCv(10, getApplicationContext());
+//		visionManager.addAlgo(faceDetectionCv);
+		FaceDetectionFacepp faceDetectionFacepp = new FaceDetectionFacepp(10, getApplicationContext());
+		visionManager.addAlgo(faceDetectionFacepp);
+//		FaceTrackingOpenCv faceTracking = new FaceTrackingOpenCv(3, getApplicationContext());
 //		visionManager.addAlgo(faceTracking);
 		// Motion Detection
 //		MotionDetection motionDetection = new MotionDetection(30, getApplicationContext());
@@ -52,81 +55,65 @@ public class VisionService extends Service{
 		
 		visionManager.start();
 		// End setup visionAlgorithm
-		cameraDataReceiver = new CameraDataReceiver();		
-		IntentFilter filterVision;
-		if(VisionConfig.isAndroidCamera){
-			filterVision = new IntentFilter(AndroidCameraService.CAMERA_INTENT_BYTE);
-		}else{
-			filterVision = new IntentFilter(CameraService.CAMERA_INTENT_BYTE);
-		}
-		registerReceiver(cameraDataReceiver, filterVision);
 		
-		//=========================================== IMAGE RGB ====================================
-		// Setup
-//		FaceTracking faceTracking = new FaceTracking(10, getApplicationContext());
-//		visionManagerRGB.addAlgo(faceTracking);
-//		
-//		visionManagerRGB.start();
-//		rgbCameraDataReceiver = new RGBCameraDataReceiver();		
-//		IntentFilter filterVisionRGB;
-//		if(VisionConfig.isAndroidCamera){
-//			filterVisionRGB = new IntentFilter(AndroidCameraService.CAMERA_INTENT_BITMAP);
-//		}else{
-//			filterVisionRGB = new IntentFilter(CameraService.CAMERA_INTENT_BITMAP);
-//		}
-//		registerReceiver(rgbCameraDataReceiver, filterVisionRGB);
+		
+		// Setup Bind Service
+		VisionConfig.bindService(this, mConnection);
 	}
-	public class CameraDataReceiver extends BroadcastReceiver {
+	
+	//Connection to Bind
+	boolean mBounded;
+	BaseCameraService mCameraService;
+	ServiceConnection mConnection = new ServiceConnection() {
 
-		@Override
-		public void onReceive(Context context, Intent intent) {
-			byte[] data;
-			if(VisionConfig.isAndroidCamera){
-				data = intent.getByteArrayExtra(AndroidCameraService.CAMERA_DATA);				
-			}else{
-				data = intent.getByteArrayExtra(CameraService.CAMERA_DATA);
+		public void onServiceDisconnected(ComponentName name) {
+			Toast.makeText(VisionService.this, "Service is disconnected", 1000)
+					.show();
+			mBounded = false;
+			mCameraService = null;
+		}
+
+		public void onServiceConnected(ComponentName name, IBinder service) {
+			Toast.makeText(VisionService.this, "Service is connected", 1000)
+					.show();
+			mBounded = true;
+			LocalBinder mLocalBinder = (LocalBinder) service;
+			mCameraService = mLocalBinder.getServerInstance();
+			// Setup Timer get Frame
+			timer = new Timer();
+			int fps = mCameraService.getFPS();
+			if(fps == 0){
+				Log.e("MyLog","FPS == 0");
 			}
-
+			Log.e("MyLog","FPS == " + fps);
+			timer.schedule(new VisionService.GetImageTask(), 0, (long)(1000/fps));
+		}
+	};
+	class GetImageTask extends TimerTask {
+		byte[] data;
+		@Override
+		public void run() {
+			if(mCameraService == null){
+				Log.e("MyLog", "VisionService GetImageTask NULL mCameraService");
+				return;
+			}
+			data = mCameraService.getFrame();
 			if(data == null){
-				Log.e("MyLog", "VisionService onReceive NULL DATA");
+				Log.e("MyLog", "VisionService GetImageTask NULL DATA");
 				return;
 			}
 			visionManager.update(data);
 			visionManager.broadcast();
 		}
 	}
-//	public class RGBCameraDataReceiver extends BroadcastReceiver {
-//
-//		@Override
-//		public void onReceive(Context context, Intent intent) {
-//			Bitmap data;
-//			Mat dataMat = new Mat(), dataRGB = new Mat();
-//			if(VisionConfig.isAndroidCamera){
-//				data = (Bitmap)intent.getParcelableExtra(AndroidCameraService.CAMERA_DATA);				
-//			}else{
-//				data = (Bitmap)intent.getParcelableExtra(CameraService.CAMERA_DATA);
-//			}
-//
-//			if(data == null){
-//				Log.e("MyLog", "VisionService onReceive NULL DATA");
-//				return;
-//			}
-//			Utils.bitmapToMat(data, dataMat);
-//			Imgproc.cvtColor(dataMat, dataRGB, Imgproc.COLOR_RGBA2RGB);
-//			
-//			visionManagerRGB.updateRGB(dataRGB);
-//			visionManagerRGB.broadcast();
-//		}
-//	}
-
 
 	@Override
 	public void onDestroy() {
-		Log.e("MyLog", "VisionService onDestroy");
-		unregisterReceiver(cameraDataReceiver);
-
-		visionManager.stop();
-		stopSelf();
 		super.onDestroy();
+		Log.e("MyLog", "VisionService onDestroy stop");
+		visionManager.stop();
+		VisionConfig.unbindService(this, mConnection);
+		timer.cancel();
+		stopSelf();
 	}
 }

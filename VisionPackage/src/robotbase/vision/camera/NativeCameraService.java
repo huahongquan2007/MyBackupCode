@@ -1,23 +1,20 @@
 package robotbase.vision.camera;
 
-import java.util.Timer;
-import java.util.TimerTask;
-
+import org.opencv.core.Core;
+import org.opencv.core.Mat;
 import org.opencv.highgui.Highgui;
 import org.opencv.highgui.VideoCapture;
-
-import android.app.Service;
+import robotbase.vision.BaseCameraService;
+import robotbase.vision.VisionConfig;
 import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
 
-public class NativeCameraService extends Service {
-	public static int camWidth = 240, camHeight = 320;
-	public static final String CAMERA_INTENT_BITMAP = "robotbase.vision.camera.bitmap";
-	public static final String CAMERA_INTENT_BYTE = "robotbase.vision.camera.byte";
-	public static final String CAMERA_DATA = "robotbase.vision.camera.data";
-	private Timer timer;
+public class NativeCameraService extends BaseCameraService {
+
 	private VideoCapture mCamera;
+	private Mat mRgbRotated, mRgb;
+	private byte[] pixelsByteRgb;
 
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -25,28 +22,43 @@ public class NativeCameraService extends Service {
 	}
 
 	private boolean connectCamera(int frameWidth, int frameHeight) {
-		mCamera = new VideoCapture(Highgui.CV_CAP_ANDROID);
+		mCamera = new VideoCapture(Highgui.CV_CAP_ANDROID + 1);
 		if (mCamera == null)
 			return false;
 
 		if (mCamera.isOpened() == false)
 			return false;
-		mCamera.set(Highgui.CV_CAP_PROP_FRAME_WIDTH, frameWidth);
-		mCamera.set(Highgui.CV_CAP_PROP_FRAME_HEIGHT, frameHeight);
+		mCamera.set(Highgui.CV_CAP_PROP_FRAME_WIDTH, frameHeight);
+		mCamera.set(Highgui.CV_CAP_PROP_FRAME_HEIGHT, frameWidth);
 		return true;
 	}
 
 	@Override
 	public void onDestroy() {
+		mCamera.release();
 		stopSelf();
 		super.onDestroy();
 	}
 
 	@Override
-	public int onStartCommand(Intent intent, int flags, int startId) {
-		Log.d("MyLog", "NativeCameraService: onStartCommand");
+	protected byte[] getByteFrame() {
+		if (!mCamera.grab()) {
+			return null;
+		}
+		mCamera.retrieve(mRgb, Highgui.CV_CAP_ANDROID_COLOR_FRAME_RGB);
+		Core.transpose(mRgb, mRgbRotated);
+		Core.flip(mRgbRotated, mRgbRotated, 0);
+		mRgbRotated.get(0, 0, pixelsByteRgb);
+		return pixelsByteRgb;
+	}
+
+	@Override
+	public void initService() {
 		// Load Native Library
 		System.loadLibrary("opencv_java");
+		mRgb = new Mat();
+		mRgbRotated = new Mat();
+		pixelsByteRgb = new byte[VisionConfig.getLengthRgb()];
 
 		try {
 			if (!connectCamera(camWidth, camHeight))
@@ -57,17 +69,6 @@ public class NativeCameraService extends Service {
 			Log.e("MyLog",
 					"MyServer.connectCamera throws an exception: "
 							+ e.getMessage());
-		}
-
-		timer = new Timer();
-		timer.schedule(new GetImageTask(), 0, 1000/20);
-		return super.onStartCommand(intent, flags, startId);
-	}
-
-	class GetImageTask extends TimerTask {
-		@Override
-		public void run() {
-//			Log.d("MyLog", "NativeCameraService: onGetImage");
 		}
 	}
 }

@@ -43,24 +43,24 @@ public class FaceDetection extends VisionAlgorithm{
 	public void stop() {
 		cam.stopFaceDetection();
 	}
-	@Override
-	public String getResult(){
-		if(mFaces != null && mFaces.length > 0){
-	        JSONObject jsonObj = new JSONObject();
-	        try {
-				jsonObj.put("x", String.valueOf(mFaces[0].rect.top));
-				jsonObj.put("y", String.valueOf(mFaces[0].rect.left));
-				jsonObj.put("w", String.valueOf(mFaces[0].rect.width()));
-				jsonObj.put("h", String.valueOf(mFaces[0].rect.height()));
-				
-				return jsonObj.toString();
-			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		return "No faces";
-	}
+//	@Override
+//	public String getResult(){
+//		if(mFaces != null && mFaces.length > 0){
+//	        JSONObject jsonObj = new JSONObject();
+//	        try {
+//				jsonObj.put("x", String.valueOf(mFaces[0].rect.top));
+//				jsonObj.put("y", String.valueOf(mFaces[0].rect.left));
+//				jsonObj.put("w", String.valueOf(mFaces[0].rect.width()));
+//				jsonObj.put("h", String.valueOf(mFaces[0].rect.height()));
+//				
+//				return jsonObj.toString();
+//			} catch (JSONException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//		}
+//		return "No faces";
+//	}
 
 	@Override
 	public void run(byte[] frame) {
@@ -75,11 +75,7 @@ public class FaceDetection extends VisionAlgorithm{
 		}
 		return null;
 	}
-	@Override
-	public void runRGB(Mat frame) {
-		// TODO Auto-generated method stub
-		
-	}
+
 	@Override
 	public void broadcast() {
 		// TODO Auto-generated method stub

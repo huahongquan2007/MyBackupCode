@@ -124,6 +124,7 @@ public class FacebookAbility extends Service implements FactoryAbility {
 	public void onDestroy() {
 		// TODO Auto-generated method stub
 		unregisterReceiver(receiver);
+		unregisterReceiver(shareReceiver);
 		super.onDestroy();
 	}
 

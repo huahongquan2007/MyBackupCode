@@ -12,5 +12,7 @@
     <string name="action_settings">Settings</string>
     <string name="title_activity_face_tracking_test">FaceTrackingTestActivity</string>
     <string name="title_activity_tracking_tld">TrackingTLDActivity</string>
+    <string name="title_activity_face_tracking_open_cv">FaceTrackingOpenCvActivity</string>
+    <string name="title_activity_facial_learning">FacialLearningActivity</string>
 
 </resources>

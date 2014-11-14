@@ -14,9 +14,10 @@ import android.os.IBinder;
 import android.util.Log;
 
 public class CameraService extends Service {
-
+	public static int camWidth = 240, camHeight = 320; 
 	public static final String CAMERA_INTENT_BITMAP = "robotbase.vision.camera.bitmap";
-	public static final String CAMERA_INTENT_BYTE = "robotbase.vision.camera.byte";
+	public static final String CAMERA_INTENT_BYTE_GRAY = "robotbase.vision.camera.byte";
+	public static final String CAMERA_INTENT_BYTE_RGB = "robotbase.vision.camera.rgb";
 	public static final String CAMERA_DATA = "robotbase.vision.camera.data";
 	private Timer timer;
 
@@ -56,12 +57,12 @@ public class CameraService extends Service {
 //					dataGray.channels())];
 //			dataGray.get(0, 0, data_byte);
 			
-			Bitmap data_bmp = Bitmap.createBitmap(data.width(),
-					data.height(), Bitmap.Config.ARGB_8888);
-			Utils.matToBitmap(data, data_bmp);
+//			Bitmap data_bmp = Bitmap.createBitmap(data.width(),
+//					data.height(), Bitmap.Config.ARGB_8888);
+//			Utils.matToBitmap(data, data_bmp);
 			
-			sendBroadcast(new Intent(CAMERA_INTENT_BYTE).putExtra(CAMERA_DATA, data_byte));
-			sendBroadcast(new Intent(CAMERA_INTENT_BITMAP).putExtra(CAMERA_DATA, data_bmp));
+			sendBroadcast(new Intent(CAMERA_INTENT_BYTE_GRAY).putExtra(CAMERA_DATA, data_byte));
+//			sendBroadcast(new Intent(CAMERA_INTENT_BITMAP).putExtra(CAMERA_DATA, data_bmp));
 		}
 
 	}

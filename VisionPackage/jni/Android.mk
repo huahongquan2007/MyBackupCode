@@ -1,9 +1,24 @@
 LOCAL_PATH := $(call my-dir) 
 
 include $(CLEAR_VARS)
+LOCAL_MODULE := faceppapi
+LOCAL_SRC_FILES = FaceLib/libs/$(TARGET_ARCH_ABI)/libfaceppapi.so
+include $(PREBUILT_SHARED_LIBRARY)
+
+include $(CLEAR_VARS)
+LOCAL_MODULE := faceppofflineapi
+LOCAL_SRC_FILES = FaceLib/libs/$(TARGET_ARCH_ABI)/libofflineapi.so
+include $(PREBUILT_SHARED_LIBRARY)
+
+include $(CLEAR_VARS)
 LOCAL_MODULE := opencv-prebuilt
 LOCAL_SRC_FILES = buildOpenCV/libs/$(TARGET_ARCH_ABI)/libopencv_java.so
 LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/buildOpenCV/include
+include $(PREBUILT_SHARED_LIBRARY)
+
+include $(CLEAR_VARS)
+LOCAL_MODULE := libnative_camera_r4.4.0
+LOCAL_SRC_FILES = buildOpenCV/libs/$(TARGET_ARCH_ABI)/libnative_camera_r4.4.0.so
 include $(PREBUILT_SHARED_LIBRARY)
 
 include $(CLEAR_VARS) 
@@ -37,6 +52,14 @@ LOCAL_SRC_FILES := robotbase_vision_NativeFaceDetection.cpp
 LOCAL_MODULE := NativeFaceDetection
 LOCAL_LDLIBS += -llog -ldl
 include $(BUILD_SHARED_LIBRARY)
+
+include $(CLEAR_VARS)
+LOCAL_SHARED_LIBRARIES := opencv-prebuilt 
+LOCAL_SRC_FILES := robotbase_vision_NativeFaceTracking.cpp
+LOCAL_MODULE := NativeFaceTracking
+LOCAL_LDLIBS += -llog -ldl
+include $(BUILD_SHARED_LIBRARY)
+
 
 include $(CLEAR_VARS)
 LOCAL_SHARED_LIBRARIES := opencv-prebuilt 

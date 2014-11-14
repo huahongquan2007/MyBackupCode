@@ -9,7 +9,6 @@ import java.io.InputStream;
 import org.opencv.core.Mat;
 
 import robotbase.action.RobotIntent;
-import robotbase.vision.R;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -38,10 +37,7 @@ public class FaceDetectionCv extends VisionAlgorithm{
 	@Override
 	public void stop() {
 	}
-	@Override
-	public String getResult(){
-		return "No faces";
-	}
+
 	@Override
 	public Bundle getResultBundle() {
 		Bundle result = new Bundle();
@@ -89,18 +85,14 @@ public class FaceDetectionCv extends VisionAlgorithm{
 		Log.d("HHQ", "HHQ " + mCascadeFile.getAbsolutePath());
 	}
 
-	@Override
-	public void runRGB(Mat frame) {
-		// TODO Auto-generated method stub
-		
-	}
-
+ 
 	@Override
 	public void broadcast() {
 		try{
 			Intent intent = new Intent();
-			intent.putExtra("faceDetection", getResultBundle());
-			intent.setAction(RobotIntent.CAM_FACE_DETECTION);
+			intent.putExtra("bundle", getResultBundle());
+//			intent.setAction(RobotIntent.CAM_FACE_DETECTION);
+			intent.setAction("hhq.face");
 			context.sendBroadcast(intent); 				
 		}
 		catch(Exception e){

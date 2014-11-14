@@ -88,13 +88,13 @@ public class FullScreenImageAdapter extends PagerAdapter {
 		Button btnPrevious = (Button) viewLayout.findViewById(R.id.btnPrevious);
 		btnPrevious.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) { 
-            	fakeNLP.command("next photo");
+            	fakeNLP.command("previous photo");
             }
         });
 		Button btnNext = (Button) viewLayout.findViewById(R.id.btnNext);
 		btnNext.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) { 
-            	fakeNLP.command("previous photo");
+            	fakeNLP.command("next photo");
             }
         });
 		

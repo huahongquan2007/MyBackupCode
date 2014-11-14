@@ -39,41 +39,22 @@
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme"
-        android:screenOrientation="portrait" >
+        android:largeHeap="true"
+        android:screenOrientation="portrait"
+        android:theme="@style/AppTheme" >
+        
         
 <!--         <activity
-            android:name=".TrackingTLDActivity"
-            android:screenOrientation="portrait" 
-            android:label="@string/title_activity_tracking_tld" >
+            android:name=".FacialLearningActivity"
+            android:theme="@android:style/Theme.Holo.Light.NoActionBar" 
+            android:label="@string/title_activity_facial_learning" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        
-        <activity
-            android:name=".FaceTrackingTestActivity"
-            android:label="@string/title_activity_face_tracking_test"
-            android:screenOrientation="landscape" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".FaceTrackingActivity"
-            android:label="@string/title_activity_face_tracking"
-            android:screenOrientation="landscape" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity> -->
-        
+ -->
         <activity
             android:name=".VisionActivity"
             android:label="@string/app_name" >
@@ -85,9 +66,10 @@
             <intent-filter>
                 <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
             </intent-filter>
+
             <meta-data
                 android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
-                android:resource="@xml/usb2dynamixel" />
+                android:resource="@xml/device_filter" />
         </activity>
         <activity
             android:name=".CameraPreviewActivity"
@@ -110,7 +92,7 @@
 
         <service android:name=".VisionService" >
         </service>
-        <service android:name=".TakeAPictureService" >
+        <service android:name=".TakePictureService" >
         </service>
         <service android:name="robotbase.abilities.ShowGallery" >
         </service>
@@ -118,15 +100,17 @@
         </service>
         <service android:name=".AndroidCameraService" >
         </service>
-        <service android:name="robotbase.vision.camera.NativeCameraService" >
+        <service android:name=".camera.NativeCameraService" >
         </service>
         <service android:name="robotbase.abilities.FacebookAbility" >
         </service>
         <service android:name="robotbase.abilities.TwitterAbility" >
         </service>
-		<service android:name="robotbase.action.NeckServices">
-		</service>
-
+        <service android:name="robotbase.action.NeckServices" >
+        </service>
+        <service android:name="robotbase.speech.TextToSpeech" >
+        </service>
+		<service android:name="robotbase.action.kobuki.KobukiService"></service>
     </application>
 
 </manifest>

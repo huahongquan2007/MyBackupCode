@@ -27,21 +27,9 @@ public class MotionDetection extends VisionAlgorithm{
 	}
 
 	@Override
-	public String getResult() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public Bundle getResultBundle() {
 		// TODO Auto-generated method stub
 		return null;
-	}
-
-	@Override
-	public void runRGB(Mat frame) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override

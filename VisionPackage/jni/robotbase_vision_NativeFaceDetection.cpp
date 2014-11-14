@@ -32,8 +32,9 @@ JNIEXPORT jint JNICALL Java_robotbase_vision_NativeFaceDetection_getPos
 //	Mat& pixelsMat = *(Mat*)pixelsArr;
 
     jbyte * pNV21FrameData = env->GetByteArrayElements(NV21FrameData, 0);
-	Mat mGray(height, width, CV_8UC1, (unsigned char *) pNV21FrameData);
-//	cvtColor(mGray, pixelsMat, CV_GRAY2BGRA);
+	Mat mRgb(height, width, CV_8UC3, (unsigned char *) pNV21FrameData);
+	Mat mGray;
+	cvtColor(mRgb, mGray, CV_RGB2GRAY);
 
 	float scale_w = float(IMG_WIDTH) / mGray.cols;
 	float scale_h = float(IMG_HEIGHT) / mGray.rows;
@@ -41,7 +42,7 @@ JNIEXPORT jint JNICALL Java_robotbase_vision_NativeFaceDetection_getPos
 	equalizeHist(mGray, mGray);
 
 	std::vector<cv::Rect> faces;
-	faceDetector.detectMultiScale(mGray, faces, 1.1, 3, 0 |  CV_HAAR_SCALE_IMAGE, cv::Size(40, 40));
+	faceDetector.detectMultiScale(mGray, faces, 1.1, 3, 0 |  CV_HAAR_SCALE_IMAGE, cv::Size(25, 25));
 	int sizeArr = (faces.size() > 0) ? faces.size() : 0;
 //	LOG("HHQ: FACE DETECTION 123 %d Scale_w: %f Cols: %d", sizeArr, scale_w, mGray.cols);
 	if(sizeArr > 0){
@@ -67,6 +68,8 @@ JNIEXPORT jint JNICALL Java_robotbase_vision_NativeFaceDetection_getPos
 	}
 
 	faces.clear();
+	mRgb.release();
+	mGray.release();
 	env->ReleaseByteArrayElements(NV21FrameData, pNV21FrameData, 0);
 	return sizeArr;
 }
@@ -83,6 +86,7 @@ JNIEXPORT void JNICALL Java_robotbase_vision_NativeFaceDetection_initCascade(
 		faceDetector.load(cascasdeString);
 		LOG("HHQ: LOAD FACE DETECTION");
 	} catch (Exception e) {
+		return;
 	}
 	if (faceDetector.empty()) {
 		LOG("ERROR: Couldn't load Face Detector");

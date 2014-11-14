@@ -41,19 +41,7 @@ public class VisionAlgorithmManager {
 			algo.update(frame);
 		}
 	}
-	public void updateRGB(Mat frame){
-		for(VisionAlgorithm algo : listAlgo){
-			algo.updateRGB(frame);
-		}
-	}
-	public String getResult(String name){
-		for(VisionAlgorithm algo : listAlgo){
-			if(algo.getName().equals(name)){
-				return algo.getResult();
-			}
-		}
-		return "";
-	}
+
 	public VisionAlgorithm getAlgo(String name){
 		for(VisionAlgorithm algo : listAlgo){
 			if(algo.getName().equals(name)){

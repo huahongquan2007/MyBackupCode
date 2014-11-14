@@ -6,12 +6,21 @@ import android.os.Parcelable;
 public class FaceInfo implements Parcelable {
 	public float x, y , w , h;
 	public long time;
-
+	public String name;
+	public enum DataType{ DETECTION, TRACKING, RECOGNITION}
+	public DataType type;
 	public FaceInfo(float _x, float _y, float _w, float _h, long _t) {
 		x = _x; y = _y; w = _w; h = _h;
 		time = _t;
+		name = "";
+		type = DataType.DETECTION;
 	}
-
+	public FaceInfo(float _x, float _y, float _w, float _h, long _t, String name, DataType type) {
+		x = _x; y = _y; w = _w; h = _h;
+		time = _t;
+		this.name = name;
+		this.type = type;
+	}
 	@Override
 	public int describeContents() {
 		// TODO Auto-generated method stub
@@ -20,6 +29,8 @@ public class FaceInfo implements Parcelable {
 
 	@Override
 	public void writeToParcel(Parcel pc, int flags) {
+		pc.writeString(name);
+        pc.writeString((type == null) ? "" : type.name());
 		pc.writeFloat(x);
 		pc.writeFloat(y);
 		pc.writeFloat(w);
@@ -42,6 +53,12 @@ public class FaceInfo implements Parcelable {
 		x = y = w = y = time = 0;
 	}
 	public FaceInfo(Parcel pc) {
+		name = pc.readString();
+		try {
+            type = DataType.valueOf(pc.readString());
+        } catch (IllegalArgumentException x) {
+            type = null;
+        }
 		x = pc.readFloat();
 		y = pc.readFloat();
 		w = pc.readFloat();

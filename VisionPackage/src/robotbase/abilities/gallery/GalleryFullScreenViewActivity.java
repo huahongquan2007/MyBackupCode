@@ -7,10 +7,7 @@ import org.json.JSONObject;
 
 import robotbase.action.RobotIntent;
 import robotbase.utility.Utilities;
-import robotbase.vision.FakeNLP;
 import robotbase.vision.R;
-import robotbase.vision.TakeAPictureService.ListenRecognitionReceiver;
-import robotbase.vision.TakeAPictureService.SERVICE_STATE;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -20,8 +17,6 @@ import android.os.Bundle;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
-import android.view.View;
-import android.widget.Button;
 
 public class GalleryFullScreenViewActivity extends Activity {
 	private ArrayList<String> imagePaths = new ArrayList<String>();

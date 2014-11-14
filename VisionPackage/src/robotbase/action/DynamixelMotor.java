@@ -5,12 +5,14 @@ import java.io.IOException;
 import android.util.Log;
 
 import com.hoho.android.usbserial.driver.UsbSerialDriver;
+import com.hoho.android.usbserial.driver.UsbSerialPort;
 public class DynamixelMotor  {
 	
 	/// User definition
 		// Serial Port 
 		// Offset
-		public   UsbSerialDriver dxl_serial;
+//		public   UsbSerialDriver dxl_serial; 
+		public   UsbSerialPort dxl_serial;
 		public  float DXL_SIGN = 1;
 		// Speed
 		public   int   MAX_SPEED_RESGISTER; //1023
@@ -39,96 +41,87 @@ public class DynamixelMotor  {
 		// Motor type
 		public   int   DXL_ID;
 		public   String DXL_TYPE;
-	// Control Table  definition////
+		
+		//-------------------------------------------------------------------------//
+	// Control Table  definition - Hardware Define////
 		int 	   DXL_BAUDRATE				= 1000000;
-		final  int MODEL_NUM_L				= 1;
-		final  int MODEL_NUM_H				= 2;
-		final  int MOTOR_ID					= 3;
-		final  int BAUDRATE					= 4;
-		final  int RETURN_DELAY_TIME		= 5;
-		final  int CW_ANGLE_LIMIT_L			= 6;
-		final  int CW_ANGLE_LIMIT_H			= 7;
-		final  int CCW_ANGLE_LIMIT_L		= 8;
-		final  int CCW_ANGLE_LIMIT_H		= 9;
-		final  int HIGHEST_LIMIT_TEM		= 11;
-		final  int LOWEST_LIMIT_VOLTAGE		= 12;
-		final  int HIGHEST_LIMIT_VOLTAGE	= 13;
-		final  int MAX_TORQUE_L				= 14;
-		final  int MAX_TORQUE_H				= 15;
-		final  int STATUS_RETURN_LEVEL		= 16;
-		final  int ALARM_LED				= 17;
-		final  int ALARM_SHUTDOWN			= 18;	
-		final  int TORQUE_ENABLE			= 24;
-		final  int CW_MARGIN				= 26;
-		final  int CCW_MARGIN				= 27;
-		final  int CW_SLOPE					= 28;
-		final  int CCW_SLOPE				= 29;
-		final  int GOAL_POS_L				= 30;
-		final  int GOAL_POS_H				= 31;
-		final  int SPEED_L					= 32;
-		final  int SPEED_H					= 33;
-		final  int TORQUE_LIMIT_L			= 34;
-		final  int TORQUE_LIMIT_H			= 35;
-		final  int PRESENT_POS_L			= 36; 
-		final  int PRESENT_POS_H			= 37;
-		final  int PRESENT_SPEED_L			= 38;
-		final  int PRESENT_SPEED_H			= 39;
-		final  int PRESENT_LOAD_L			= 40;
-		final  int PRESENT_LOAD_H			= 41;
-		final  int PRESENT_VOLTAGE			= 42;
-		final  int PRESENT_TEM				= 43;
-		final  int MOVING					= 46;
-		final  int PUNCH_L					= 48;
-		final  int PUNCH_H					= 49;
-		final  int MAXNUM_TXPARAM 			= 150;
-		final  int MAXNUM_RXPARAM 			= 60;  	
-		final static  int BROADCAST_ID  	= 254;		
-		final  int INST_PING 				= 1; 		
-		final  int INST_READ  				= 2;		
-		final  int INST_WRITE 				= 3;	
-		final  int INST_REG_WRITE 			= 4; 	
-		final  int INST_ACTION 				= 5;		
-		final  int INST_RESET 				= 6;			
-		final  int INST_SYNC_WRITE 			= 131;	
-		final  int ERRBIT_VOLTAGE 			= 1; 	
-		final  int ERRBIT_ANGLE 			= 2;	
-		final  int ERRBIT_OVERHEAT 			= 4; 	
+		public  int MODEL_NUM_L				= 1;
+		public  int MODEL_NUM_H				= 2;
+		public  int MOTOR_ID					= 3;
+		public  int BAUDRATE					= 4;
+		public  int RETURN_DELAY_TIME		= 5;
+		public  int CW_ANGLE_LIMIT_L			= 6;
+		public  int CW_ANGLE_LIMIT_H			= 7;
+		public  int CCW_ANGLE_LIMIT_L		= 8;
+		public  int CCW_ANGLE_LIMIT_H		= 9;
+		public  int HIGHEST_LIMIT_TEM		= 11;
+		public  int LOWEST_LIMIT_VOLTAGE		= 12;
+		public  int HIGHEST_LIMIT_VOLTAGE	= 13;
+		public  int MAX_TORQUE_L				= 14;
+		public  int MAX_TORQUE_H				= 15;
+		public  int STATUS_RETURN_LEVEL		= 16;
+		public  int ALARM_LED				= 17;
+		public  int ALARM_SHUTDOWN			= 18;	
+		public  int TORQUE_ENABLE			= 24;
+		public  int CW_MARGIN				= 26;
+		public  int CCW_MARGIN				= 27;
+		public  int CW_SLOPE					= 28;
+		public  int CCW_SLOPE				= 29;
+		public  int GOAL_POS_L				= 30;
+		public  int GOAL_POS_H				= 31;
+		public  int SPEED_L					= 32;
+		public  int SPEED_H					= 33;
+		public  int TORQUE_LIMIT_L			= 34;
+		public  int TORQUE_LIMIT_H			= 35;
+		public  int PRESENT_POS_L			= 36; 
+		public  int PRESENT_POS_H			= 37;
+		public  int PRESENT_SPEED_L			= 38;
+		public  int PRESENT_SPEED_H			= 39;
+		public  int PRESENT_LOAD_L			= 40;
+		public  int PRESENT_LOAD_H			= 41;
+		public  int PRESENT_VOLTAGE			= 42;
+		public  int PRESENT_TEM				= 43;
+		public  int MOVING					= 46;
+		public  int PUNCH_L					= 48;
+		public  int PUNCH_H					= 49;
+		
+		public  int MAXNUM_TXPARAM 			= 150;
+		public  int MAXNUM_RXPARAM 			= 60;  	
+		public static  int BROADCAST_ID  	= 254;		
+		
+		// Instruction for communication - Hardware Define
+		public  int INST_PING 				= 1; 		
+		public  int INST_READ  				= 2;		
+		public  int INST_WRITE 				= 3;	
+		public  int INST_REG_WRITE 			= 4; 	
+		public  int INST_ACTION 				= 5;		
+		public  int INST_RESET 				= 6;			
+		public  int INST_SYNC_WRITE 			= 131;	
+		public  int ERRBIT_VOLTAGE 			= 1; 	
+		public  int ERRBIT_ANGLE 			= 2;	
+		public  int ERRBIT_OVERHEAT 			= 4; 	
 
 		
-		final  int ERRBIT_RANGE 			= 8; 		
-		final  int ERRBIT_CHECKSUM 			= 16;	
-		final  int ERRBIT_OVERLOAD 			= 32;	
-		final  int ERRBIT_INSTRUCTION 		= 64;
+		public  int ERRBIT_RANGE 			= 8; 		
+		public  int ERRBIT_CHECKSUM 			= 16;	
+		public  int ERRBIT_OVERLOAD 			= 32;	
+		public  int ERRBIT_INSTRUCTION 		= 64;
 		
 		
 		////// Definition for Transmit data///////
 		//------------------------------------------------------------//
 		//
-		final  int ID 						= 2;					
-		final  int LENGTH 					= 3;				
-		final  int INSTRUCTION 				= 4;		
-		final  int ERRBIT 					= 4;				
-		final  int PARAMETER 				= 5;			
-		final  int[] gbInstructionPacket 	= new int[MAXNUM_TXPARAM+10]; 
+		public  int ID 						= 2;					
+		public  int LENGTH 					= 3;				
+		public  int INSTRUCTION 				= 4;		
+		public  int ERRBIT 					= 4;				
+		public  int PARAMETER 				= 5;			
+		public  int[] gbInstructionPacket 	= new int[MAXNUM_TXPARAM+10]; 
 		byte[] gbStatusPacket 				= new byte[MAXNUM_RXPARAM+10]; 
 		int checksum 						=0;
 		// Constructor
-//		public  DynamixelMotor(UsbSerialDriver driver, String dynamixel_type, int dynamixel_ID, float home_pos,
-//				float range, float min_speed, float max_speed, float sign)
-//		{
-//			this.dxl_serial = driver;
-//			this.DXL_ID = dynamixel_ID;
-//			this.DXL_TYPE = dynamixel_type;
-//			this.HOME_POS = home_pos;
-//			this.MAX_POS_LIMIT = this.HOME_POS + range/2;
-//			this.MIN_POS_LIMIT = this.HOME_POS - range/2;
-//			this.MIN_SPEED_LIMIT = min_speed;
-//			this.MAX_SPEED_LIMIT = max_speed;
-//			this.DXL_SIGN = sign;
-//			
-//			this.dxl_init();
-//		}
-		public  DynamixelMotor(UsbSerialDriver driver,Joint joint )
+
+		public  DynamixelMotor(UsbSerialPort driver,Joint joint )
 		{
 			this.dxl_serial = driver;
 			this.DXL_ID = joint.ID;
@@ -193,12 +186,21 @@ public class DynamixelMotor  {
 				tx_buffer[i]=(byte)this.gbInstructionPacket[i];
 				s=String.format("%s %X",s,tx_buffer[i]);
 			}
-			try {
-				dxl_serial.write(tx_buffer, 10);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			if (this.dxl_serial != null)
+			{
+				try 
+				{
+					this.dxl_serial.write(tx_buffer, 10);
+				} 
+				catch (IOException e) 
+				{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
 			}
+			else
+				Log.i("Neck", "USB2Dynamixel device not found!");
 		}
 		private void reset_tx_data()
 		{
@@ -301,7 +303,7 @@ public class DynamixelMotor  {
 			dxl_checksum();
 			this.dxl_send();
 		}
-		void dxl_read_byte_act(int table_address)
+		void dxl_read_byte_act(int table_address) throws InterruptedException
 		{
 			/*
 			 * Prepare data package for address that have 1 byte parameter
@@ -315,14 +317,34 @@ public class DynamixelMotor  {
 			gbInstructionPacket[LENGTH] = 4; 
 			dxl_checksum();
 			this.dxl_send();
-			try {
-				this.reset_rx_data();
-				int l = this.dxl_serial.read(this.gbStatusPacket, 1);
-				Log.i("Neck", String.format("length = %d", l));
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			Thread.sleep(1);
+			char read_time = 0;
+			int l = 0;
+//			try {
+//				this.reset_rx_data();
+////				l = this.dxl_serial.read(this.gbStatusPacket, 1);
+//				Log.i("Neck", "Read Byte: "+ String.format("length = %d", l));
+//				while (l<1)
+//				{
+//					if (read_time<5)
+//					{
+//						read_time += 1;
+//						this.reset_rx_data();
+////						l = this.dxl_serial.read(this.gbStatusPacket, 1);
+//						Log.i("Neck", "Read Byte: "+  l);
+//						Log.i("Neck", "Read times: "+  read_time);
+//						if (l>0) break; 
+//						
+//					}
+//					else
+//						break;
+//					
+//				}
+//				
+//			} catch (IOException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
 		}
 		void dxl_write_word(int table_address, int value)
 		{
@@ -362,20 +384,22 @@ public class DynamixelMotor  {
 		void dxl_read_word_act(int table_address)
 		{
 			/*
-			 * Prepare data package for address that have 1 byte parameter
+			 * Prepare data package for address that have 2 byte parameter
 			 * Storage data into control table and wait for trigger signal
 			 * */
+			// Prepare read command
 			gbInstructionPacket[ID] = this.DXL_ID;
 			gbInstructionPacket[INSTRUCTION] = INST_READ;
 			gbInstructionPacket[PARAMETER] = table_address;
 			gbInstructionPacket[PARAMETER+1] = 2;
 			gbInstructionPacket[LENGTH] = 4;
 			dxl_checksum();
+			// send to motor
 			this.dxl_send();
 			try {
 				this.reset_rx_data();
-				int l = this.dxl_serial.read(this.gbStatusPacket, 1);
-				Log.i("Neck", String.format("length = %d",100));
+				int l = this.dxl_serial.read(this.gbStatusPacket, 10);
+				Log.i("Neck", String.format("length = %d",l));
 				byte x = this.gbStatusPacket[this.PARAMETER];
 				byte y = this.gbStatusPacket[this.PARAMETER+1];
 				int i = y;
@@ -402,7 +426,7 @@ public class DynamixelMotor  {
 			this.dxl_send();
 		}		
 		// POSITION
-		void dxl_set_position(float deg)
+ 		void dxl_set_position(float deg)
 		{
 			deg = this.dxl_pos_check(deg);
 			int value = (int) (deg*this.POS_RESOLUTION);
@@ -439,6 +463,7 @@ public class DynamixelMotor  {
 		}
 		void dxl_set_speed_act(float RPM)
 		{
+			RPM = this.dxl_speed_check(RPM);
 			int tem = (int)(RPM*this.SPEED_RESOLUTION);
 			dxl_write_word_act(SPEED_L, tem );
 			dxl_send();

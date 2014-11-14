@@ -13,7 +13,7 @@ extern "C" {
  * Signature: ([BIIJ[B)V
  */
 JNIEXPORT void JNICALL Java_robotbase_vision_NativeAndroidCamera_getFrame
-  (JNIEnv *, jclass, jbyteArray, jint, jint, jlong, jbyteArray);
+  (JNIEnv *, jclass, jbyteArray, jint, jint, jlong, jbyteArray, jbyteArray);
 
 #ifdef __cplusplus
 }
