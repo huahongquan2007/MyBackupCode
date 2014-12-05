@@ -1,7 +1,5 @@
 package robotbase.vision;
 
-import android.util.Log;
-
 public class NativeFaceTracking {
 	public static String name = "NativeFaceTracking";
 

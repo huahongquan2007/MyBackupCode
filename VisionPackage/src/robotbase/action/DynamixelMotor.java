@@ -118,7 +118,9 @@ public class DynamixelMotor  {
 		public  int PARAMETER 				= 5;			
 		public  int[] gbInstructionPacket 	= new int[MAXNUM_TXPARAM+10]; 
 		byte[] gbStatusPacket 				= new byte[MAXNUM_RXPARAM+10]; 
-		int checksum 						=0;
+		int rx_data_length					= 0;
+		boolean rx_ready 					= false;
+		float current_speed					= 0;
 		// Constructor
 
 		public  DynamixelMotor(UsbSerialPort driver,Joint joint )
@@ -234,25 +236,37 @@ public class DynamixelMotor  {
 			byte tem = (byte)(word>>8);
 			return (int)tem;
 		}
-		private void dxl_checksum()
+		private void dxl_tx_checksum()
 		{
 			/*
 			 * make checksum byte for each data package
 			 * */
-			checksum=0;
+			int tx_checksum=0;
 			for( int i=0; i<(gbInstructionPacket[LENGTH]+1); i++ )
-			checksum += gbInstructionPacket[i+2];
-			byte k = (byte)(checksum);
+			tx_checksum += gbInstructionPacket[i+2];
+			byte k = (byte)(tx_checksum);
 			k=(byte) ~k;
 			gbInstructionPacket[gbInstructionPacket[LENGTH]+3] = k;
 			
+		}
+		private byte dxl_rx_checksum()
+		{
+			/*
+			 * make checksum byte for each rx package
+			 * */
+			int rx_checksum = 0;
+			for( int i = 0;  i< (this.gbStatusPacket[LENGTH] + 1); i++ )
+			rx_checksum  += this.gbStatusPacket[i + 2];
+			byte k = (byte)(rx_checksum);
+			k=(byte) ~k;
+			return k;
 		}
 		void dxl_ping()
 		{
 			this.gbInstructionPacket[ID] = this.DXL_ID;
 			this.gbInstructionPacket[INSTRUCTION] = INST_PING;
 			this.gbInstructionPacket[LENGTH] = 2;
-			this.dxl_checksum();
+			this.dxl_tx_checksum();
 			this.dxl_send();
 		}
 		private float dxl_pos_check(float pos)
@@ -286,7 +300,7 @@ public class DynamixelMotor  {
 			gbInstructionPacket[PARAMETER] = table_address;
 			gbInstructionPacket[PARAMETER+1] = value;
 			gbInstructionPacket[LENGTH] = 4;
-			dxl_checksum();
+			dxl_tx_checksum();
 			this.dxl_send();
 		}	
 		void dxl_write_byte_act(int table_address, int value)
@@ -300,7 +314,7 @@ public class DynamixelMotor  {
 			gbInstructionPacket[PARAMETER] = table_address;
 			gbInstructionPacket[PARAMETER+1] = value;
 			gbInstructionPacket[LENGTH] = 4;
-			dxl_checksum();
+			dxl_tx_checksum();
 			this.dxl_send();
 		}
 		void dxl_read_byte_act(int table_address) throws InterruptedException
@@ -315,36 +329,8 @@ public class DynamixelMotor  {
 			gbInstructionPacket[PARAMETER] = (byte)table_address;
 			gbInstructionPacket[PARAMETER+1] = 1;
 			gbInstructionPacket[LENGTH] = 4; 
-			dxl_checksum();
+			dxl_tx_checksum();
 			this.dxl_send();
-			Thread.sleep(1);
-			char read_time = 0;
-			int l = 0;
-//			try {
-//				this.reset_rx_data();
-////				l = this.dxl_serial.read(this.gbStatusPacket, 1);
-//				Log.i("Neck", "Read Byte: "+ String.format("length = %d", l));
-//				while (l<1)
-//				{
-//					if (read_time<5)
-//					{
-//						read_time += 1;
-//						this.reset_rx_data();
-////						l = this.dxl_serial.read(this.gbStatusPacket, 1);
-//						Log.i("Neck", "Read Byte: "+  l);
-//						Log.i("Neck", "Read times: "+  read_time);
-//						if (l>0) break; 
-//						
-//					}
-//					else
-//						break;
-//					
-//				}
-//				
-//			} catch (IOException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
 		}
 		void dxl_write_word(int table_address, int value)
 		{
@@ -358,7 +344,7 @@ public class DynamixelMotor  {
 			gbInstructionPacket[PARAMETER+1] 	= dxl_get_low_byte(value);
 			gbInstructionPacket[PARAMETER+2] 	= dxl_get_high_byte(value);
 			gbInstructionPacket[LENGTH] = 5;
-			dxl_checksum();
+			dxl_tx_checksum();
 			this.dxl_send();
 		}
 		void dxl_write_word_act(int table_address, int value)
@@ -373,7 +359,7 @@ public class DynamixelMotor  {
 			gbInstructionPacket[PARAMETER+1] 	= dxl_get_low_byte(value);
 			gbInstructionPacket[PARAMETER+2] 	= dxl_get_high_byte(value);
 			gbInstructionPacket[LENGTH] = 5;
-			dxl_checksum();
+			dxl_tx_checksum();
 			this.dxl_send();
 		}
 		private void dxl_get_package()
@@ -393,26 +379,9 @@ public class DynamixelMotor  {
 			gbInstructionPacket[PARAMETER] = table_address;
 			gbInstructionPacket[PARAMETER+1] = 2;
 			gbInstructionPacket[LENGTH] = 4;
-			dxl_checksum();
+			dxl_tx_checksum();
 			// send to motor
 			this.dxl_send();
-			try {
-				this.reset_rx_data();
-				int l = this.dxl_serial.read(this.gbStatusPacket, 10);
-				Log.i("Neck", String.format("length = %d",l));
-				byte x = this.gbStatusPacket[this.PARAMETER];
-				byte y = this.gbStatusPacket[this.PARAMETER+1];
-				int i = y;
-				i = i<<8;
-				i = (int)i+x;
-				this.CURRENT_POS = (float) (i*this.POS_RESOLUTION);
-				Log.i("Neck","current pos  = "+ this.CURRENT_POS);
-				
-				
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
 		}		
 		void dxl_trigger()
 		{
@@ -422,7 +391,7 @@ public class DynamixelMotor  {
 			gbInstructionPacket[ID] = BROADCAST_ID;
 			gbInstructionPacket[INSTRUCTION] = INST_ACTION;
 			gbInstructionPacket[LENGTH] = 2;
-			dxl_checksum();
+			dxl_tx_checksum();
 			this.dxl_send();
 		}		
 		// POSITION
@@ -447,8 +416,27 @@ public class DynamixelMotor  {
 		}
 		void dxl_get_position()
 		{
-			dxl_read_word_act(PRESENT_POS_L);
-			dxl_read_word_act(PRESENT_POS_L);
+			// Prepare instruction data to send
+			
+			rx_ready = true;
+			reset_rx_data();
+			reset_tx_data();
+			while (this.check_rx_package()==false)
+			{
+				if (rx_ready == true)
+				{
+					reset_rx_data();
+					dxl_read_word_act(PRESENT_POS_L);
+					rx_ready = false;
+				}
+			}
+				int word = this.dxl_make_word(this.gbStatusPacket[this.PARAMETER], this.gbStatusPacket[this.PARAMETER+1]);
+				float tam = (float) word;
+				tam = tam/this.POS_RESOLUTION;
+				tam = tam - this.HOME_POS;
+				tam = tam/this.DXL_SIGN;
+				this.CURRENT_POS = tam;
+			
 			// send data to serial port
 			// wait for Return delay time 4us
 			// Read data frome comport
@@ -563,7 +551,45 @@ public class DynamixelMotor  {
 				s=String.format("%s %X", s,(byte)gbStatusPacket[i]);
 			return s;
 		}
+		boolean check_rx_package()
 		
+		{
+			
+			// checking ID
+			if (this.DXL_ID != this.gbStatusPacket[this.ID] )
+			{
+//				Log.i("Neck", "wrong ID:"+this.gbStatusPacket[this.ID]+"/"+this.DXL_ID);
+				return false;
+			}
+			// Checking package Length
+			if (this.rx_data_length != this.gbStatusPacket[this.LENGTH]+4)
+			{
+//				Log.i("Neck", "wrong length:" + (this.gbStatusPacket[this.LENGTH]+4) +"/" +this.rx_data_length);
+				return false;
+			}
+			// Checking checksum
+			if (this.gbStatusPacket[this.rx_data_length-1] != this.dxl_rx_checksum())
+			{
+//				Log.i("Neck",this.gbStatusPacket[this.rx_data_length-1]+"/"+ this.dxl_rx_checksum());
+				return false;
+			}
+			// checking error byte
+			if (this.gbStatusPacket[this.ERRBIT] != 0)
+			{
+//				Log.i("Neck", "Error Code:" + this.gbStatusPacket[this.ERRBIT]);
+				
+				return false;
+			}
+			Log.i("Neck", "RX OK");
+			return true;
+		}
+		int dxl_make_word(byte low_byte, byte high_byte)
+		{
+			int word = (int)high_byte;
+			word = word<<8;
+			word = word+(int)low_byte;
+			return word;
+		}
 }
 
 

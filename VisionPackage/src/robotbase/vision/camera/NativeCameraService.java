@@ -16,11 +16,6 @@ public class NativeCameraService extends BaseCameraService {
 	private Mat mRgbRotated, mRgb;
 	private byte[] pixelsByteRgb;
 
-	@Override
-	public IBinder onBind(Intent intent) {
-		return null;
-	}
-
 	private boolean connectCamera(int frameWidth, int frameHeight) {
 		mCamera = new VideoCapture(Highgui.CV_CAP_ANDROID + 1);
 		if (mCamera == null)

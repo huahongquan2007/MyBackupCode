@@ -7,10 +7,11 @@ import android.os.IBinder;
 import android.util.Log;
 
 public abstract class BaseCameraService extends Service{
+	public int thanh = 1;
 	protected long lastTime = 0, frameDelay = 0;
 	protected byte[] lastFrame = null;
-	protected int fps = 20;
-	public static int camWidth = 240, camHeight = 320;
+	protected int fps = 15;
+	public static int camWidth = 480, camHeight = 640;
 	public static final String CAMERA_INTENT_BITMAP = "robotbase.vision.androidcamera.bitmap";
 	public static final String CAMERA_INTENT_BYTE_GRAY = "robotbase.vision.androidcamera.byte";
 	public static final String CAMERA_INTENT_BYTE_RGB = "robotbase.vision.androidcamera.rgb";
@@ -33,7 +34,7 @@ public abstract class BaseCameraService extends Service{
 	public void onCreate() {
 		Log.d("MyLog", "BaseCameraServer onCreate");
 		// Setup FPS
-		setup(20);
+		setup(fps);
 		initService();
 		super.onCreate();
 	}

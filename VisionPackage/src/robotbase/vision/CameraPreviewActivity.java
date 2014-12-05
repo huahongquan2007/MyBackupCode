@@ -16,7 +16,6 @@ import org.opencv.core.Mat;
 import robotbase.abilities.gallery.GalleryConfig;
 import robotbase.action.RobotIntent;
 import robotbase.vision.BaseCameraService.LocalBinder;
-import robotbase.vision.camera.NativeCameraService;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -36,6 +35,7 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.Parcelable;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.SurfaceView;
 import android.widget.Toast;
 
@@ -53,11 +53,11 @@ public class CameraPreviewActivity extends Activity {
 	private FaceInfo[] faceInfoList;
 	private long faceDetectionTime = 0;
 	
-	Paint pt2 = new Paint();
-	private FaceDetectionReceiver2 faceDetectionReceiver2;
-	private Handler handleFaceDetection2;
-	private FaceInfo[] faceInfoList2;
-	private long faceDetectionTime2 = 0;
+//	Paint pt2 = new Paint();
+//	private FaceDetectionReceiver2 faceDetectionReceiver2;
+//	private Handler handleFaceDetection2;
+//	private FaceInfo[] faceInfoList2;
+//	private long faceDetectionTime2 = 0;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -110,10 +110,10 @@ public class CameraPreviewActivity extends Activity {
 		pt.setStrokeWidth(3);
 		pt.setStyle(Paint.Style.STROKE);
 		
-		pt2.setColor(Color.BLUE);
-		pt2.setTextSize(50);
-		pt2.setStrokeWidth(3);
-		pt2.setStyle(Paint.Style.STROKE);
+//		pt2.setColor(Color.BLUE);
+//		pt2.setTextSize(50);
+//		pt2.setStrokeWidth(3);
+//		pt2.setStyle(Paint.Style.STROKE);
 	}
 	public class FaceDetectionReceiver extends BroadcastReceiver{
 
@@ -139,30 +139,30 @@ public class CameraPreviewActivity extends Activity {
 		}
 	
 	}
-	public class FaceDetectionReceiver2 extends BroadcastReceiver{
-
-		public FaceDetectionReceiver2() {
-
-		}
-
-		@Override
-		public void onReceive(Context context, Intent intent) {
-			Bundle bundle = intent.getBundleExtra("faceDetection");
-			Parcelable[] pc = bundle.getParcelableArray("data");
-			if(pc != null)				
-			{
-				faceInfoList2 = null;
-				faceInfoList2 = Arrays.copyOf(pc, pc.length, FaceInfo[].class);
-				faceDetectionTime2 = System.currentTimeMillis();
-				Log.i("MyLog", "TAP Service: FaceListSize: " + String.valueOf(faceInfoList2.length));
-			}
-			else
-			{
-				Log.i("MyLog", "TAP Service: FaceListSize: NULL");
-			}			
-		}
-	
-	}
+//	public class FaceDetectionReceiver2 extends BroadcastReceiver{
+//
+//		public FaceDetectionReceiver2() {
+//
+//		}
+//
+//		@Override
+//		public void onReceive(Context context, Intent intent) {
+//			Bundle bundle = intent.getBundleExtra("faceDetection");
+//			Parcelable[] pc = bundle.getParcelableArray("data");
+//			if(pc != null)				
+//			{
+//				faceInfoList2 = null;
+//				faceInfoList2 = Arrays.copyOf(pc, pc.length, FaceInfo[].class);
+//				faceDetectionTime2 = System.currentTimeMillis();
+//				Log.i("MyLog", "TAP Service: FaceListSize: " + String.valueOf(faceInfoList2.length));
+//			}
+//			else
+//			{
+//				Log.i("MyLog", "TAP Service: FaceListSize: NULL");
+//			}			
+//		}
+//	
+//	}
 	@Override
 	protected void onStart() {
 		super.onStart();
@@ -186,8 +186,6 @@ public class CameraPreviewActivity extends Activity {
 
 	@Override
 	protected void onDestroy() {
-
-		
 		super.onDestroy();
 	}
 
@@ -222,12 +220,15 @@ public class CameraPreviewActivity extends Activity {
 
 				break;
 			case 3:
-				modeSV = 3;
-				Intent intentSP = new Intent();
-				intentSP.putExtra("value", intent.getStringExtra("text"));
-				intentSP.putExtra("data", fileName);
-				intentSP.setAction(RobotIntent.SHARE_PHOTO);
-				sendBroadcast(intentSP);
+				if(isCaptured == true){
+					modeSV = 3;
+					Log.i("MyLog","CAP Activity: MODE 3");
+					Intent intentSP = new Intent();
+					intentSP.putExtra("value", intent.getStringExtra("text"));
+					intentSP.putExtra("data", fileName);
+					intentSP.setAction(RobotIntent.SHARE_PHOTO);
+					sendBroadcast(intentSP);					
+				}
 				break;
 			default:
 				modeSV = -1;
@@ -289,6 +290,7 @@ public class CameraPreviewActivity extends Activity {
 
 			if (isCaptured == false) {
 				data = mCameraService.getFrame();
+
 				if (data == null) {
 					Log.e("MyLog", "CameraPreviewActivity GetImageTask NULL DATA");
 					return;
@@ -327,12 +329,12 @@ public class CameraPreviewActivity extends Activity {
 						cover.drawRect(face.x, face.y,face.x + face.w,face.y + face.h,pt);
 					}
 				}
-				if(faceInfoList2 != null && (System.currentTimeMillis() - faceDetectionTime2) < 1000){
-					for(FaceInfo face : faceInfoList2){
-						Log.i("MyLog", "TAP Service: GetImageTask: " + face.x + " " + face.y + " " + face.w + " " + face.h);
-						cover.drawRect(face.x, face.y,face.x + face.w,face.y + face.h,pt2);
-					}
-				}
+//				if(faceInfoList2 != null && (System.currentTimeMillis() - faceDetectionTime2) < 1000){
+//					for(FaceInfo face : faceInfoList2){
+//						Log.i("MyLog", "TAP Service: GetImageTask: " + face.x + " " + face.y + " " + face.w + " " + face.h);
+//						cover.drawRect(face.x, face.y,face.x + face.w,face.y + face.h,pt2);
+//					}
+//				}
 				break;
 			case 1:
 				cover.drawText(textSV, xSV, ySV, pt);

@@ -1,5 +1,4 @@
 package robotbase.action;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -45,8 +44,10 @@ public class NeckServices extends Service
 	public UsbDevice serialDevice;
 	UsbSerialProber prober;
 	public SerialInputOutputManager mSerialIoManager;
-    boolean S_Init_done = false;
+	boolean S_Init_done = false, Serial_wp=false, RDorWR=false;
     public Handler mHandler = new Handler();
+    public static final int MS_INTERVAL = 1;
+    byte Neck_buffer[] = new byte[20];
 	//------------------------//
     public final ExecutorService mExecutor = Executors.newSingleThreadExecutor();
     public static final String ACTION_USB_PERMISSION ="com.android.example.USB_PERMISSION";
@@ -90,7 +91,8 @@ public class NeckServices extends Service
 	            			NeckServices.this.updateReceivedData(data);
 	            		}
 	        };
-	
+	            
+	    	  
 	@Override
 	public void onCreate() {
         super.onCreate();
@@ -100,7 +102,7 @@ public class NeckServices extends Service
         neck_filter.addAction(RobotIntent.NECK_GET_POSISTION);
         neck_filter.addAction(RobotIntent.NECK_GET_DATA);
         neck_filter.addAction(RobotIntent.NECK_SET_DATA);
-    	IntentFilter filter = new IntentFilter(ACTION_USB_PERMISSION);
+    	new IntentFilter(ACTION_USB_PERMISSION);
         
         
         usbManager = (UsbManager) getSystemService(Context.USB_SERVICE);
@@ -136,71 +138,74 @@ public class NeckServices extends Service
  	        		int id = (int)bundle.getInt(NeckInstruction.KEY_ID);
  	        		float value = (float) bundle.getFloat(NeckInstruction.KEY_VALUE);
  	        		int ins = (int)bundle.getInt(NeckInstruction.KEY_INSTRUCTION);
+ 	        		neck_service_handles(id, value, ins);
  	        		
- 	        		if (ins == NeckInstruction.INST_SET_SPEED)
- 	        			if (id == NeckInstruction.PAN_JOINT_ID)
- 	        				
- 	        				pan_joint.dxl_set_speed_act(value);
- 	        			else if (id==NeckInstruction.TILT_JOINT_ID)
- 	        				tilt_joint.dxl_set_speed_act(value);
- 	        			else if (id == DynamixelMotor.BROADCAST_ID)
- 	        				{
- 	        					pan_joint.dxl_set_speed(value);
- 	        					tilt_joint.dxl_set_speed( value);
- 	        					pan_joint.dxl_trigger();
- 	        				}
+ 	        		
+ 	        		
+// 	        		if (ins == NeckInstruction.INST_SET_SPEED)
+// 	        			if (id == NeckInstruction.PAN_JOINT_ID)
+// 	        				
+// 	        				pan_joint.dxl_set_speed_act(value);
+// 	        			else if (id==NeckInstruction.TILT_JOINT_ID)
+// 	        				tilt_joint.dxl_set_speed_act(value);
+// 	        			else if (id == DynamixelMotor.BROADCAST_ID)
+// 	        				{
+// 	        					pan_joint.dxl_set_speed(value);
+// 	        					tilt_joint.dxl_set_speed( value);
+// 	        					pan_joint.dxl_trigger();
+// 	        				}
  	        				
  	        			
- 	        		if (ins == NeckInstruction.INST_SET_POSITION)
- 	        			if (id == NeckInstruction.PAN_JOINT_ID)
- 	        				pan_joint.dxl_set_position_act(value);
- 	        			else if (id==NeckInstruction.TILT_JOINT_ID)
- 	        				tilt_joint.dxl_set_position_act(value);
- 	        			else if (id == DynamixelMotor.BROADCAST_ID)
- 	        			{
- 	        				pan_joint.dxl_set_position(value);
-  	        				tilt_joint.dxl_set_position(value);
- 	        				pan_joint.dxl_trigger();
- 	        			}
+// 	        		if (ins == NeckInstruction.INST_SET_POSITION)
+// 	        			if (id == NeckInstruction.PAN_JOINT_ID)
+// 	        				pan_joint.dxl_set_position_act(value);
+// 	        			else if (id==NeckInstruction.TILT_JOINT_ID)
+// 	        				tilt_joint.dxl_set_position_act(value);
+// 	        			else if (id == DynamixelMotor.BROADCAST_ID)
+// 	        			{
+// 	        				pan_joint.dxl_set_position(value);
+//  	        				tilt_joint.dxl_set_position(value);
+// 	        				pan_joint.dxl_trigger();
+// 	        			}
  	        	
- 	        		if (ins == NeckInstruction.INST_SET_DATA){
- 	        			if (id == NeckInstruction.PAN_JOINT_ID)
-							try {
-								Log.i("Neck", "value = "+ value);
-								pan_joint.dxl_read_byte_act((int)value);
-								Log.i("Neck", "Neck on RX Mode");
-         	        			Log.i("Neck", "PAN TX Data"+pan_joint.dxl_tx_data_str());
-         	        			Log.i("Neck", "RX Data"+pan_joint.dxl_rx_data_str());
-							} catch (InterruptedException e1) {
-								// TODO Auto-generated catch block
-								e1.printStackTrace();
-							}
-						else if (id==NeckInstruction.TILT_JOINT_ID)
-							try {
-								tilt_joint.dxl_read_byte_act((int)value);
-								Log.i("Neck", "Neck on RX Mode");
-         	        			Log.i("Neck", "TILT TX Data"+tilt_joint.dxl_tx_data_str());
-         	        			Log.i("Neck", "RX Data"+tilt_joint.dxl_rx_data_str());
-							} catch (InterruptedException e1) {
-								// TODO Auto-generated catch block
-								e1.printStackTrace();
-							}
- 	        		}
- 	        		Log.i("Neck", "Neck On receive");
- 	            	Log.i("Neck", "PAN TX Data: "+pan_joint.dxl_tx_data_str());
- 	            	Log.i("Neck", "TILT TX Data"+tilt_joint.dxl_tx_data_str());
- 	        		if (id == 5) 
- 	        		{
- 	        			try {
- 							tilt_joint.dxl_read_byte_act(tilt_joint.PRESENT_TEM);
- 						} catch (InterruptedException e) {
- 							// TODO Auto-generated catch block
- 							e.printStackTrace();
- 						}
- 	        			Log.i("Neck", "Neck on RX Mode");
- 	        			Log.i("Neck", "TILT TX Data"+tilt_joint.dxl_tx_data_str());
- 	        			Log.i("Neck", "RX Data"+tilt_joint.dxl_rx_data_str());
- 	        		}
+// 	        		if (ins == NeckInstruction.INST_SET_DATA){
+// 	        			if (id == NeckInstruction.PAN_JOINT_ID)
+//							try {
+//								Log.i("Neck", "value = "+ value);
+//								pan_joint.dxl_read_byte_act((int)value);
+//								Log.i("Neck", "Neck on RX Mode");
+//         	        			Log.i("Neck", "PAN TX Data"+pan_joint.dxl_tx_data_str());
+////         	        			Log.i("Neck", "RX Data"+pan_joint.dxl_rx_data_str());
+//							} catch (InterruptedException e1) {
+//								// TODO Auto-generated catch block
+//								e1.printStackTrace();
+//							}
+//						else if (id==NeckInstruction.TILT_JOINT_ID)
+//							try {
+//								tilt_joint.dxl_read_byte_act((int)value);
+//								Log.i("Neck", "Neck on RX Mode");
+//         	        			Log.i("Neck", "TILT TX Data"+tilt_joint.dxl_tx_data_str());
+////         	        			Log.i("Neck", "RX Data"+tilt_joint.dxl_rx_data_str());
+//							} catch (InterruptedException e1) {
+//								// TODO Auto-generated catch block
+//								e1.printStackTrace();
+//							}
+// 	        		}
+// 	        		Log.i("Neck", "Neck On receive");
+// 	            	Log.i("Neck", "PAN TX Data: "+pan_joint.dxl_tx_data_str());
+// 	            	Log.i("Neck", "TILT TX Data"+tilt_joint.dxl_tx_data_str());
+// 	        		if (id == 5) 
+// 	        		{
+// 	        			try {
+// 							tilt_joint.dxl_read_byte_act(tilt_joint.PRESENT_TEM);
+// 						} catch (InterruptedException e) {
+// 							// TODO Auto-generated catch block
+// 							e.printStackTrace();
+// 						}
+// 	        			Log.i("Neck", "Neck on RX Mode");
+// 	        			Log.i("Neck", "TILT TX Data"+tilt_joint.dxl_tx_data_str());
+// 	        			Log.i("Neck", "RX Data"+tilt_joint.dxl_rx_data_str());
+// 	        		}
  	            }
  	        };
  	    registerReceiver(this.neck_receiver, neck_filter);
@@ -261,7 +266,7 @@ public class NeckServices extends Service
 		        this.tilt_joint.dxl_write_byte_act(this.tilt_joint.TORQUE_ENABLE, 1);
 		        this.tilt_joint.dxl_write_byte_act(this.tilt_joint.CW_SLOPE, 50);
 		        this.tilt_joint.dxl_write_byte_act(this.tilt_joint.CCW_SLOPE, 50);
-		        this.tilt_joint.dxl_write_byte_act(this.tilt_joint.PUNCH_L, 1023);
+		        this.tilt_joint.dxl_write_word_act(this.tilt_joint.PUNCH_L, 100);
 		        
 		        // init Pan joint
 		        this.pan_joint = new DynamixelMotor(serialPort, new Joint("PAN_JOINT"));
@@ -269,9 +274,9 @@ public class NeckServices extends Service
 		        this.pan_joint.dxl_write_byte_act(this.pan_joint.TORQUE_ENABLE,1);
 		        this.pan_joint.dxl_write_byte_act(this.pan_joint.CW_SLOPE, 50);
 		        this.pan_joint.dxl_write_byte_act(this.pan_joint.CCW_SLOPE, 50);
-		        this.pan_joint.dxl_write_byte_act(this.pan_joint.PUNCH_L, 1023);
+		        this.pan_joint.dxl_write_word_act(this.pan_joint.PUNCH_L, 100);
 		        
-		        this.pan_joint.dxl_set_home_position();  
+		        this.pan_joint.dxl_set_home_position();   
 		        this.tilt_joint.dxl_set_home_position();      
 				
 //				if (setDTR) port.setDTR(true);
@@ -310,6 +315,123 @@ public class NeckServices extends Service
     	
 //    	final String message = "Read " + data.length + " bytes: \n"
 //                + HexDump.dumpHexString(data) + "\n\n";
-//    	Log.i("Neck", "read data " + message);  	  
+		int n = data.length;
+		if (data[2]==NeckInstruction.PAN_JOINT_ID)
+		{
+			pan_joint.rx_data_length = n;
+			for (int i =0; i<n;i++)
+			{
+				pan_joint.gbStatusPacket[i] = data[i];
+			}
+			
+			Log.i("Neck", "Pan RX:" + pan_joint.dxl_rx_data_str());
+//			if (pan_joint.check_rx_package())
+				pan_joint.rx_ready = true;
+			
+			
+		}
+		else if (data[2]==NeckInstruction.TILT_JOINT_ID)
+		{
+			tilt_joint.rx_data_length = n;
+			for (int i =0; i<n;i++)
+			{
+				tilt_joint.gbStatusPacket[i] = data[i];
+			}
+			
+			Log.i("Neck", "Tilt RX:" + tilt_joint.dxl_rx_data_str());
+//			if (tilt_joint.check_rx_package())
+				tilt_joint.rx_ready = true;
+					
+		}
+				  
+	}
+	void neck_service_handles(int id,float value, int ins)
+	{
+		switch (ins)
+		{
+		case NeckInstruction.INST_SET_SPEED :
+			this.set_speed(id, value);
+			break;
+		case NeckInstruction.INST_SET_POSITION:
+			this.set_position(id, value);
+			break;
+		case NeckInstruction.INST_SET_DATA:
+			break;
+		case NeckInstruction.INST_GET_SPEED:
+			
+			break;
+		case NeckInstruction.INST_GET_POSITION :
+			this.get_position(id);
+			break;
+		case NeckInstruction.INST_GET_DATA :
+			break;
+		}
+		
+	}
+	void set_speed(int id, float value)
+	{
+		switch (id)
+		{
+		case NeckInstruction.PAN_JOINT_ID:
+			pan_joint.dxl_set_speed_act(value);
+			break;
+		case NeckInstruction.TILT_JOINT_ID:
+			tilt_joint.dxl_set_speed_act(value);
+			break;
+		}
+	}
+	
+	void set_position(int id, float value)
+	{
+		switch (id)
+		{
+		case NeckInstruction.PAN_JOINT_ID :
+			pan_joint.dxl_set_position_act(value);
+			break;
+		case NeckInstruction.TILT_JOINT_ID :
+			tilt_joint.dxl_set_position_act(value);
+			break;
+		}
+		
+	}
+	
+	void get_data()
+	{
+		
+	}
+	float get_speed(int id)
+	{
+		return 0;
+	}
+	void get_position(int id)
+	{
+		switch (id)
+		{
+		case NeckInstruction.PAN_JOINT_ID:
+			pan_joint.dxl_get_position();
+			Log.i("Neck", "Pan angle:" + pan_joint.CURRENT_POS);
+			break;
+		case NeckInstruction.TILT_JOINT_ID:
+			tilt_joint.dxl_get_position();
+			Log.i("Neck", "Tilt angle:" + tilt_joint.CURRENT_POS);
+			break;
+		}
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

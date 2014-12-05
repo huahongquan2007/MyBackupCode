@@ -30,15 +30,18 @@ void rotate(cv::Mat& src, cv::Mat& dst)
  */
 JNIEXPORT void JNICALL Java_robotbase_vision_NativeAndroidCamera_getFrame
   (JNIEnv *env, jclass clazz, jbyteArray NV21FrameData, jint width, jint height,jlong matAdd, jbyteArray byteAdd, jbyteArray byteRgb){
+
+
+
     jbyte * pNV21FrameData = env->GetByteArrayElements(NV21FrameData, 0);
-    Mat mYuv(240 + 120, 320, CV_8UC1, (unsigned char *) pNV21FrameData);
-    Mat mRgb(240,320, CV_8UC3);
+    Mat mYuv(width + width/2, height, CV_8UC1, (unsigned char *) pNV21FrameData);
+    Mat mRgb(width, height, CV_8UC3);
     cvtColor(mYuv, mRgb, CV_YUV420sp2RGB);
-    Mat mGray(240,320, CV_8UC1);
+    Mat mGray(width , height, CV_8UC1);
     cvtColor(mRgb, mGray, CV_BGR2GRAY);
-    Mat mGrayRotated(320, 240, CV_8UC1);
+    Mat mGrayRotated(height, width, CV_8UC1);
     rotate(mGray, mGrayRotated);
-    Mat mRgbRotated(320, 240, CV_8UC3);
+    Mat mRgbRotated(height, width, CV_8UC3);
     rotate(mRgb, mRgbRotated);
 
 	jbyte * poutPixels = env->GetByteArrayElements(byteAdd, 0);

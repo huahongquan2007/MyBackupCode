@@ -10,6 +10,8 @@ import org.json.JSONObject;
 import robotbase.action.NeckInstruction;
 import robotbase.action.NeckIntent;
 import robotbase.action.RobotIntent;
+import robotbase.action.kobuki.KobukiCommand;
+import robotbase.utility.Notification;
 import robotbase.utility.Utilities;
 import android.app.Service;
 import android.content.BroadcastReceiver;
@@ -25,9 +27,10 @@ public class TakePictureService extends Service {
 	private FaceDetectionReceiver faceDetectionReceiver;
 	private ListenRecognitionReceiver listenRecognitionReceiver;
 	private SpeechRecognitionReceiver speechRecognitionReceiver;
-
+	private float minCenterSize = VisionConfig.getWidth() / 10;
+	
 	public enum SERVICE_STATE {
-		START, STOP, ROTATE, CAPTURE, WAIT_PROCESS
+		START, FIND_FACE, STOP, ROTATE, CENTER, CAPTURE, WAIT_PROCESS, RESET
 	};
 	private SERVICE_STATE curState;
 	
@@ -176,6 +179,7 @@ public class TakePictureService extends Service {
 			if (curState == SERVICE_STATE.WAIT_PROCESS) {
 				curWaitState = WAIT_STATE.SHARE;
 				curWaitCommand = value;
+				Log.i("MyLog","TAP Service: NLP COMMAND SHARE");
 			}
 		}
 	}
@@ -193,26 +197,39 @@ public class TakePictureService extends Service {
 		private long countDownTime = 0;
 		private long lastDetectionTime = 0;
 		private long startWaitProcessTime = 0;
-		String countText;
+		String countText = "";
 
 		@Override
 		public void run() {
 			if (curState != null) {
+//				if( (curState == SERVICE_STATE.ROTATE || curState == SERVICE_STATE.CENTER) && faceInfo.isEmpty()){
+//					Log.i("MyLog", "TAP Service: CurState: Empty->FIND_FACE");
+//					curState = SERVICE_STATE.FIND_FACE;
+//				}
+				
 				switch (curState) {
 				case START:
 					Log.i("MyLog", "TAP Service: CurState: START");
-					curState = SERVICE_STATE.ROTATE;
+					curState = SERVICE_STATE.FIND_FACE;
 					countText = "zero";
 					// Send Speech
-					Intent intentTTSSTART = new Intent();
-					Bundle bundleTTSSTART = new Bundle();
-					bundleTTSSTART.putString("text", "Let's take a picture.");
-					intentTTSSTART.putExtras(bundleTTSSTART);
-					intentTTSSTART.setAction(RobotIntent.TEXT_TO_SPEECH);
-					sendBroadcast(intentTTSSTART);
+					
+					Notification.voiceNotification(getApplicationContext(), "Let's take a picture.");
+
+					break;
+				case FIND_FACE:
+					Log.i("MyLog", "TAP Service: CurState: FIND_FACE");
+					// Neu chua co mat -> rotate
+					// Neu co mat -> state = ROTATE
+					if(!faceInfo.isEmpty())
+						curState = SERVICE_STATE.ROTATE;
+					else{
+						VisionHelperCenterOnTargets.rotate(getApplicationContext());
+					}
 					break;
 				case ROTATE:
 					Log.i("MyLog", "TAP Service: CurState: ROTATE");
+					
 					float x = 0,
 					y = 0;
 					long faceTime = 0;
@@ -221,9 +238,12 @@ public class TakePictureService extends Service {
 						y += face.y + face.h / 2;
 						faceTime = face.time;
 					}
+					
 					if (faceTime <= lastDetectionTime)
 						break;
-
+					else
+						lastDetectionTime = faceTime;
+					
 					if (faceInfo.size() > 0) {
 						x = x / faceInfo.size();
 						y = y / faceInfo.size();
@@ -237,13 +257,34 @@ public class TakePictureService extends Service {
 								getApplicationContext(), x, y);
 						if (isCenter) {
 							// Next State
-							curState = SERVICE_STATE.CAPTURE;
+							curState = SERVICE_STATE.CENTER;
 							countDownTime = System.currentTimeMillis();
 							Log.i("MyLog",
 									"TAP Service: CurState: ROTATE -> CAPTURE");
 						} else {
 							Log.i("MyLog", "CenterOnTarget isCenter FALSE");
 						}
+					}
+					break;
+				case CENTER:
+					// If size > minSize
+					float avgSize = 0;
+					long lastFaceTime = 0;
+					for (FaceInfo face : faceInfo) {
+						avgSize += (face.h + face.w) / 2;
+						lastFaceTime = face.time;
+					}
+					avgSize = avgSize / faceInfo.size();
+					if (lastFaceTime <= lastDetectionTime)
+						break;
+					else
+						lastDetectionTime = lastFaceTime;
+					
+					if(avgSize > minCenterSize)
+						curState = SERVICE_STATE.CAPTURE;
+					else{
+						VisionHelperCenterOnTargets.move(getApplicationContext(), KobukiCommand.FORWARD.ordinal());
+						curState = SERVICE_STATE.ROTATE;
 					}
 					break;
 				case CAPTURE:
@@ -285,12 +326,8 @@ public class TakePictureService extends Service {
 						curState = SERVICE_STATE.WAIT_PROCESS;
 						startWaitProcessTime = System.currentTimeMillis();
 						// Send Speech
-						Intent intentTTSOK = new Intent();
-						Bundle bundleTTSOK = new Bundle();
-						bundleTTSOK.putString("text", "OK. I took your photo.");
-						intentTTSOK.putExtras(bundleTTSOK);
-						intentTTSOK.setAction(RobotIntent.TEXT_TO_SPEECH);
-						sendBroadcast(intentTTSOK);
+						Notification.voiceNotification(getApplicationContext(), "OK. I took your photo.");
+
 						break;
 					}
 					if (countSecond < 3) {
@@ -299,13 +336,7 @@ public class TakePictureService extends Service {
 								String.valueOf(3 - countSecond));
 
 						if (speak) {
-							Intent intentTTS = new Intent();
-							Bundle bundleTTS = new Bundle();
-							Log.e("MyLog", "TTS: onSend " + countText);
-							bundleTTS.putString("text", countText);
-							intentTTS.putExtras(bundleTTS);
-							intentTTS.setAction(RobotIntent.TEXT_TO_SPEECH);
-							sendBroadcast(intentTTS);
+							Notification.voiceNotification(getApplicationContext(), countText);
 						}
 					}
 
@@ -316,9 +347,10 @@ public class TakePictureService extends Service {
 					Intent waitProcessIntent = new Intent();
 					switch (curWaitState) {
 					case SHARE:
+						Log.i("MyLog","TAP WAIT PROCESS: Send MODE 3");
 						waitProcessIntent.putExtra("mode", 3);
 						waitProcessIntent.putExtra("text", curWaitCommand);
-						curState = SERVICE_STATE.STOP;
+						curState = SERVICE_STATE.RESET;
 						break;
 					default:
 						break;
@@ -326,10 +358,12 @@ public class TakePictureService extends Service {
 					waitProcessIntent.setAction(RobotIntent.CAM_TAKE_PICKTURE);
 					sendBroadcast(waitProcessIntent);
 					if(System.currentTimeMillis() - startWaitProcessTime > 10000)
-						curState = SERVICE_STATE.STOP;
-					break;			
-				case STOP:
+						curState = SERVICE_STATE.RESET;
+					break;
+				case RESET:
 					resetState();
+					break;
+				case STOP:
 					break;
 				default:
 					break;
@@ -345,5 +379,6 @@ public class TakePictureService extends Service {
 	private void resetState() {
 		curState = SERVICE_STATE.STOP;
 		curWaitState = WAIT_STATE.NONE;
+		VisionHelperCenterOnTargets.reset(this);
 	}
 }

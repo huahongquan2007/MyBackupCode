@@ -10,11 +10,15 @@
 using namespace std;
 using namespace cv;
 
+
+const int IMG_WIDTH = 240;
+const int IMG_HEIGHT = 320;
+
 const int maxCorners = 30;
 const int minCorners = 15;
 const int maxLoopFindCorners = 10;
-const double qualityLevel = 0.01;
-const double minDistance = 5;
+const double qualityLevel = 0.02;
+const double minDistance = 3;
 const TermCriteria termcrit(CV_TERMCRIT_ITER | CV_TERMCRIT_EPS, 20, 0.03);
 const Size subPixWinSize(10, 10), winSize(31, 31);
 const int FACE_LOCATION_LIFESPAN = 2;
@@ -22,6 +26,9 @@ const int FACE_LOCATION_LIFESPAN = 2;
 // Utility for logging:
 #define LOG_TAG    "CAMERA_RENDERER"
 #define LOG(...)  __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
+
+
+float scale_w = 0.0, scale_h = 0.0;
 
 class FaceLocation {
 public:
@@ -39,14 +46,12 @@ public:
 
 	}
 	string random_string() {
-		vector<string> a;
-		a.push_back("A");
-		a.push_back("B");
-		a.push_back("C");
-		a.push_back("D");
-		a.push_back("E");
-		a.push_back("F");
-		return a[rand() % 6];
+		int len = 20;
+		string a = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+		string r;
+		srand(time(NULL));
+		for(int i = 0; i < len; i++) r.push_back(a.at(size_t(rand() % 62)));
+		return r;
 	}
 	void updateTime() {
 		lastTime = time(NULL);
@@ -108,27 +113,33 @@ FaceLocation getFaceLocation(Mat curFaceImg, int x, int y, int width,
 	curFaceLocation.w = width;
 	curFaceLocation.h = height;
 
-	int count = 0;
-	while (curFaceLocation.points[0].size() < minCorners) {
-		count++;
-		if (count > maxLoopFindCorners)
-			break;
-		goodFeaturesToTrack(curFaceImg, curFaceLocation.points[0], maxCorners,
-				qualityLevel, minDistance);
+	try{
+		int count = 0;
+		while (curFaceLocation.points[0].size() < minCorners) {
+			count++;
+			if (count > maxLoopFindCorners)
+				break;
+			goodFeaturesToTrack(curFaceImg, curFaceLocation.points[0], maxCorners,
+					qualityLevel, minDistance);
+		}
+		LOG("HHQ: FACE TRACKING getPos: POINTS[0] Size: %d, curFaceImg Width %d Height %d", curFaceLocation.points[0].size(), curFaceImg.rows, curFaceImg.cols);
+		cornerSubPix(curFaceImg, curFaceLocation.points[0], subPixWinSize,
+				Size(-1, -1), termcrit);
+		for (size_t idx = 0; idx < curFaceLocation.points[0].size(); idx++) {
+			cv::circle(curFaceImg, curFaceLocation.points[0].at(idx), 3,
+					Scalar(0, 255, 0), -3, 8);
+		}
+		Point2f t = Point2f(x, y);
+		for (size_t idx = 0; idx < curFaceLocation.points[0].size(); idx++) {
+			curFaceLocation.points[0][idx] = curFaceLocation.points[0][idx] + t;
+		}
+		cout << "getFaceLocation " << endl;
+		curFaceLocation.updateMean();
 	}
-	LOG("HHQ: FACE TRACKING getPos: POINTS[0] Size: %d, curFaceImg Width %d Height %d", curFaceLocation.points[0].size(), curFaceImg.rows, curFaceImg.cols);
-	cornerSubPix(curFaceImg, curFaceLocation.points[0], subPixWinSize,
-			Size(-1, -1), termcrit);
-	for (size_t idx = 0; idx < curFaceLocation.points[0].size(); idx++) {
-		cv::circle(curFaceImg, curFaceLocation.points[0].at(idx), 3,
-				Scalar(0, 255, 0), -3, 8);
+	catch(cv::Exception &e){
+		LOG("HHQ: FACE TRACKING ERROR EXCEPTION");
 	}
-	Point2f t = Point2f(x, y);
-	for (size_t idx = 0; idx < curFaceLocation.points[0].size(); idx++) {
-		curFaceLocation.points[0][idx] = curFaceLocation.points[0][idx] + t;
-	}
-	cout << "getFaceLocation " << endl;
-	curFaceLocation.updateMean();
+
 	return curFaceLocation;
 }
 double calculateDistance(double x1, double x2, double y1, double y2) {
@@ -166,10 +177,22 @@ vector<Rect> faces;
  */
 JNIEXPORT jint JNICALL Java_robotbase_vision_NativeFaceTracking_getPos(
 		JNIEnv * env, jclass clazz, jbyteArray frame, jint width, jint height) {
+	LOG("HHQ: FACE TRACKING: getPos 1");
+
 	jbyte * pNV21FrameData = env->GetByteArrayElements(frame, 0);
 	Mat mRgb(height, width, CV_8UC3, (unsigned char *) pNV21FrameData);
-	cvtColor(mRgb, gray, CV_RGB2GRAY);
+	Mat mRgbResize(IMG_HEIGHT, IMG_WIDTH, CV_8UC3);
 
+	if(scale_w < 0.05){
+		scale_w = float(IMG_WIDTH) / width;
+		scale_h = float(IMG_HEIGHT) / height;
+	}
+
+	resize(mRgb, mRgbResize, Size(), scale_w, scale_h);
+
+	cvtColor(mRgbResize, gray, CV_RGB2GRAY);
+
+	LOG("HHQ: FACE TRACKING: getPos 2");
 	if (prevGray.empty())
 		gray.copyTo(prevGray);
 	// Loop each faceLocation
@@ -185,6 +208,9 @@ JNIEXPORT jint JNICALL Java_robotbase_vision_NativeFaceTracking_getPos(
 		std::swap(faceLocation[i].points[1], faceLocation[i].points[0]);
 		faceLocation[i].updateMean();
 	}
+
+	LOG("HHQ: FACE TRACKING: getPos 3");
+
 	// Map faceLocation to faces
 	for (size_t i = 0; i < faces.size(); i++) {
 
@@ -255,6 +281,7 @@ JNIEXPORT jint JNICALL Java_robotbase_vision_NativeFaceTracking_getPos(
 		indexVector.clear();
 	}
 
+	LOG("HHQ: FACE TRACKING: getPos 4");
 	// Remove old faceLocation
 	for (int j = faceLocation.size() - 1; j >= 0; j--) {
 		// cout <<"-------------------Before Remove " << j << endl;
@@ -272,11 +299,11 @@ JNIEXPORT jint JNICALL Java_robotbase_vision_NativeFaceTracking_getPos(
 	faces.clear();
 	env->ReleaseByteArrayElements(frame, pNV21FrameData, 0);
 
-	if(faceLocation.size() > 0){
+/*	if(faceLocation.size() > 0){
 		LOG("HHQ: FACE TRACKING getPos %d %d %d %d", faceLocation.size(), faceLocation[0].x,faceLocation[0].y,faceLocation[0].w);
 	}else{
 		LOG("HHQ: FACE TRACKING getPos %d", faceLocation.size());
-	}
+	}*/
 	return faceLocation.size();
 }
 
@@ -288,6 +315,8 @@ JNIEXPORT jint JNICALL Java_robotbase_vision_NativeFaceTracking_getPos(
 JNIEXPORT void JNICALL Java_robotbase_vision_NativeFaceTracking_setFaceDetection(
 		JNIEnv *env, jclass clazz, jint len, jintArray xArr, jintArray yArr,
 		jintArray wArr, jintArray hArr) {
+	if(scale_w < 0.05) return;
+
 	jint * arrX = env->GetIntArrayElements(xArr, NULL);
 	jint * arrY = env->GetIntArrayElements(yArr, NULL);
 	jint * arrW = env->GetIntArrayElements(wArr, NULL);
@@ -295,7 +324,7 @@ JNIEXPORT void JNICALL Java_robotbase_vision_NativeFaceTracking_setFaceDetection
 
 	faces.clear();
 	for (int i = 0; i < len; i++) {
-		Rect t((int) arrX[i], (int) arrY[i], (int) arrW[i], (int) arrH[i]);
+		Rect t((int) arrX[i] * scale_w, (int) arrY[i] * scale_h, (int) arrW[i] * scale_w, (int) arrH[i] * scale_h);
 		faces.push_back(t);
 	}
 	LOG("HHQ: FACE TRACKING setFaceDetection %d, vector Length: %d", len,
@@ -313,5 +342,26 @@ JNIEXPORT void JNICALL Java_robotbase_vision_NativeFaceTracking_setFaceDetection
  */
 JNIEXPORT jobjectArray JNICALL Java_robotbase_vision_NativeFaceTracking_getResult
   (JNIEnv *env, jclass clazz){
+	int count = faceLocation.size();
+	LOG("HHQ: FACE TRACKING: getResult");
+	if(scale_h < 0.05){
+		count = 0;
+		LOG("HHQ: FACE TRACKING: SCALE_H == 0. Error in getResult");
+	}
 
+    jclass stringClass = env->FindClass("robotbase/vision/FaceInfo");
+	jobjectArray row = env->NewObjectArray( count, stringClass, 0);
+	jsize i;
+	jmethodID methodId = env->GetMethodID(stringClass, "<init>", "(FFFFLjava/lang/String;I)V");
+	// javap -s -classpath bin/classes robotbase.vision.FaceInfo
+
+
+	for (i = 0; i < count; ++i) {
+		jstring unknownString;
+		unknownString = env->NewStringUTF(faceLocation[i].faceName.data());
+
+        jobject obj = env->NewObject(stringClass, methodId, (float)faceLocation[i].x / scale_w, (float)faceLocation[i].y / scale_h, (float)faceLocation[i].w / scale_w,(float)faceLocation[i].h / scale_h, unknownString, 1 );
+		env->SetObjectArrayElement( row, i, obj);
+	}
+	return row;
 }

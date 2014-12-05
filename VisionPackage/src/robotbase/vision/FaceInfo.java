@@ -15,11 +15,14 @@ public class FaceInfo implements Parcelable {
 		name = "";
 		type = DataType.DETECTION;
 	}
-	public FaceInfo(float _x, float _y, float _w, float _h, long _t, String name, DataType type) {
+	public FaceInfo(float _x, float _y, float _w, float _h, long _t, String name, int typeIdx) {
 		x = _x; y = _y; w = _w; h = _h;
 		time = _t;
 		this.name = name;
-		this.type = type;
+		this.type = DataType.values()[typeIdx];
+	}
+	public FaceInfo(float _x, float _y, float _w, float _h, String name, int typeIdx) {
+		this(_x,_y,_w,_h, System.currentTimeMillis(), name, typeIdx);
 	}
 	@Override
 	public int describeContents() {

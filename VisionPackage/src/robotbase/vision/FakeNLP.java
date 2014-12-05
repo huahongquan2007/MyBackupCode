@@ -73,7 +73,7 @@ public class FakeNLP {
 			this.command = command;
 			this.activity = (Activity)context;
 			dialog = new ProgressDialog(this.activity);
-			this.dialog.setProgressStyle(this.dialog.STYLE_SPINNER);
+			this.dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
 
 		}
 

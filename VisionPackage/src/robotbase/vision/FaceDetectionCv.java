@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 
 import robotbase.action.RobotIntent;
@@ -14,32 +15,50 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
-public class FaceDetectionCv extends VisionAlgorithm{
+public class FaceDetectionCv extends VisionAlgo{
 	private File mCascadeFile;
 	private int[] xArr, yArr, wArr, hArr;
 	private int size;
 	private long time;
-	public FaceDetectionCv(float fps, Context ctx) {
-		super(fps, ctx);
-		initOpenCV(context);
+	protected Mat pixels = null;
+	@Override
+	protected void setup() {
+		initOpenCV(getApplicationContext());
 		xArr = new int [100];
 		yArr = new int [100];
 		wArr = new int [100];
 		hArr = new int [100];
-	}
-	
-	@Override
-	public void start(){
+		
 		System.loadLibrary(NativeFaceDetection.name);
 		NativeFaceDetection.initCascade(mCascadeFile.getAbsolutePath());
 		NativeFaceDetection.setPreviewSize(frameWidth, frameHeight);
-	}
-	@Override
-	public void stop() {
+		pixels = new Mat(frameHeight, frameWidth, CvType.CV_8UC4);
 	}
 
 	@Override
-	public Bundle getResultBundle() {
+	protected void update(byte[] frame) {
+		size = NativeFaceDetection.getPos(frame, xArr, yArr, wArr, hArr, pixels.getNativeObjAddr());
+		time = System.currentTimeMillis();
+		Log.e("MyLog", "FaceDetectionCv: " + String.valueOf(size));
+		
+	}
+
+	@Override
+	protected void broadcast() {
+		try{
+			Intent intent = new Intent();
+			intent.putExtra("bundle", getResultBundle());
+			intent.setAction(RobotIntent.CAM_FACE_DETECTION);
+//			intent.setAction("hhq.face");
+			getApplicationContext().sendBroadcast(intent); 				
+		}
+		catch(Exception e){
+			e.printStackTrace();	
+		}
+	}
+
+	@Override
+	protected Bundle getResultBundle() {
 		Bundle result = new Bundle();
 		FaceInfo[] faceInfo = new FaceInfo[size];
 		for (int i = 0; i < size; i++) {
@@ -48,12 +67,6 @@ public class FaceDetectionCv extends VisionAlgorithm{
 		result.putParcelableArray("data", faceInfo);
 
 		return result;
-	}
-	@Override
-	public void run(byte[] frame) {
-		size = NativeFaceDetection.getPos(frame, xArr, yArr, wArr, hArr, pixels.getNativeObjAddr());
-		time = System.currentTimeMillis();
-		Log.e("MyLog", "Face Info: " + String.valueOf(size));
 	}
 	private void initOpenCV(Context ctx) {
 		InputStream is = ctx.getResources().openRawResource(R.raw.haarcascade_frontalface_alt);
@@ -84,20 +97,4 @@ public class FaceDetectionCv extends VisionAlgorithm{
 		}
 		Log.d("HHQ", "HHQ " + mCascadeFile.getAbsolutePath());
 	}
-
- 
-	@Override
-	public void broadcast() {
-		try{
-			Intent intent = new Intent();
-			intent.putExtra("bundle", getResultBundle());
-//			intent.setAction(RobotIntent.CAM_FACE_DETECTION);
-			intent.setAction("hhq.face");
-			context.sendBroadcast(intent); 				
-		}
-		catch(Exception e){
-			e.printStackTrace();	
-		}
-	}
-
 }

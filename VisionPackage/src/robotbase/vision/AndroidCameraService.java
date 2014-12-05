@@ -2,9 +2,11 @@ package robotbase.vision;
 
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
 import android.hardware.Camera.PreviewCallback;
+import android.hardware.Camera.Size;
 import android.util.Log;
 
 public class AndroidCameraService extends BaseCameraService {
@@ -17,16 +19,18 @@ public class AndroidCameraService extends BaseCameraService {
 
 	@Override
 	public void onDestroy() {
+		Log.i("MyLog", "AndroidCameraService onDestroy start");
 		mCam.stopPreview();
 		mCam.setPreviewCallback(null);
 		mCam.release();
+		Log.i("MyLog", "AndroidCameraService onDestroy end");
 		stopSelf();
 		super.onDestroy();
 	}
 
 	@Override
 	public void initService() {
-		Log.e("MyLog", "AndroidCameraService initService");
+		Log.i("MyLog", "AndroidCameraService initService");
 		// Load Native Library
 		System.loadLibrary("opencv_java");
 		System.loadLibrary(NativeAndroidCamera.name);
@@ -49,7 +53,11 @@ public class AndroidCameraService extends BaseCameraService {
 					break;
 				}
 			}
-
+			for (int i = 0; i < mCam.getParameters()
+					.getSupportedPreviewSizes().size(); i++) {
+				Size size = mCam.getParameters().getSupportedPreviewSizes().get(i);
+				Log.d("MyLog", "supported size: " + size.width + " " + size.height);
+			}
 			// Setup FPS
 			setup(minFps/1000);
 

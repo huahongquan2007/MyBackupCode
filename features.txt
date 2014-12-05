@@ -1,0 +1,37 @@
+
+-	Yesterday:
+	+	Chinh lai qua trinh gui face len server face++. Ket qua: Co the trong vong 6-8s co duoc ket qua. Ket qua duoc tinh trung binh tu 5 hinh 1 lan sau do tinh trung binh nen co do tin cay cao. Do em chua test duoc robot nen chua tao dataset voi code moi de test duoc ket qua.
+
+
+- 	Today:
+	+	Them api vision de luu anh vao database
+	+	Test ket qua Face Recognition.
+
+
+
+
+
+Idea:
+	+	Them xu ly khi muon tat chuc nang chup hinh neu da bat
+	
+
+
+
+1.  home security (skeleton detection, sound detection, face detection)
+2.  game: one two three
+3.  game:  chem trai cay
+4.  control bang hand gesture
+5.  telepresence
+6.  office bao ve
+7.  nhan dien cam xuc
+8.  save energy
+9.  story reading
+
+
+NAME_PREFIXNAME_SEPERATORnamea
+
+
+
+
+
+
