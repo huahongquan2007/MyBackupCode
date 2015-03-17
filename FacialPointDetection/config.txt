@@ -1,0 +1,10 @@
+ROOT = /home/robotbase/github/MyBackupCode/FacialPointDetection/
+DATASET = Datasets/COFW/
+DATASET_TRAIN = trainingImages/
+TRAIN_BOUNDINGBOX = boundingbox.txt
+TRAIN_KEYPOINTS = keypoints.txt
+TRAIN_NUM_OF_IMAGE = 10
+DATASET_TEST = testImages/
+TEST_BOUNDINGBOX = boundingbox_test.txt
+TEST_KEYPOINTS = keypoints_test.txt
+TEST_NUM_OF_IMAGE = 10
