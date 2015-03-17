@@ -5,7 +5,8 @@
 
 Configuration::Configuration(const char *path) :
         numOfTraining(0),
-        numOfTesting(0)
+        numOfTesting(0),
+        numOfLandmark(0)
 {
     parse(path);
 }
@@ -72,5 +73,10 @@ void Configuration::add(string id, string val) {
     if(id == "TEST_NUM_OF_IMAGE"){
         setNumOfTesting( stoi(val) );
         cout << "TEST_NUM_OF_IMAGE: " << endl; cout << "\t" << getNumOfTesting() << endl;
+    }
+
+    if(id == "NUM_OF_LANDMARK"){
+        setNumOfLandmark( stoi(val) );
+        cout << "NUM_OF_LANDMARK: " << endl; cout << "\t" << getNumOfLandmark() << endl;
     }
 }

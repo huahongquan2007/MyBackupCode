@@ -93,6 +93,13 @@ public:
         Configuration::numOfTesting = numOfTesting;
     }
 
+    int getNumOfLandmark() const {
+        return numOfLandmark;
+    }
+
+    void setNumOfLandmark(int numOfLandmark) {
+        Configuration::numOfLandmark = numOfLandmark;
+    }
 private:
     string rootPath;
     string datasetPath;
@@ -110,6 +117,7 @@ private:
 
     int numOfTesting;
 
+    int numOfLandmark;
 
     void add(string, string);
 };
