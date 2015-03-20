@@ -8,6 +8,7 @@ using namespace std;
 
 #include "utility.h"
 #include "Configuration.h"
+#include "ShapeAlignment.h"
 
 int main() {
     cout << "Facial Point Detection Projects" << endl;
@@ -22,7 +23,7 @@ int main() {
     const int num_of_landmark = options.getNumOfLandmark();
     vector<Mat_<unsigned char>> images;
     vector<Mat_<double>> keypoints;
-    vector<Rect_<int>> bounding_boxs;
+    vector<Rect_<int>> bounding_boxes;
     const string train_data = options.getDatasetTrainPath();
 
     // -------------- READ IMAGE ---------------
@@ -42,7 +43,7 @@ int main() {
     for(int i = 0;i < num_of_training; i++){
         finBox >> rect.x >> rect.y >> rect.width >> rect.height;
         cout << rect << endl;
-        bounding_boxs.push_back(rect);
+        bounding_boxes.push_back(rect);
     }
     finBox.close();
     // -------------- READ KEYPOINTS -------------
@@ -64,10 +65,15 @@ int main() {
 
     cout << "Start Training: numOfImages: " << images.size() << endl;
 
-    visualizeImage(images.at(0), keypoints.at(0), num_of_landmark);
+//    visualizeImage(images.at(0), keypoints.at(0), num_of_landmark);
 
-
-
+    // --------------- TRAIN FIRST LEVEL --------------
+    int first_level = options.getNumOfFirstLevel();
+    int second_level = options.getNumOfSecondLevel();
+    int feature_per_fern = options.getNumOfFeaturePerFern();
+    ShapeAlignment shapeAlignment(first_level, second_level, feature_per_fern);
+    shapeAlignment.Train();
+    shapeAlignment.Save(options.getModelPath());
 
     // =========================================
     // Testing

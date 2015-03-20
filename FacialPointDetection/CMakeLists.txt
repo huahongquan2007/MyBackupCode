@@ -7,6 +7,6 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 set(SOURCE_FILES main.cpp)
 
-add_executable(FacialPointDetection ${SOURCE_FILES} utility.h utility.cpp Configuration.cpp Configuration.h)
+add_executable(FacialPointDetection ${SOURCE_FILES} utility.h utility.cpp Configuration.cpp Configuration.h ShapeAlignment.cpp ShapeAlignment.h NormalRegressor.cpp NormalRegressor.h FernRegressor.cpp FernRegressor.h)
 
 target_link_libraries( FacialPointDetection ${OpenCV_LIBS} )

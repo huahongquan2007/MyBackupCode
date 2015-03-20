@@ -100,8 +100,41 @@ public:
     void setNumOfLandmark(int numOfLandmark) {
         Configuration::numOfLandmark = numOfLandmark;
     }
+
+    string getModelPath() const {
+        return modelPath;
+    }
+
+    void setModelPath(string modelPath) {
+        Configuration::modelPath = modelPath;
+    }
+    int getNumOfFirstLevel() const {
+        return numOfFirstLevel;
+    }
+
+    void setNumOfFirstLevel(int numOfFirstLevel) {
+        Configuration::numOfFirstLevel = numOfFirstLevel;
+    }
+    int getNumOfSecondLevel() const {
+        return numOfSecondLevel;
+    }
+
+    void setNumOfSecondLevel(int numOfSecondLevel) {
+        Configuration::numOfSecondLevel = numOfSecondLevel;
+    }
+
+    int getNumOfFeaturePerFern() const {
+        return numOfFeaturePerFern;
+    }
+
+    void setNumOfFeaturePerFern(int numOfFeaturePerFern) {
+        Configuration::numOfFeaturePerFern = numOfFeaturePerFern;
+    }
+
 private:
     string rootPath;
+
+    string modelPath;
     string datasetPath;
 
     string datasetTrainPath;
@@ -119,6 +152,11 @@ private:
 
     int numOfLandmark;
 
+    int numOfFirstLevel;
+
+    int numOfSecondLevel;
+
+    int numOfFeaturePerFern;
     void add(string, string);
 };
 

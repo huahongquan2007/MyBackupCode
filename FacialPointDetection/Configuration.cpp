@@ -79,4 +79,24 @@ void Configuration::add(string id, string val) {
         setNumOfLandmark( stoi(val) );
         cout << "NUM_OF_LANDMARK: " << endl; cout << "\t" << getNumOfLandmark() << endl;
     }
+
+    if(id == "MODEL_PATH"){
+        setModelPath( getRootPath() + val );
+        cout << "MODEL_PATH: " << endl; cout << "\t" << getModelPath() << endl;
+    }
+
+    if(id == "NUM_OF_FIRST_LEVEL"){
+        setNumOfFirstLevel( stoi( val) );
+        cout << "NUM_OF_FIRST_LEVEL: " << endl; cout << "\t" << getNumOfFirstLevel() << endl;
+    }
+
+    if(id == "NUM_OF_SECOND_LEVEL"){
+        setNumOfSecondLevel( stoi( val) );
+        cout << "NUM_OF_SECOND_LEVEL: " << endl; cout << "\t" << getNumOfSecondLevel() << endl;
+    }
+
+    if(id == "NUM_OF_FEATURE_PER_FERN"){
+        setNumOfFeaturePerFern( stoi(val) );
+        cout << "NUM_OF_FEATURE_PER_FERN: " << endl; cout << "\t" << getNumOfFeaturePerFern() << endl;
+    }
 }
