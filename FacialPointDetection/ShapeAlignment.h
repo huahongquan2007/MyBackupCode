@@ -15,6 +15,7 @@ private:
     int first_level_regressor;
     int second_level_regressor;
     int num_of_feature_per_fern;
+    int num_of_random_pixel;
     vector<Mat_<unsigned char>> images;
     vector<Mat_<double>> keypoints;
     vector<Rect_<int>> boundingBoxes;
@@ -22,7 +23,7 @@ private:
     vector<NormalRegressor> regressors;
     void setup();
 public:
-    ShapeAlignment(int first_level_regressor, int second_level_regressor, int num_of_feature_per_fern);
+    ShapeAlignment(int first_level_regressor, int second_level_regressor, int num_of_feature_per_fern, int num_of_random_pixel);
     void addImages( vector<Mat_<unsigned char>> );
     void addBoundingBoxes( vector<Rect_<int>> );
     void addKeyPoints( vector<Mat_<double>> );

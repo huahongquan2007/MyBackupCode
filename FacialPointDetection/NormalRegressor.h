@@ -14,9 +14,10 @@ using namespace cv;
 class NormalRegressor{
 private:
     vector<FernRegressor> childRegressor;
+    int num_of_random_pixels;
 public:
-    NormalRegressor(int, int);
-    vector<Mat_<double>> Train(vector<Mat_<unsigned char>> images, vector<Mat_<double>> keypoints, vector<Rect_<int>> boundingBoxes, vector<Mat_<double>> curShape);
+    NormalRegressor(int, int, int );
+    vector<Mat_<double>> Train(vector<Mat_<unsigned char>> images, vector<Mat_<double>> keypoints, Mat_<double> meanShape, vector<Rect_<int>> boundingBoxes, vector<Mat_<double>> inputShape);
 };
 
 

@@ -1,10 +1,11 @@
 #include "ShapeAlignment.h"
-#include "NormalRegressor.h"
+#include "utility.h"
 
-ShapeAlignment::ShapeAlignment(int first_level_regressor, int second_level_regressor, int num_of_feature_per_fern) {
+ShapeAlignment::ShapeAlignment(int first_level_regressor, int second_level_regressor, int num_of_feature_per_fern, int num_of_random_pixel) {
     ShapeAlignment::first_level_regressor = first_level_regressor;
     ShapeAlignment::second_level_regressor = second_level_regressor;
     ShapeAlignment::num_of_feature_per_fern = num_of_feature_per_fern;
+    ShapeAlignment::num_of_random_pixel = num_of_random_pixel;
 
     setup();
 }
@@ -12,7 +13,7 @@ ShapeAlignment::ShapeAlignment(int first_level_regressor, int second_level_regre
 void ShapeAlignment::setup(){
 
     for(int i = 0 ; i < first_level_regressor ; i ++){
-        NormalRegressor curRegressor( second_level_regressor , num_of_feature_per_fern );
+        NormalRegressor curRegressor( second_level_regressor , num_of_feature_per_fern , num_of_random_pixel);
         regressors.push_back(curRegressor);
     }
 }
@@ -38,8 +39,14 @@ void ShapeAlignment::Save(string destination) {
 void ShapeAlignment::Train(){
     cout << "TRAIN SHAPE MODEL" << endl;
 
+    // Use boundingBox to generate more training data
+
     vector<Mat_<double>> curShape;
+    vector<Mat_<double>> deltaShape;
+    Mat_<double> meanShape = GetMeanShape(keypoints, boundingBoxes);
     for(int i = 0 ; i < first_level_regressor ; i ++){
-        curShape = regressors[i].Train(images, keypoints, boundingBoxes, curShape);
+        deltaShape = regressors[i].Train(images, keypoints, meanShape, boundingBoxes, curShape);
+
+        curShape += deltaShape;
     }
 }

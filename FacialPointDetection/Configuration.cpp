@@ -99,4 +99,9 @@ void Configuration::add(string id, string val) {
         setNumOfFeaturePerFern( stoi(val) );
         cout << "NUM_OF_FEATURE_PER_FERN: " << endl; cout << "\t" << getNumOfFeaturePerFern() << endl;
     }
+
+    if(id == "NUM_OF_RANDOM_PIXEL"){
+        setNumOfRandomPixel( stoi(val) );
+        cout << "NUM_OF_RANDOM_PIXEL: " << endl; cout << "\t" << getNumOfRandomPixel() << endl;
+    }
 }

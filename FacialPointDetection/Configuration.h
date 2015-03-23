@@ -131,6 +131,14 @@ public:
         Configuration::numOfFeaturePerFern = numOfFeaturePerFern;
     }
 
+    int getNumOfRandomPixel() const {
+        return numOfRandomPixel;
+    }
+
+    void setNumOfRandomPixel(int numOfRandomPixel) {
+        Configuration::numOfRandomPixel = numOfRandomPixel;
+    }
+
 private:
     string rootPath;
 
@@ -157,6 +165,8 @@ private:
     int numOfSecondLevel;
 
     int numOfFeaturePerFern;
+
+    int numOfRandomPixel;
     void add(string, string);
 };
 
