@@ -7,7 +7,7 @@
 using namespace std;
 using namespace cv;
 
-void visualizeImage(Mat img, Mat_<double> keypoints, int num_of_landmark, bool debug=false);
+void visualizeImage(Mat img, Mat_<double> keypoints, bool debug=false);
 
 Mat_<double> GetMeanShape(vector<Mat_<double>> keypoints, vector<Rect_<int>> boxes);
 Mat_<double> ProjectToBoxCoordinate( Mat_<double> points, Rect_<int> box );

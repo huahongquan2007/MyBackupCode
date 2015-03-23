@@ -44,9 +44,12 @@ void ShapeAlignment::Train(){
     vector<Mat_<double>> curShape;
     vector<Mat_<double>> deltaShape;
     Mat_<double> meanShape = GetMeanShape(keypoints, boundingBoxes);
+
     for(int i = 0 ; i < first_level_regressor ; i ++){
         deltaShape = regressors[i].Train(images, keypoints, meanShape, boundingBoxes, curShape);
 
-        curShape += deltaShape;
+        for(int j = 0 ; j < curShape.size() ; j++){
+            curShape[j] += deltaShape[j];
+        }
     }
 }

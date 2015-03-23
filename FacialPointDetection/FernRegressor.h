@@ -14,7 +14,7 @@ class FernRegressor{
 
 public:
     FernRegressor(int feature_per_fern);
-    vector<Mat_<double>> Train(vector<Mat_<unsigned char>> images, vector<Mat_<double>> keypoints, vector<Mat_<double>> inputShape, Mat_<double> shapeIndexFeatures);
+    vector<Mat_<double>> Train(vector<Mat_<unsigned char>> images, vector<Mat_<double>> keypoints, vector<Mat_<double>> inputShape, Mat_<double> shapeIndexLocation);
 };
 
 

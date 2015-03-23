@@ -1,7 +1,7 @@
 #include "utility.h"
 #include "iomanip"
 
-void visualizeImage(Mat img, Mat_<double> keypoints, int num_of_landmark, bool debug){
+void visualizeImage(Mat img, Mat_<double> keypoints, bool debug){
     // --------------- DRAW A FACE + KEYPOINT --------
     namedWindow("Images", WINDOW_NORMAL);
 
@@ -13,7 +13,7 @@ void visualizeImage(Mat img, Mat_<double> keypoints, int num_of_landmark, bool d
 
     if(debug) cout << endl;
 
-    for(int j = 0 ; j < num_of_landmark ; j++){
+    for(int j = 0 ; j < curKey.rows ; j++){
         int x = (int) curKey.at<double>(j, 0);
         int y = (int) curKey.at<double>(j, 1);
         if(debug) cout << "Point["<< j << "]( " << setw(7) << x << " , " << setw(7) << y << " )" << endl;
