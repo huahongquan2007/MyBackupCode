@@ -50,7 +50,7 @@ vector<Mat_<double>> NormalRegressor::Train(vector<Mat_<unsigned char>> images, 
     }
 
     // Get pixel intensity of each P pixels over training set
-    Mat_<unsigned char> shapeIndexPixels (num_of_random_pixels, num_of_images);
+    Mat_<double> shapeIndexPixels (num_of_random_pixels, num_of_images);
 
     for(int i = 0 ; i < num_of_images ; i++){
         // project keypoints to box
@@ -68,7 +68,7 @@ vector<Mat_<double>> NormalRegressor::Train(vector<Mat_<unsigned char>> images, 
 
         // get pixels
         for(int j = 0 ; j < num_of_random_pixels; j++){
-            shapeIndexPixels(j, i) = images[i].at<unsigned char>(curLocationImageCoor(j,0), curLocationImageCoor(j, 1));
+            shapeIndexPixels(j, i) = (double) images[i].at<unsigned char>(curLocationImageCoor(j,0), curLocationImageCoor(j, 1));
         }
     }
     cout << "Shape Index Pixels: " << shapeIndexPixels << endl;
@@ -92,7 +92,7 @@ vector<Mat_<double>> NormalRegressor::Train(vector<Mat_<unsigned char>> images, 
 
         // Train each child-level regressor
 
-        deltaShape = child.Train(regression_target, covariance_matrix);
+        deltaShape = child.Train(regression_target, covariance_matrix, shapeIndexPixels, shapeIndexLocation, shapeIndexNearestLandmark);
 
         for(int j = 0 ; j < regression_target.size() ; j++){
             regression_target[j] += deltaShape[j];
