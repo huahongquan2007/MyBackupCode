@@ -67,3 +67,10 @@ Mat_<double> ProjectToImageCoordinate( Mat_<double> points, Rect_<int> box ){
 
     return result;
 }
+
+double calculate_covariance(Mat_<unsigned char> x, Mat_<unsigned char> y) {
+    cout << "------------------------" << endl;
+    cout << "X: " << x << endl;
+    cout << "Y: " << y << endl;
+    return 0;
+}

@@ -20,7 +20,6 @@ vector<Mat_<double>> NormalRegressor::Train(vector<Mat_<unsigned char>> images, 
 
     // Variable
     int num_of_images = images.size();
-    vector<Mat_<double>> curShape = inputShape;
 
     Mat_<double> shapeIndexLocation (num_of_random_pixels, 2);
     Mat_<int> shapeIndexNearestLandmark (num_of_random_pixels, 1);
@@ -73,18 +72,33 @@ vector<Mat_<double>> NormalRegressor::Train(vector<Mat_<unsigned char>> images, 
         }
     }
     cout << "Shape Index Pixels: " << shapeIndexPixels << endl;
-    // Calculate covariance between features: X
+
+    // Calculate covariance between i, j
+    Mat_<double> covariance_matrix(num_of_random_pixels, num_of_random_pixels);
+    for(int i = 0 ; i < num_of_random_pixels; i++){
+        for(int j = i ; j < num_of_random_pixels; j++){
+            double cov_value = calculate_covariance( shapeIndexPixels.row(i), shapeIndexPixels.row(j) );
+            covariance_matrix(i, j) = cov_value;
+            covariance_matrix(j, i) = cov_value;
+        }
+    }
+
+    vector< Mat_<double> > regression_target;
+    for(int i = 0 ; i < num_of_images; i ++){
+        regression_target.push_back(keypoints[i] - inputShape[i]);
+    }
 
     for(FernRegressor &child : childRegressor){
 
         // Train each child-level regressor
 
-        deltaShape = child.Train(images, keypoints, curShape, shapeIndexLocation);
+        deltaShape = child.Train(regression_target, covariance_matrix);
 
-        for(int j = 0 ; j < curShape.size() ; j++){
-            curShape[j] += deltaShape[j];
+        for(int j = 0 ; j < regression_target.size() ; j++){
+            regression_target[j] += deltaShape[j];
         }
     }
 
-    return curShape;
+    return regression_target;
 }
+

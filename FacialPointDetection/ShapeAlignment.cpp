@@ -1,3 +1,4 @@
+#include <strings.h>
 #include "ShapeAlignment.h"
 #include "utility.h"
 
@@ -39,11 +40,25 @@ void ShapeAlignment::Save(string destination) {
 void ShapeAlignment::Train(){
     cout << "TRAIN SHAPE MODEL" << endl;
 
-    // Use boundingBox to generate more training data
-
     vector<Mat_<double>> curShape;
     vector<Mat_<double>> deltaShape;
     Mat_<double> meanShape = GetMeanShape(keypoints, boundingBoxes);
+
+    // Use boundingBox to generate initialized locations for training data
+    RNG rng;
+    for(int i = 0 ; i < images.size(); i++){
+        int index = i;
+        while(index == i){
+            index = rng.uniform(0, images.size() - 1);
+        }
+
+        Mat_<double> initial = ProjectToBoxCoordinate(keypoints[index], boundingBoxes[index]);
+        curShape.push_back(ProjectToImageCoordinate(initial, boundingBoxes[i] ));
+    }
+
+
+    cout << "KEYPOINTS: " << keypoints[0] << endl;
+    cout << "CURSHAPE: " << curShape[0] << endl;
 
     for(int i = 0 ; i < first_level_regressor ; i ++){
         deltaShape = regressors[i].Train(images, keypoints, meanShape, boundingBoxes, curShape);
