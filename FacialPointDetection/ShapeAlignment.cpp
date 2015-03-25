@@ -47,18 +47,24 @@ void ShapeAlignment::Train(){
     // Use boundingBox to generate initialized locations for training data
     RNG rng;
     for(int i = 0 ; i < images.size(); i++){
+
+        // method 1: random
         int index = i;
         while(index == i){
             index = rng.uniform(0, images.size() - 1);
         }
 
-        Mat_<double> initial = ProjectToBoxCoordinate(keypoints[index], boundingBoxes[index]);
-        curShape.push_back(ProjectToImageCoordinate(initial, boundingBoxes[i] ));
+//        index = i;
+//        Mat_<double> initial = ProjectToBoxCoordinate(keypoints[index], boundingBoxes[index]);
+//        initial += 0.35;
+//        curShape.push_back(ProjectToImageCoordinate(initial, boundingBoxes[i] ));
+
+        // method 2: use mean
+        curShape.push_back(ProjectToImageCoordinate(meanShape, boundingBoxes[i] ));
     }
 
-
-    cout << "KEYPOINTS: " << keypoints[0] << endl;
-    cout << "CURSHAPE: " << curShape[0] << endl;
+    int visualIdx = 11;
+    Mat_<double> initialShape = curShape[visualIdx].clone();
 
     for(int i = 0 ; i < first_level_regressor ; i ++){
         deltaShape = regressors[i].Train(images, keypoints, meanShape, boundingBoxes, curShape);
@@ -66,5 +72,9 @@ void ShapeAlignment::Train(){
         for(int j = 0 ; j < curShape.size() ; j++){
             curShape[j] += deltaShape[j];
         }
+//        cout << "FIRST LEVEL " << i << endl;
+        visualizeImage(images[visualIdx], curShape[visualIdx], 10);
     }
+
+    waitKey(0);
 }

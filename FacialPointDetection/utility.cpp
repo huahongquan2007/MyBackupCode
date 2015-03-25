@@ -1,7 +1,7 @@
 #include "utility.h"
 #include "iomanip"
 
-void visualizeImage(Mat img, Mat_<double> keypoints, bool debug){
+void visualizeImage(Mat img, Mat_<double> keypoints, int delay, bool debug){
     // --------------- DRAW A FACE + KEYPOINT --------
     namedWindow("Images", WINDOW_NORMAL);
 
@@ -22,7 +22,42 @@ void visualizeImage(Mat img, Mat_<double> keypoints, bool debug){
 
     imshow("Images", curImg);
 
-    waitKey(0);
+    waitKey(delay);
+}
+
+void visualizeImageCompare(Mat img, Mat_<double> keypoints, Mat_<double> keypoints2, int delay, bool debug){
+    // --------------- DRAW A FACE + KEYPOINT --------
+    namedWindow("ImageCompare", WINDOW_NORMAL);
+
+    Mat curImg;
+
+    cvtColor( img, curImg, CV_GRAY2BGR );
+
+    Mat_<double> curKey = keypoints;
+
+    if(debug) cout << endl;
+
+    for(int j = 0 ; j < curKey.rows ; j++){
+        int x = (int) curKey.at<double>(j, 0);
+        int y = (int) curKey.at<double>(j, 1);
+        if(debug) cout << "Point["<< j << "]( " << setw(7) << x << " , " << setw(7) << y << " )" << endl;
+        circle(curImg, Point(x, y), 3, Scalar(255, 0, 0), -1);
+    }
+
+    curKey = keypoints2;
+
+    if(debug) cout << endl;
+
+    for(int j = 0 ; j < curKey.rows ; j++){
+        int x = (int) curKey.at<double>(j, 0);
+        int y = (int) curKey.at<double>(j, 1);
+        if(debug) cout << "Point["<< j << "]( " << setw(7) << x << " , " << setw(7) << y << " )" << endl;
+        circle(curImg, Point(x, y), 1, Scalar(0, 255, 0), -1);
+    }
+
+    imshow("ImageCompare", curImg);
+
+    waitKey(delay);
 }
 
 Mat_<double> GetMeanShape(vector<Mat_<double>> keypoints, vector<Rect_<int>> boxes) {

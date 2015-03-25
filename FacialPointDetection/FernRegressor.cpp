@@ -14,7 +14,6 @@ vector<Mat_<double>> FernRegressor::Train(vector<Mat_<double>> regression_target
 
     if(isDebug) cout << "-FernRegressor: Train" << endl;
 
-    vector<Mat_<double>> curShape = regression_target;
     int num_of_images = regression_target.size();
     int num_of_landmark = regression_target[0].rows;
     int num_of_random_pixels = covariance_matrix.rows;
@@ -97,6 +96,7 @@ vector<Mat_<double>> FernRegressor::Train(vector<Mat_<double>> regression_target
 
     for(int i = 0 ; i < num_of_images; i++){
         int index = 0;
+
         for(int j = 0 ; j < feature_per_fern; j++){
             double pixel1 = pixels(max_corr_index(j, 0), i);
             double pixel2 = pixels(max_corr_index(j, 1), i);
@@ -108,18 +108,50 @@ vector<Mat_<double>> FernRegressor::Train(vector<Mat_<double>> regression_target
         bins_index[index].push_back(i);
     }
 
+    regression_output.resize(bins_index.size()); // 2^F output
+
+    // compute regression output
+    cout << "BIN: ";
     for(int i = 0 ; i < bins_index.size() ; i++){
-        if(bins_index[i].size() > 0){
-            cout << "BIN : " << i << endl;
-            for(int j = 0 ; j < bins_index[i].size() ; j++){
-                cout << bins_index[i][j] << " " ;
+        int bin_size = bins_index[i].size();
+
+        Mat_<double> result = Mat::zeros (num_of_landmark, 2, CV_32F);
+        if(bin_size > 0){
+            cout << "[" << i << "_"<< bin_size << "] ";
+//            if(isDebug) cout << "BIN : " << i << endl;
+
+            for(int j = 0 ; j < bin_size ; j++){
+//                if(isDebug) cout << bins_index[i][j] << " " ;
+                int shape_idx = bins_index[i][j];
+                result += regression_target[shape_idx];
             }
-            cout << endl;
+            double ratio = (1 + 1000.0/ bin_size) * bin_size;
+            result /= ratio;
+//            if(isDebug) cout << endl;
         }
 
+        regression_output[i] = result;
     }
+    cout << endl;
 
-//    waitKey(0);
+    // compute output for each shape in training
+    vector<Mat_<double>> deltaShape;
+    deltaShape.resize(num_of_images);
 
-    return curShape;
+    for(int i = 0 ; i < bins_index.size() ; i++) {
+        for (int j = 0; j < bins_index[i].size(); j++) {
+            int shape_idx = bins_index[i][j];
+            deltaShape[shape_idx] = regression_output[i];
+        }
+    }
+    cout << "---------- DELTA SHAPE" << endl << deltaShape[0].t() << endl;
+
+//    for(Mat_<double> r : deltaShape){
+//        cout << r << endl;
+//    }
+    // to do:
+    // 1. similarity transform
+    // 2. how to deal with threshold & bins
+
+    return deltaShape;
 }

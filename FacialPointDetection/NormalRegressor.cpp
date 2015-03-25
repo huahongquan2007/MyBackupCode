@@ -71,7 +71,7 @@ vector<Mat_<double>> NormalRegressor::Train(vector<Mat_<unsigned char>> images, 
             shapeIndexPixels(j, i) = (double) images[i].at<unsigned char>(curLocationImageCoor(j,0), curLocationImageCoor(j, 1));
         }
     }
-    cout << "Shape Index Pixels: " << shapeIndexPixels << endl;
+//    cout << "Shape Index Pixels: " << shapeIndexPixels << endl;
 
     // Calculate covariance between i, j
     Mat_<double> covariance_matrix(num_of_random_pixels, num_of_random_pixels);
@@ -84,9 +84,17 @@ vector<Mat_<double>> NormalRegressor::Train(vector<Mat_<unsigned char>> images, 
     }
 
     vector< Mat_<double> > regression_target;
+    vector< Mat_<double> > regression_output;
     for(int i = 0 ; i < num_of_images; i ++){
         regression_target.push_back(keypoints[i] - inputShape[i]);
+
+        regression_output.push_back(Mat::zeros(inputShape[i].size(), CV_32F ));
     }
+
+    int visualIdx = 11;
+    Mat_<double> initialShape = inputShape[visualIdx].clone();
+    Mat_<double> resultShape = inputShape[visualIdx].clone();
+
 
     for(FernRegressor &child : childRegressor){
 
@@ -94,11 +102,15 @@ vector<Mat_<double>> NormalRegressor::Train(vector<Mat_<unsigned char>> images, 
 
         deltaShape = child.Train(regression_target, covariance_matrix, shapeIndexPixels, shapeIndexLocation, shapeIndexNearestLandmark);
 
-        for(int j = 0 ; j < regression_target.size() ; j++){
+        for(int j = 0 ; j < regression_output.size() ; j++){
             regression_target[j] += deltaShape[j];
+            regression_output[j] += deltaShape[j];
         }
+
+        resultShape += deltaShape[visualIdx];
+        visualizeImageCompare(images[visualIdx], resultShape, initialShape, 10);
     }
 
-    return regression_target;
+    return regression_output;
 }
 
