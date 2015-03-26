@@ -10,53 +10,11 @@ using namespace std;
 #include "Configuration.h"
 #include "ShapeAlignment.h"
 
-//void test(){
-//    cv::Size img_size(500, 500);
-//    cv::Mat img = cv::Mat::zeros(img_size, CV_8UC3);
-//
-//    int rand_num = 10;
-//    cv::Mat_<float> points(rand_num, 3);
-//    cv::Mat src_points(points, cv::Rect(0,0,2,rand_num));
-//    cv::randu(points, cv::Scalar(100), cv::Scalar(400));
-//    for(int i=0; i<rand_num; ++i) {
-//        points(i, 2) = 1.0;
-//        cv::circle(img, cv::Point(points(i,0), points(i,1)), 2, cv::Scalar(200,200,0), -1, CV_AA);
-//    }
-//
-//    cv::Mat affine_matrix = (cv::Mat_<float>(2, 3) << 0.7660,-0.8428,214.1616,0.6428,0.9660,-108.4043);
-//    cv::Mat dst_points = points * affine_matrix.t();
-//    for(int i=0; i<rand_num; ++i) {
-//        cv::circle(img, cv::Point(dst_points.at<float>(i,0), dst_points.at<float>(i,1)), 2, cv::Scalar(50,50,255), -1, CV_AA);
-//    }
-//
-//    cv::Mat est_matrix  = cv::estimateRigidTransform(src_points.reshape(2), dst_points.reshape(2), false);
-//    cv::Mat est_matrix_full  = cv::estimateRigidTransform(src_points.reshape(2), dst_points.reshape(2), true);
-//
-//    std::cout << "Affine Transformation Matrix:" << std::endl;
-//    std::cout << affine_matrix << std::endl << std::endl;
-//    std::cout << "Estimated Matrix:" << std::endl;
-//    std::cout << est_matrix << std::endl << std::endl;
-//    std::cout << "Estimated Matrix (full):" << std::endl;
-//    std::cout << est_matrix_full << std::endl << std::endl;
-//
-//    waitKey(0);
-//    cv::Mat est_matrixF, est_matrixF_full;
-//    est_matrix.convertTo(est_matrixF, CV_32F);
-//    est_matrix_full.convertTo(est_matrixF_full, CV_32F);
-//    cv::Mat_<float> est_points = points * est_matrixF.t();
-//    cv::Mat_<float> est_points_full = points * est_matrixF_full.t();
-//    for(int i=0; i<rand_num; ++i) {
-//        cv::circle(img, cv::Point(est_points(i,0), est_points(i,1)), 5, cv::Scalar(50,255,50), 1, CV_AA);
-//        cv::circle(img, cv::Point(est_points_full(i,0), est_points_full(i,1)), 5, cv::Scalar(50,255,255), 1, CV_AA);
-//    }
-//
-//    cv::namedWindow("image", CV_WINDOW_AUTOSIZE|CV_WINDOW_FREERATIO);
-//    cv::imshow("image", img);
-//    cv::waitKey(0);
-//}
-int main() {
+void readKeypoints(int const num_of_training, int const num_of_landmark, vector<Mat_<double>> &keypoints, string &train_path);
 
-//    test();
+void readBoundingBoxes(int const num_of_training, vector<Rect_<int>> &bounding_boxes, string &bounding_box_train_path);
+
+int main() {
 
     cout << "Facial Point Detection Projects" << endl;
 
@@ -64,10 +22,14 @@ int main() {
     // Read Configuration
     Configuration options("/home/robotbase/github/MyBackupCode/FacialPointDetection/config.txt");
 
+    const int num_of_landmark = options.getNumOfLandmark();
+
+    bool isTraining = true;
+//    if(isTraining){
+
     // =========================================
     // Training
     const int num_of_training = options.getNumOfTraining();
-    const int num_of_landmark = options.getNumOfLandmark();
     vector<Mat_<unsigned char>> images;
     vector<Mat_<double>> keypoints;
     vector<Rect_<int>> bounding_boxes;
@@ -85,30 +47,11 @@ int main() {
     }
 
     // -------------- READ BOUNDING BOX ----------
-    ifstream finBox( options.getTrainBoundingBoxPath() , ifstream::in );
-    Rect_<int> rect;
-    for(int i = 0;i < num_of_training; i++){
-        finBox >> rect.x >> rect.y >> rect.width >> rect.height;
-        cout << rect << endl;
-        bounding_boxes.push_back(rect);
-    }
-    finBox.close();
+    string bounding_box_train_path = options.getTrainBoundingBoxPath();
+    readBoundingBoxes(num_of_training, bounding_boxes, bounding_box_train_path);
     // -------------- READ KEYPOINTS -------------
-    ifstream finKey( options.getTrainKeypointsPath() , ifstream::in );
-    for(int i = 0;i < num_of_training; i++){
-        Mat_<double> temp(num_of_landmark,2);
-        double val;
-        for(int j = 0; j < num_of_landmark; j++){
-            finKey >> val;
-            temp.at<double>(j, 0) = val;
-        }
-        for(int j = 0; j < num_of_landmark; j++){
-            finKey >> val;
-            temp.at<double>(j, 1) = val;
-        }
-        keypoints.push_back(temp);
-    }
-    finKey.close();
+    string train_path = options.getTrainKeypointsPath();
+    readKeypoints(num_of_training, num_of_landmark, keypoints, train_path);
 
     cout << "Start Training: numOfImages: " << images.size() << endl;
 
@@ -127,9 +70,78 @@ int main() {
     shapeAlignment.Train();
     shapeAlignment.Save(options.getModelPath());
 
+//    }//isTraining == true
+
     // =========================================
     // Testing
     cout << "Start Testing" << endl;
+    const int num_of_testing = options.getNumOfTesting();
+    vector<Mat_<unsigned char>> images_test;
+    vector<Mat_<double>> keypoints_test;
+    vector<Rect_<int>> bounding_boxes_test;
+    const string test_data = options.getDatasetTestPath();
+
+    // -------------- READ IMAGE ---------------
+    string img_path_test = "";
+    Mat img_data_test;
+    for(int i = 0; i < num_of_testing; i++){
+        img_path_test = test_data + to_string(i+1) + ".jpg";
+
+        img_data_test = imread(img_path_test, CV_LOAD_IMAGE_GRAYSCALE);
+        images_test.push_back(img_data_test);
+        cout << "test_img: " << img_path_test << endl;
+    }
+    // -------------- READ BOUNDING BOX ----------
+    string bounding_box_test_path = options.getTestBoundingBoxPath();
+    readBoundingBoxes(num_of_testing, bounding_boxes_test, bounding_box_test_path);
+    // -------------- READ KEYPOINTS -------------
+    string test_path = options.getTestKeypointsPath();
+    readKeypoints(num_of_testing, num_of_landmark, keypoints_test, test_path);
+
+    cout << "Start Testing: numOfImages: " << images_test.size() << endl;
+
+//    int first_level = options.getNumOfFirstLevel();
+//    int second_level = options.getNumOfSecondLevel();
+//    int feature_per_fern = options.getNumOfFeaturePerFern();
+//    ShapeAlignment shapeAlignment(first_level, second_level, feature_per_fern);
+
+    for(int i = 0 ; i < images_test.size(); i++){
+        Mat_<double> prediction = shapeAlignment.Test(images_test[i], bounding_boxes_test[i]);
+        visualizeImage(images_test[i], prediction, 10);
+        cout << "==============================" << endl;
+        cout << "FINISH " << i << endl;
+        cout << prediction << endl;
+    }
+
     waitKey(0);
     return 0;
+}
+
+void readBoundingBoxes(int const num_of_training, vector<Rect_<int>> &bounding_boxes, string &bounding_box_train_path) {
+    ifstream finBox( bounding_box_train_path , ios_base::in );
+    Rect_<int> rect;
+    for(int i = 0;i < num_of_training; i++){
+        finBox >> rect.x >> rect.y >> rect.width >> rect.height;
+        cout << rect << endl;
+        bounding_boxes.push_back(rect);
+    }
+    finBox.close();
+}
+
+void readKeypoints(int const num_of_training, int const num_of_landmark, vector<Mat_<double>> &keypoints, string &train_path) {
+    ifstream finKey( train_path , ios_base::in );
+    for(int i = 0;i < num_of_training; i++){
+        Mat_<double> temp(num_of_landmark,2);
+        double val;
+        for(int j = 0; j < num_of_landmark; j++){
+            finKey >> val;
+            temp.at<double>(j, 0) = val;
+        }
+        for(int j = 0; j < num_of_landmark; j++){
+            finKey >> val;
+            temp.at<double>(j, 1) = val;
+        }
+        keypoints.push_back(temp);
+    }
+    finKey.close();
 }

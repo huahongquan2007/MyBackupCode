@@ -1,7 +1,3 @@
-//
-// Created by robotbase on 20/03/2015.
-//
-
 #include <strings.h>
 #include "FernRegressor.h"
 #include "utility.h"
@@ -166,4 +162,55 @@ vector<Mat_<double>> FernRegressor::Train(vector<Mat_<double>> regression_target
     }
 
     return deltaShape;
+}
+
+
+Mat_<double> FernRegressor::Test(Mat_<unsigned char> image, Rect_<int> bounding_box, Mat_<double> curShape){
+    cout << "FernRegressor: Test" << endl;
+
+
+    // project keypoints to box
+    Mat_<double> curKeyPoints = ProjectToBoxCoordinate(curShape, bounding_box);
+
+    // find bin
+    int index = 0;
+    for (int i = 0; i < feature_per_fern; i++) {
+        cout << "---Fern: " << i << endl;
+        cout << fernThreshold[i] << endl;
+        cout << fernPairLocation[i] << endl;
+        cout << fernPairNearestLandmark[i] << endl;
+
+        Mat_<double> curLocation ( 2, 1 );
+        // Get Pixel 1
+        int idx_landmark_1 = fernPairNearestLandmark[i](0, 0);
+
+        cout << "IDX 1 " << idx_landmark_1 << endl;
+        curLocation(0, 0) = fernPairLocation[i](0, 0) + curKeyPoints( idx_landmark_1, 0);
+        curLocation(1, 0) = fernPairLocation[i](0, 1) + curKeyPoints( idx_landmark_1, 1);
+
+        Mat_<double> curLocationImageCoor = ProjectToImageCoordinate(curLocation, bounding_box);
+        double pixel_1 = (double) image.at<unsigned char>(curLocationImageCoor(0,0), curLocationImageCoor(0, 1));
+
+        // Get Pixel 2
+        int idx_landmark_2 = fernPairNearestLandmark[i](0, 1);
+        cout << "IDX 2 " << idx_landmark_2 << endl;
+        curLocation(0, 0) = fernPairLocation[i](1, 0) + curKeyPoints( idx_landmark_2, 0);
+        curLocation(1, 0) = fernPairLocation[i](1, 1) + curKeyPoints( idx_landmark_2, 1);
+
+        curLocationImageCoor = ProjectToImageCoordinate(curLocation, bounding_box);
+        double pixel_2 = (double) image.at<unsigned char>(curLocationImageCoor(0,0), curLocationImageCoor(0, 1));
+
+        cout << "PIXEL 1: " << pixel_1 << endl;
+        cout << "PIXEL 2: " << pixel_2 << endl;
+
+        if(pixel_1 - pixel_2 >= fernThreshold[i]){
+            index += pow(2.0, i);
+        }
+    }
+
+    cout << "BIN : " << index << endl;
+    cout << "REGRESSION OUTPUT : " << regression_output[index].t() << endl;
+
+    // return regression_output in box-coordinate
+    return regression_output[index]; // box-coordinate
 }

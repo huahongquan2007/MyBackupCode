@@ -145,3 +145,31 @@ vector<Mat_<double>> NormalRegressor::Train(vector<Mat_<unsigned char>> images, 
     return regression_output;
 }
 
+Mat_<double> NormalRegressor::Test(Mat_<unsigned char> image, Rect_<int> bounding_box, Mat_<double> curShape){
+    cout << "NormalRegressor: Test" << endl;
+
+    Mat_<double> regression_output;
+    Mat_<double> deltaShape;
+    Mat_<double> inputShape = curShape.clone();
+
+    for(int i = 0 ; i < childRegressor.size(); i++){
+        deltaShape = childRegressor[i].Test(image, bounding_box, inputShape);
+        regression_output = ProjectToImageCoordinate(
+                ProjectToBoxCoordinate( inputShape , bounding_box ) - deltaShape,
+                bounding_box) - inputShape;
+
+        inputShape -= regression_output;
+
+        cout << "FINISH CHILD " << i << endl;
+        cout << "DeltaShape" << endl;
+        cout << deltaShape.t() << endl;
+        cout << "INPUTSHAPE " << endl;
+        cout << inputShape.t() << endl;
+        cout << "REGRESSION OUTPUT: " << endl;
+        cout << regression_output.t() << endl;
+
+        visualizeImage(image, inputShape, 10);
+    }
+
+    return regression_output;
+}

@@ -43,7 +43,8 @@ void ShapeAlignment::Train(){
     vector<Mat_<double>> inputShape;
     vector<Mat_<double>> curShape;
     vector<Mat_<double>> deltaShape;
-    Mat_<double> meanShape = GetMeanShape(keypoints, boundingBoxes);
+
+    meanShape = GetMeanShape(keypoints, boundingBoxes);
 
     // Use boundingBox to generate initialized locations for training data
     RNG rng;
@@ -88,8 +89,25 @@ void ShapeAlignment::Train(){
 //        waitKey(0);
     }
 
-    cout << "-----------------FOR EACH IMAGES  -------------------" << endl;
-    for(int i = 0 ; i < inputShape.size() ; i++){
-        visualizeImageCompare(images[i], curShape[i], inputShape[i], 500);
+//    cout << "-----------------FOR EACH IMAGES  -------------------" << endl;
+//    for(int i = 0 ; i < inputShape.size() ; i++){
+//        visualizeImageCompare(images[i], curShape[i], inputShape[i], 500);
+//    }
+
+}
+
+Mat_<double> ShapeAlignment::Test(Mat_<unsigned char> &image, Rect_<int> &bounding_box) {
+    Mat_<double> curShape;
+    Mat_<double> deltaShape;
+
+    // initialize curShape
+
+    curShape = ProjectToImageCoordinate(meanShape, bounding_box );
+
+    for(int i = 0 ; i < first_level_regressor ; i ++){
+        deltaShape = regressors[i].Test(image, bounding_box, curShape);
+
+        curShape -= deltaShape;
     }
+    return curShape;
 }
