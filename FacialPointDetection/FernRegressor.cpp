@@ -22,7 +22,7 @@ vector<Mat_<double>> FernRegressor::Train(vector<Mat_<double>> regression_target
 
     RNG rng;
     for (int i = 0; i < feature_per_fern; i++) {
-        if(isDebug) cout << "FERN: " << i << endl;
+//        if(isDebug) cout << "FERN: " << i << endl;
         // create a random direction to project target -> scalar
 
         Mat_<double> random_direction(num_of_landmark, 2);
@@ -38,7 +38,8 @@ vector<Mat_<double>> FernRegressor::Train(vector<Mat_<double>> regression_target
         // calculate cov(i, y)
         Mat_<double> covariance_i_y(num_of_random_pixels, 1);
 
-        if(isDebug) cout << "PROJECTED: " << projected_target << endl;
+//        if(isDebug) cout << "PROJECTED: " << projected_target << endl;
+
         for (int j = 0; j < num_of_random_pixels; j++) {
             covariance_i_y(j, 0) = calculate_covariance(pixels.row(j), projected_target);
         }
@@ -67,8 +68,13 @@ vector<Mat_<double>> FernRegressor::Train(vector<Mat_<double>> regression_target
         max_corr_index(i, 1) = index_j;
 
         Mat_<double> pixelDiff = pixels.row(index_i) - pixels.row(index_j);
+        pixelDiff = abs(pixelDiff);
 
-        double threshold = mean(pixelDiff)[0];
+        double min, max;
+        minMaxLoc(pixelDiff, &min, &max);
+
+//        double threshold = mean(pixelDiff)[0];
+        double threshold = rng.uniform( max * -0.2, max * 0.2 );
 
         Mat_<double> location(2, 2, CV_32F); // x1 y1 ; x2 y2
         location(0, 0) = pixelLocation(index_i, 0);
@@ -80,10 +86,10 @@ vector<Mat_<double>> FernRegressor::Train(vector<Mat_<double>> regression_target
         nearestLandmark(0, 0) = nearestLandmarkOfPixel(index_i, 0);
         nearestLandmark(1, 0) = nearestLandmarkOfPixel(index_j, 0);
 
-        if(isDebug) cout << "PIXEL DIFF: " << pixelDiff << endl;
-        if(isDebug) cout << "THRESHOLD " << threshold << endl;
-        if(isDebug) cout << "LOCATION: " << location << endl;
-        if(isDebug) cout << "NEAREST: " << nearestLandmark << endl;
+//        if(isDebug) cout << "PIXEL DIFF: " << pixelDiff << endl;
+//        if(isDebug) cout << "THRESHOLD " << threshold << endl;
+//        if(isDebug) cout << "LOCATION: " << location << endl;
+//        if(isDebug) cout << "NEAREST: " << nearestLandmark << endl;
 
         fernThreshold.push_back(threshold);
         fernPairLocation.push_back(location);
@@ -144,14 +150,20 @@ vector<Mat_<double>> FernRegressor::Train(vector<Mat_<double>> regression_target
             deltaShape[shape_idx] = regression_output[i];
         }
     }
-    cout << "---------- DELTA SHAPE" << endl << deltaShape[0].t() << endl;
 
+//    cout << "---------- DELTA SHAPE" << endl << deltaShape[0].t() << endl;
 //    for(Mat_<double> r : deltaShape){
 //        cout << r << endl;
 //    }
     // to do:
     // 1. similarity transform
     // 2. how to deal with threshold & bins
+
+
+    if( abs(deltaShape[0](0,0)) > 1){
+        cout << "ERROR???" << endl;
+        waitKey(0);
+    }
 
     return deltaShape;
 }

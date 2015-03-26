@@ -86,30 +86,61 @@ vector<Mat_<double>> NormalRegressor::Train(vector<Mat_<unsigned char>> images, 
     vector< Mat_<double> > regression_target;
     vector< Mat_<double> > regression_output;
     for(int i = 0 ; i < num_of_images; i ++){
-        regression_target.push_back(keypoints[i] - inputShape[i]);
+        regression_target.push_back( ProjectToBoxCoordinate( keypoints[i], boundingBoxes[i] ) - ProjectToBoxCoordinate( inputShape[i], boundingBoxes[i] ) );
 
         regression_output.push_back(Mat::zeros(inputShape[i].size(), CV_32F ));
     }
 
-    int visualIdx = 11;
+    int visualIdx = 0;
     Mat_<double> initialShape = inputShape[visualIdx].clone();
     Mat_<double> resultShape = inputShape[visualIdx].clone();
 
+    for(int i = 0 ; i < childRegressor.size(); i++){
 
-    for(FernRegressor &child : childRegressor){
+        cout << "------------ BEGIN [" << i << "]-------------" << endl;
+        cout << "REGRESSION TARGET: " << endl;
+        cout << regression_target[visualIdx].t() << endl;
 
         // Train each child-level regressor
 
-        deltaShape = child.Train(regression_target, covariance_matrix, shapeIndexPixels, shapeIndexLocation, shapeIndexNearestLandmark);
+        deltaShape = childRegressor[i].Train(regression_target, covariance_matrix, shapeIndexPixels, shapeIndexLocation, shapeIndexNearestLandmark);
 
         for(int j = 0 ; j < regression_output.size() ; j++){
-            regression_target[j] += deltaShape[j];
-            regression_output[j] += deltaShape[j];
+            regression_target[j] -= deltaShape[j];
+            //regression_output[j] += deltaShape[j];
+            regression_output[j] = ProjectToImageCoordinate(
+                    ProjectToBoxCoordinate( inputShape[visualIdx] , boundingBoxes[visualIdx] ) - regression_target[j],
+                    boundingBoxes[visualIdx]) - inputShape[visualIdx];
         }
-
-        resultShape += deltaShape[visualIdx];
-        visualizeImageCompare(images[visualIdx], resultShape, initialShape, 10);
+//        cout << "------------------------------" << endl;
+        cout << "Initial SHAPE: " << endl;
+        cout << initialShape.t() << endl;
+//        cout << "Initial SHAPE (PROJECT): " << endl;
+//        cout << ProjectToBoxCoordinate( initialShape , boundingBoxes[visualIdx] ) << endl;
+//        cout << "DELTA SHAPE: " << endl;
+//        cout << deltaShape[visualIdx] << endl;
+//        cout << "BOUNDINGBOXES: " << boundingBoxes[visualIdx] << endl;
+//        cout << "INITIAL + DELTA SHAPE: " << endl;
+//        cout << ProjectToBoxCoordinate( initialShape , boundingBoxes[visualIdx] ) + deltaShape[visualIdx] << endl;
+//        cout << "INITIAL + DELTA SHAPE (PROJECT): " << endl;
+//        cout << ProjectToImageCoordinate(ProjectToBoxCoordinate( initialShape , boundingBoxes[visualIdx] ) + regression_output[visualIdx], boundingBoxes[visualIdx]) << endl;
+//        cout << "INITIAL + DELTA SHAPE (ORIGINAL): " << endl;
+//        cout << ProjectToImageCoordinate(ProjectToBoxCoordinate( initialShape , boundingBoxes[visualIdx] ) + regression_output[visualIdx], boundingBoxes[visualIdx]) - initialShape << endl;
+        cout << "REGRESSION TARGET: " << endl;
+        cout << regression_target[visualIdx].t() << endl;
+        cout << "DELTA SHAPE: " << endl;
+        cout << deltaShape[visualIdx].t() << endl;
+        cout << "REGRESSION OUTPUT: " << endl;
+        cout << regression_output[visualIdx].t() << endl;
+        resultShape = initialShape - regression_output[visualIdx];
+        cout << "RESULT SHAPE: " << endl;
+        cout << resultShape.t() << endl;
+//        resultShape = ProjectToImageCoordinate(ProjectToBoxCoordinate( initialShape , boundingBoxes[visualIdx] ) + regression_output[visualIdx], boundingBoxes[visualIdx]);
+        visualizeImageCompare(images[visualIdx], resultShape, initialShape, 5);
     }
+
+    cout << "REGRESSION OUTPUT - BEFORE[0] : " << endl;
+    cout << regression_output[visualIdx].t() << endl;
 
     return regression_output;
 }

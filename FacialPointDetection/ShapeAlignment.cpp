@@ -40,6 +40,7 @@ void ShapeAlignment::Save(string destination) {
 void ShapeAlignment::Train(){
     cout << "TRAIN SHAPE MODEL" << endl;
 
+    vector<Mat_<double>> inputShape;
     vector<Mat_<double>> curShape;
     vector<Mat_<double>> deltaShape;
     Mat_<double> meanShape = GetMeanShape(keypoints, boundingBoxes);
@@ -55,26 +56,40 @@ void ShapeAlignment::Train(){
         }
 
 //        index = i;
-//        Mat_<double> initial = ProjectToBoxCoordinate(keypoints[index], boundingBoxes[index]);
-//        initial += 0.35;
-//        curShape.push_back(ProjectToImageCoordinate(initial, boundingBoxes[i] ));
-
+        Mat_<double> initial = ProjectToBoxCoordinate(keypoints[index], boundingBoxes[index]);
+//        initial += 0.45;
+        curShape.push_back( ProjectToImageCoordinate(initial, boundingBoxes[i] ) );
+        inputShape.push_back( ProjectToImageCoordinate(initial, boundingBoxes[i] ) );
         // method 2: use mean
-        curShape.push_back(ProjectToImageCoordinate(meanShape, boundingBoxes[i] ));
+//        curShape.push_back(ProjectToImageCoordinate(meanShape, boundingBoxes[i] ));
     }
 
-    int visualIdx = 11;
+    int visualIdx = 0;
     Mat_<double> initialShape = curShape[visualIdx].clone();
 
     for(int i = 0 ; i < first_level_regressor ; i ++){
+        cout << "=================================" << endl;
+        cout << "FIRST LEVEL " << i << endl;
         deltaShape = regressors[i].Train(images, keypoints, meanShape, boundingBoxes, curShape);
 
         for(int j = 0 ; j < curShape.size() ; j++){
-            curShape[j] += deltaShape[j];
+            curShape[j] -= deltaShape[j];
         }
-//        cout << "FIRST LEVEL " << i << endl;
+
+        cout << "---------FIRST LEVEL ------------" << endl;
+        cout << "INITIALSHAPE" << endl;
+        cout << initialShape.t() << endl;
+        cout << "CURSHAPE" << endl;
+        cout << curShape[visualIdx].t() << endl;
+        cout << "DELTASHAPE" << endl;
+        cout << deltaShape[visualIdx].t() << endl;
         visualizeImage(images[visualIdx], curShape[visualIdx], 10);
+
+//        waitKey(0);
     }
 
-    waitKey(0);
+    cout << "-----------------FOR EACH IMAGES  -------------------" << endl;
+    for(int i = 0 ; i < inputShape.size() ; i++){
+        visualizeImageCompare(images[i], curShape[i], inputShape[i], 500);
+    }
 }
