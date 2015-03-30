@@ -106,8 +106,12 @@ int main() {
 //    ShapeAlignment shapeAlignment(first_level, second_level, feature_per_fern);
 
     for(int i = 0 ; i < images_test.size(); i++){
-        Mat_<double> prediction = shapeAlignment.Test(images_test[i], bounding_boxes_test[i]);
-        visualizeImage(images_test[i], prediction, 10);
+//        Mat_<double> prediction = shapeAlignment.Test(images_test[i], bounding_boxes_test[i]);
+//        visualizeImageCompare(images_test[i], prediction, keypoints_test[i], 10);
+
+        Mat_<double> prediction = shapeAlignment.Test(images[i], bounding_boxes[i]);
+        visualizeImageCompare(images[i], prediction, keypoints[i], 10);
+
         cout << "==============================" << endl;
         cout << "FINISH " << i << endl;
         cout << prediction << endl;

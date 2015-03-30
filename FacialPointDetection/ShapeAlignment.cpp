@@ -46,6 +46,18 @@ void ShapeAlignment::Train(){
 
     meanShape = GetMeanShape(keypoints, boundingBoxes);
 
+
+    // generate more image, keypoints, curShape & inputShape
+    int total_image_original = images.size();
+    for(int j = 0 ; j < 40 ; j ++){
+        for(int i = 0 ; i < total_image_original; i++){
+            cout << "GENERATE " << i << endl;
+            images.push_back(images[i].clone());
+            keypoints.push_back(keypoints[i].clone());
+            boundingBoxes.push_back(boundingBoxes[i]);
+        }
+    }
+
     // Use boundingBox to generate initialized locations for training data
     RNG rng;
     for(int i = 0 ; i < images.size(); i++){

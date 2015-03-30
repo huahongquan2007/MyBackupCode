@@ -113,13 +113,13 @@ vector<Mat_<double>> FernRegressor::Train(vector<Mat_<double>> regression_target
     regression_output.resize(bins_index.size()); // 2^F output
 
     // compute regression output
-    cout << "BIN: ";
+    if(isDebug) cout << "BIN: ";
     for(int i = 0 ; i < bins_index.size() ; i++){
         int bin_size = bins_index[i].size();
 
         Mat_<double> result = Mat::zeros (num_of_landmark, 2, CV_32F);
         if(bin_size > 0){
-            cout << "[" << i << "_"<< bin_size << "] ";
+            if(isDebug) cout << "[" << i << "_"<< bin_size << "] ";
 //            if(isDebug) cout << "BIN : " << i << endl;
 
             for(int j = 0 ; j < bin_size ; j++){
@@ -134,7 +134,7 @@ vector<Mat_<double>> FernRegressor::Train(vector<Mat_<double>> regression_target
 
         regression_output[i] = result;
     }
-    cout << endl;
+    if(isDebug) cout << endl;
 
     // compute output for each shape in training
     vector<Mat_<double>> deltaShape;
@@ -155,36 +155,21 @@ vector<Mat_<double>> FernRegressor::Train(vector<Mat_<double>> regression_target
     // 1. similarity transform
     // 2. how to deal with threshold & bins
 
-
-    if( abs(deltaShape[0](0,0)) > 1){
-        cout << "ERROR???" << endl;
-        waitKey(0);
-    }
-
     return deltaShape;
 }
 
 
 Mat_<double> FernRegressor::Test(Mat_<unsigned char> image, Rect_<int> bounding_box, Mat_<double> curShape){
-    cout << "FernRegressor: Test" << endl;
-
-
     // project keypoints to box
     Mat_<double> curKeyPoints = ProjectToBoxCoordinate(curShape, bounding_box);
 
     // find bin
     int index = 0;
     for (int i = 0; i < feature_per_fern; i++) {
-        cout << "---Fern: " << i << endl;
-        cout << fernThreshold[i] << endl;
-        cout << fernPairLocation[i] << endl;
-        cout << fernPairNearestLandmark[i] << endl;
 
         Mat_<double> curLocation ( 2, 1 );
         // Get Pixel 1
         int idx_landmark_1 = fernPairNearestLandmark[i](0, 0);
-
-        cout << "IDX 1 " << idx_landmark_1 << endl;
         curLocation(0, 0) = fernPairLocation[i](0, 0) + curKeyPoints( idx_landmark_1, 0);
         curLocation(1, 0) = fernPairLocation[i](0, 1) + curKeyPoints( idx_landmark_1, 1);
 
@@ -193,24 +178,16 @@ Mat_<double> FernRegressor::Test(Mat_<unsigned char> image, Rect_<int> bounding_
 
         // Get Pixel 2
         int idx_landmark_2 = fernPairNearestLandmark[i](0, 1);
-        cout << "IDX 2 " << idx_landmark_2 << endl;
         curLocation(0, 0) = fernPairLocation[i](1, 0) + curKeyPoints( idx_landmark_2, 0);
         curLocation(1, 0) = fernPairLocation[i](1, 1) + curKeyPoints( idx_landmark_2, 1);
 
         curLocationImageCoor = ProjectToImageCoordinate(curLocation, bounding_box);
         double pixel_2 = (double) image.at<unsigned char>(curLocationImageCoor(0,0), curLocationImageCoor(0, 1));
 
-        cout << "PIXEL 1: " << pixel_1 << endl;
-        cout << "PIXEL 2: " << pixel_2 << endl;
-
         if(pixel_1 - pixel_2 >= fernThreshold[i]){
             index += pow(2.0, i);
         }
     }
-
-    cout << "BIN : " << index << endl;
-    cout << "REGRESSION OUTPUT : " << regression_output[index].t() << endl;
-
     // return regression_output in box-coordinate
     return regression_output[index]; // box-coordinate
 }

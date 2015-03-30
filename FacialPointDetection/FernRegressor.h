@@ -20,7 +20,7 @@ class FernRegressor{
     vector<Mat_<double>> regression_output;
 public:
     FernRegressor(int feature_per_fern);
-    vector<Mat_<double>> Train(vector<Mat_<double>> regression_target, Mat_<double> covariance_matrix, Mat_<double> pixels, Mat_<double> pixelLocation, Mat_<int> nearestLandmarkOfPixel, bool isDebug = true);
+    vector<Mat_<double>> Train(vector<Mat_<double>> regression_target, Mat_<double> covariance_matrix, Mat_<double> pixels, Mat_<double> pixelLocation, Mat_<int> nearestLandmarkOfPixel, bool isDebug = false);
     Mat_<double> Test(Mat_<unsigned char> image, Rect_<int> bounding_box, Mat_<double> curShape);
 };
 

@@ -15,8 +15,8 @@ NormalRegressor::NormalRegressor(int child_level, int feature_per_fern, int num_
     }
 }
 
-vector<Mat_<double>> NormalRegressor::Train(vector<Mat_<unsigned char>> images, vector<Mat_<double>> keypoints, Mat_<double> meanShape, vector<Rect_<int>> boundingBoxes, vector<Mat_<double>> inputShape){
-    cout << "NormalRegressor: Train" << endl;
+vector<Mat_<double>> NormalRegressor::Train(vector<Mat_<unsigned char>> images, vector<Mat_<double>> keypoints, Mat_<double> meanShape, vector<Rect_<int>> boundingBoxes, vector<Mat_<double>> inputShape, bool isDebug ){
+    if(isDebug) cout << "NormalRegressor: Train" << endl;
 
     // Variable
     int num_of_images = images.size();
@@ -97,9 +97,9 @@ vector<Mat_<double>> NormalRegressor::Train(vector<Mat_<unsigned char>> images, 
 
     for(int i = 0 ; i < childRegressor.size(); i++){
 
-        cout << "------------ BEGIN [" << i << "]-------------" << endl;
-        cout << "REGRESSION TARGET: " << endl;
-        cout << regression_target[visualIdx].t() << endl;
+        if(isDebug) cout << "------------ BEGIN [" << i << "]-------------" << endl;
+        if(isDebug) cout << "REGRESSION TARGET: " << endl;
+        if(isDebug) cout << regression_target[visualIdx].t() << endl;
 
         // Train each child-level regressor
 
@@ -113,8 +113,8 @@ vector<Mat_<double>> NormalRegressor::Train(vector<Mat_<unsigned char>> images, 
                     boundingBoxes[visualIdx]) - inputShape[visualIdx];
         }
 //        cout << "------------------------------" << endl;
-        cout << "Initial SHAPE: " << endl;
-        cout << initialShape.t() << endl;
+        if(isDebug) cout << "Initial SHAPE: " << endl;
+        if(isDebug) cout << initialShape.t() << endl;
 //        cout << "Initial SHAPE (PROJECT): " << endl;
 //        cout << ProjectToBoxCoordinate( initialShape , boundingBoxes[visualIdx] ) << endl;
 //        cout << "DELTA SHAPE: " << endl;
@@ -126,28 +126,26 @@ vector<Mat_<double>> NormalRegressor::Train(vector<Mat_<unsigned char>> images, 
 //        cout << ProjectToImageCoordinate(ProjectToBoxCoordinate( initialShape , boundingBoxes[visualIdx] ) + regression_output[visualIdx], boundingBoxes[visualIdx]) << endl;
 //        cout << "INITIAL + DELTA SHAPE (ORIGINAL): " << endl;
 //        cout << ProjectToImageCoordinate(ProjectToBoxCoordinate( initialShape , boundingBoxes[visualIdx] ) + regression_output[visualIdx], boundingBoxes[visualIdx]) - initialShape << endl;
-        cout << "REGRESSION TARGET: " << endl;
-        cout << regression_target[visualIdx].t() << endl;
-        cout << "DELTA SHAPE: " << endl;
-        cout << deltaShape[visualIdx].t() << endl;
-        cout << "REGRESSION OUTPUT: " << endl;
-        cout << regression_output[visualIdx].t() << endl;
-        resultShape = initialShape - regression_output[visualIdx];
-        cout << "RESULT SHAPE: " << endl;
-        cout << resultShape.t() << endl;
+//        cout << "REGRESSION TARGET: " << endl;
+//        cout << regression_target[visualIdx].t() << endl;
+//        cout << "DELTA SHAPE: " << endl;
+//        cout << deltaShape[visualIdx].t() << endl;
+//        cout << "REGRESSION OUTPUT: " << endl;
+//        cout << regression_output[visualIdx].t() << endl;
+//        resultShape = initialShape - regression_output[visualIdx];
+//        cout << "RESULT SHAPE: " << endl;
+//        cout << resultShape.t() << endl;
 //        resultShape = ProjectToImageCoordinate(ProjectToBoxCoordinate( initialShape , boundingBoxes[visualIdx] ) + regression_output[visualIdx], boundingBoxes[visualIdx]);
-        visualizeImageCompare(images[visualIdx], resultShape, initialShape, 5);
+        if(isDebug) visualizeImageCompare(images[visualIdx], resultShape, initialShape, 5);
     }
 
-    cout << "REGRESSION OUTPUT - BEFORE[0] : " << endl;
-    cout << regression_output[visualIdx].t() << endl;
+    if(isDebug) cout << "REGRESSION OUTPUT - BEFORE[0] : " << endl;
+    if(isDebug) cout << regression_output[visualIdx].t() << endl;
 
     return regression_output;
 }
 
 Mat_<double> NormalRegressor::Test(Mat_<unsigned char> image, Rect_<int> bounding_box, Mat_<double> curShape){
-    cout << "NormalRegressor: Test" << endl;
-
     Mat_<double> regression_output;
     Mat_<double> deltaShape;
     Mat_<double> inputShape = curShape.clone();
@@ -159,14 +157,6 @@ Mat_<double> NormalRegressor::Test(Mat_<unsigned char> image, Rect_<int> boundin
                 bounding_box) - inputShape;
 
         inputShape -= regression_output;
-
-        cout << "FINISH CHILD " << i << endl;
-        cout << "DeltaShape" << endl;
-        cout << deltaShape.t() << endl;
-        cout << "INPUTSHAPE " << endl;
-        cout << inputShape.t() << endl;
-        cout << "REGRESSION OUTPUT: " << endl;
-        cout << regression_output.t() << endl;
 
         visualizeImage(image, inputShape, 10);
     }
