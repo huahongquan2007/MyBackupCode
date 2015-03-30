@@ -92,10 +92,10 @@ cv::Point2f rotate(cv::Point2f p, float rad)
 
 CMT::CMT()
 {
-    // detectorType = "Feature2D.BRISK";
-    // descriptorType = "Feature2D.BRISK";
-    detectorType = "Feature2D.ORB";
-    descriptorType = "Feature2D.ORB";
+     detectorType = "Feature2D.BRISK";
+     descriptorType = "Feature2D.BRISK";
+//    detectorType = "Feature2D.ORB";
+//    descriptorType = "Feature2D.ORB";
     matcherType = "BruteForce-Hamming";
     thrOutlier = 20;
     thrConf = 0.75;
@@ -119,6 +119,9 @@ void CMT::initialise(cv::Mat im_gray0, cv::Point2f topleft, cv::Point2f bottomri
     //Get initial keypoints in whole image
     std::vector<cv::KeyPoint> keypoints;
     detector->detect(im_gray0, keypoints);
+
+//    cv::imshow("keypoints", im_gray0);
+//    cv::waitKey(10);
 
     //Remember keypoints that are in the rectangle as selected keypoints
     std::vector<cv::KeyPoint> selected_keypoints;
