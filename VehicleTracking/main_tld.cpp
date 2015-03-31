@@ -38,11 +38,11 @@ int main() {
         if (frame.empty()) {
             std::cerr << "Frame data error.\n";
         }
-        cvtColor(frame, frameGray, COLOR_RGB2GRAY);
 
         // Car detection for initialization
         std::vector<cv::Rect> cars;
         if(!isStart){
+            cvtColor(frame, frameGray, COLOR_RGB2GRAY);
             carDetector.detectMultiScale(frameGray, cars, 1.2, 2, 0 | CV_HAAR_SCALE_IMAGE, Size(min_car_size, min_car_size), Size(max_car_size, max_car_size));
         }
 
@@ -72,12 +72,6 @@ int main() {
             r.height= tld->currBB->height;
 
             rectangle(frame ,r,Scalar(0,0,255,0),5);
-            /*   for(size_t i = 0; i < etld->detectorCascade->detectionResult->fgList->size(); i++)
-                            {
-                                Rect r = etld->detectorCascade->detectionResult->fgList->at(i);
-                                rectangle(mRgb, r, Scalar(255,0,0,0), 1);
-                            }
-                            */
         }
         else
         {

@@ -28,8 +28,8 @@ int main() {
         // Read new frame
         cap >> frame;
 
-        if(i < 20){
-            waitKey(10);
+        if(i < 100){
+            waitKey(5);
             continue;
         }
 
@@ -58,16 +58,20 @@ int main() {
             imshow("test", frameGray);
             cmt.initialise(frameGray, topLeft, bottomRight);
         }
-        // Car tracking
-        cmt.processFrame(frameGray);
 
-        // Draw keypoints & tracked box
-        for (int i = 0; i < cmt.trackedKeypoints.size(); i++)
-            cv::circle(frame, cmt.trackedKeypoints[i].first.pt, 3, cv::Scalar(255, 255, 255));
-        cv::line(frame, cmt.topLeft, cmt.topRight, cv::Scalar(255, 255, 255));
-        cv::line(frame, cmt.topRight, cmt.bottomRight, cv::Scalar(255, 255, 255));
-        cv::line(frame, cmt.bottomRight, cmt.bottomLeft, cv::Scalar(255, 255, 255));
-        cv::line(frame, cmt.bottomLeft, cmt.topLeft, cv::Scalar(255, 255, 255));
+        if(isStart){
+            // Car tracking
+            cmt.processFrame(frameGray);
+
+            // Draw keypoints & tracked box
+            for (int i = 0; i < cmt.trackedKeypoints.size(); i++)
+                cv::circle(frame, cmt.trackedKeypoints[i].first.pt, 3, cv::Scalar(255, 255, 255));
+            cv::line(frame, cmt.topLeft, cmt.topRight, cv::Scalar(255, 255, 255));
+            cv::line(frame, cmt.topRight, cmt.bottomRight, cv::Scalar(255, 255, 255));
+            cv::line(frame, cmt.bottomRight, cmt.bottomLeft, cv::Scalar(255, 255, 255));
+            cv::line(frame, cmt.bottomLeft, cmt.topLeft, cv::Scalar(255, 255, 255));
+        }
+
 
         // show frame
         imshow("frame", frame);
