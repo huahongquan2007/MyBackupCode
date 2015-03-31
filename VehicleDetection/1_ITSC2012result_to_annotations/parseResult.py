@@ -1,12 +1,13 @@
+import os
 from os import listdir
 from os.path import isfile, join, basename
 
 lines = [line.strip() for line in open('ITSC2012results.txt')]
 total = len(lines)
-
-
 result = {}
+
 ## READ RESULT.TXT -> DICTIONARY
+
 for index, line in enumerate(lines):
     line_split = line.split(":")
     file_id = line_split[0]
@@ -37,8 +38,15 @@ print result['tme46_019506']
 
 
 # Get list of files
-dataset = '/home/robotbase/DataDrive/Dataset/motorway/tmeMotorwayDataset_daylight/tme08/Right/'
-onlyfiles = [join(dataset, f) for f in listdir(dataset) if isfile(join(dataset, f))]
+#dataset = '/home/robotbase/DataDrive/Dataset/motorway/tmeMotorwayDataset_daylight/tme12/Right/'
+#onlyfiles = [join(dataset, f) for f in listdir(dataset) if isfile(join(dataset, f))]
+
+onlyfiles = []
+for dirname, dirnames, filenames in os.walk('/home/robotbase/DataDrive/Dataset/motorway/dataset'):
+    # print path to all filenames.
+    for filename in filenames:
+        onlyfiles.append(os.path.join(dirname, filename))
+
 
 dataid = []
 for path in onlyfiles:
@@ -51,20 +59,34 @@ for path in onlyfiles:
 # Save to annotations.txt
 fileOutput = open('annotations.txt', 'w')
 
+total_samples = 0
 for idx, id in enumerate(dataid):
 
     if result.has_key(id):
-        output = onlyfiles[idx] + ' '
-        output = output + str( len(result[id]) ) + ' '
+
+        num_accept = 0
+
+        temp_output = ''
         for result_val in result[id]:
-            output = output + result_val[0] + ' '
-            output = output + result_val[1] + ' '
             w = int(result_val[2]) - int(result_val[0])
             h = int(result_val[3]) - int(result_val[1])
-            output = output + str(w) + ' '
-            output = output + str(h) + ' '
 
+            if w < 50:
+                continue
+            temp_output = temp_output + result_val[0] + ' '
+            temp_output = temp_output + result_val[1] + ' '
+            temp_output = temp_output + str(w) + ' '
+            temp_output = temp_output + str(h) + ' '
+            num_accept += 1
+
+        output = onlyfiles[idx] + ' '
+        output = output + str( num_accept ) + ' '
+        output = output + temp_output
+        total_samples += num_accept
         fileOutput.write(output + '\n' )
+
+fileTotal = open(str("annotations-size.txt"), 'w')
+fileTotal.write(str(total_samples))
 # for key, value in result.iteritems():
 #     print key
 #     print value
