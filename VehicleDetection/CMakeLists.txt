@@ -11,3 +11,9 @@ set(SOURCE_FILES_GEN_NEG generate_negatives.cpp)
 add_executable(VehicleDetectionGenNegatives ${SOURCE_FILES_GEN_NEG} )
 
 target_link_libraries( VehicleDetectionGenNegatives ${OpenCV_LIBS} )
+
+set(SOURCE_FILES_TEST detect_test.cpp)
+add_executable(VehicleDetectionDetectTest ${SOURCE_FILES_TEST} )
+
+target_link_libraries( VehicleDetectionDetectTest ${OpenCV_LIBS} )
+

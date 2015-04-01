@@ -15936,4 +15936,4 @@
 /home/robotbase/DataDrive/Dataset/motorway/dataset/tmeMotorwayDataSet_sunset/tme46/Right/026194-R.png 0 
 /home/robotbase/DataDrive/Dataset/motorway/dataset/tmeMotorwayDataSet_sunset/tme46/Right/026196-R.png 0 
 /home/robotbase/DataDrive/Dataset/motorway/dataset/tmeMotorwayDataSet_sunset/tme46/Right/026198-R.png 0 
-/home/robotbase/DataDrive/Dataset/motorway/dataset/tmeMotorwayDataSet_sunset/tme46/Right/026200-R.png 0 
+/home/robotbase/DataDrive/Dataset/motorway/dataset/tmeMotorwayDataSet_sunset/tme46/Right/026200-R.png 0

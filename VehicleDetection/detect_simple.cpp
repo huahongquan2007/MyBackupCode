@@ -65,6 +65,7 @@ int main( int argc, const char** argv )
         // Retrieve detection certainty scores
         // Perform non maxima suppression
         vector<Rect> objects;
+
         detector.detectMultiScale(equalize, objects, 1.05, 1);
 
         // Loop over detections and store them correctly

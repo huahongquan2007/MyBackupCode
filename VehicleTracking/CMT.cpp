@@ -102,7 +102,7 @@ CMT::CMT()
     thrRatio = 0.8;
     descriptorLength = 512;
     estimateScale = true;
-    estimateRotation = true;
+    estimateRotation = false;
     nbInitialKeypoints = 0;
 }
 
