@@ -12,6 +12,10 @@ public class VisionConfig {
     // 0 : Back Camera
     // 1 : Front Camera
 
+    public static final int CAMERA_ORIENTATION = 0;
+    // 0 : landscape
+    // 1 : portrait
+
     public static void startService(Context c){
         try{
             c.startService(new Intent(c, CameraService.class));
@@ -40,10 +44,19 @@ public class VisionConfig {
         return CameraService.camChannels;
     }
     public static void bindService(Context c, ServiceConnection mConnection) {
-         c.bindService(new Intent(c, CameraService.class), mConnection, Context.BIND_AUTO_CREATE);
+        try{
+            c.bindService(new Intent(c, CameraService.class), mConnection, Context.BIND_AUTO_CREATE);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     public static void unbindService(Context c, ServiceConnection mConnection) {
-        c.unbindService(mConnection);
+        try{
+            c.unbindService(mConnection);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
     }
 }

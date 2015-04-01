@@ -116,8 +116,14 @@ public class CameraService extends Service {
             try{
                 if(countFrameLock.tryLock()){
                     if(countFrame > 0){
-                        if(lastBitmap == null)
-                            lastBitmap = Bitmap.createBitmap(camWidth, camHeight, Bitmap.Config.ARGB_8888);
+                        if(lastBitmap == null){
+                            if(VisionConfig.CAMERA_ORIENTATION == 0)
+                                lastBitmap = Bitmap.createBitmap( camHeight,camWidth, Bitmap.Config.ARGB_8888);
+                            else
+                                lastBitmap = Bitmap.createBitmap(camWidth, camHeight, Bitmap.Config.ARGB_8888);
+                        }
+
+                        Log.i("VIsion", "Lastmat: " + lastMat.size().toString() + " BITMAP : " + lastBitmap.getWidth() + " " + lastBitmap.getHeight());
                         Utils.matToBitmap(lastMat, lastBitmap);
                         lastTimerRequestFrame = System.currentTimeMillis();
 //                        Log.i("Vision", "getFrameBitmap matToBitmap");
@@ -175,7 +181,10 @@ public class CameraService extends Service {
             lastBitmap = null;
             isStart = false;
             countFrame = 0;
-            lastMat = new Mat(camHeight, camWidth, CvType.CV_8UC3); // rows = 640, cols = 480
+            if(VisionConfig.CAMERA_ORIENTATION == 1)
+                lastMat = new Mat(camHeight, camWidth, CvType.CV_8UC3); // rows = 640, cols = 480
+            else
+                lastMat = new Mat(camWidth, camHeight, CvType.CV_8UC3); // rows = 480, cols = 640
             originalMat = new Mat(camWidth, camHeight, CvType.CV_8UC3); // rows = 480, cols = 640
             yuvMat = new Mat(camWidth + camWidth / 2, camHeight, CvType.CV_8UC1); // rows = 480, cols = 640
 
@@ -257,8 +266,14 @@ public class CameraService extends Service {
                             yuvMat.put(0, 0, data);
                             Imgproc.cvtColor(yuvMat, originalMat, Imgproc.COLOR_YUV420sp2RGB);
 
-                            lastMat = originalMat.t();
-                            Core.flip(lastMat, lastMat, 0);
+                            if(VisionConfig.CAMERA_ORIENTATION == 1)
+                                lastMat = originalMat.t();
+                            else
+                                lastMat = originalMat.clone();
+
+                            if(VisionConfig.CAMERA_ID == 1)
+                                Core.flip(lastMat, lastMat, 0);
+
 
 //                            Log.d("Vision", "Width: " + originalMat.width() + " Height: " + originalMat.height() + " Total: " + originalMat.total() * originalMat.channels());
                             // end save to Mat
