@@ -1,17 +1,26 @@
 package com.robotbase.carassistant;
 
+import android.content.*;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.robotbase.carassistant.camera.CameraService;
+import com.robotbase.carassistant.utils.VisionConfig;
+
 
 public class MainActivity extends ActionBarActivity {
-
+    static {
+        System.loadLibrary("opencv_java");
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        VisionConfig.startService(getApplicationContext());
     }
 
 
@@ -20,6 +29,12 @@ public class MainActivity extends ActionBarActivity {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        VisionConfig.stopService(getApplicationContext());
     }
 
     @Override
