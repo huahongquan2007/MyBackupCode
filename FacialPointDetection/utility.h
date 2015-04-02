@@ -13,5 +13,5 @@ Mat_<double> GetMeanShape(vector<Mat_<double>> keypoints, vector<Rect_<int>> box
 Mat_<double> ProjectToBoxCoordinate( Mat_<double> points, Rect_<int> box );
 Mat_<double> ProjectToImageCoordinate( Mat_<double> points, Rect_<int> box );
 double calculate_covariance(Mat_<double> x, Mat_<double> y);
-
+void similarity_transform(const Mat_<double>& shape1, const Mat_<double>& shape2, Mat_<double>& rotation,double& scale);
 #endif //_FACIALPOINTDETECTION_UTILITY_H_
