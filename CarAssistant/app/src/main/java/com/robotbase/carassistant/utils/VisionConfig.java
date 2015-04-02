@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 
 import com.robotbase.carassistant.camera.CameraService;
+import com.robotbase.carassistant.cardetection.CarDetectionService;
 
 public class VisionConfig {
     // ----------- camera info ----------------
@@ -18,15 +19,16 @@ public class VisionConfig {
 
     public static void startService(Context c){
         try{
-            c.startService(new Intent(c, CameraService.class));
-
+//            c.startService(new Intent(c, CameraService.class));
+            c.startService(new Intent(c, CarDetectionService.class));
         }catch (Exception e){
             e.printStackTrace();
         }
     }
     public static void stopService(Context c){
         try {
-            c.stopService(new Intent(c, CameraService.class));
+//            c.stopService(new Intent(c, CameraService.class));
+            c.stopService(new Intent(c, CarDetectionService.class));
         }catch (Exception e) {
             e.printStackTrace();
         }
@@ -35,9 +37,13 @@ public class VisionConfig {
         return getHeight() * getWidth() * getChannels();
     }
     public static int getWidth() {
+        if(CAMERA_ORIENTATION == 0)
+            return CameraService.camHeight;
         return CameraService.camWidth;
     }
     public static int getHeight() {
+        if(CAMERA_ORIENTATION == 0)
+            return CameraService.camWidth;
         return CameraService.camHeight;
     }
     public static int getChannels(){

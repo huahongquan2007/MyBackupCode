@@ -36,7 +36,7 @@ public class CameraService extends Service {
     private int fps = 15;
     private SurfaceTexture texture;
     private byte[] callbackBuffer = new byte[camWidth * camHeight * 3];
-    public ReentrantLock previewBufferLock = new ReentrantLock();
+
     private ReentrantLock countFrameLock = new ReentrantLock();
     private int countFrame = 0;
     byte[] frameData = null;
@@ -69,6 +69,14 @@ public class CameraService extends Service {
         registerReceiver(toggleCameraReceiver, filterToggle);
 
         turnOnCamera();
+
+        if(lastBitmap == null){
+            if(VisionConfig.CAMERA_ORIENTATION == 0)
+                lastBitmap = Bitmap.createBitmap( camHeight,camWidth, Bitmap.Config.ARGB_8888);
+            else
+                lastBitmap = Bitmap.createBitmap(camWidth, camHeight, Bitmap.Config.ARGB_8888);
+        }
+
         super.onCreate();
     }
     private void setup(int fps){
@@ -111,22 +119,16 @@ public class CameraService extends Service {
         return isStart;
     }
     public Bitmap getFrameBitmap(){
-//        Log.i("Vision", "getFrameBitmap");
+        Log.i("Vision", "getFrameBitmap");
+//        Utils.matToBitmap(lastMat, lastBitmap);
+//        lastTimerRequestFrame = System.currentTimeMillis();
         for(int i = 0; i < 10 ; i++){
             try{
                 if(countFrameLock.tryLock()){
                     if(countFrame > 0){
-                        if(lastBitmap == null){
-                            if(VisionConfig.CAMERA_ORIENTATION == 0)
-                                lastBitmap = Bitmap.createBitmap( camHeight,camWidth, Bitmap.Config.ARGB_8888);
-                            else
-                                lastBitmap = Bitmap.createBitmap(camWidth, camHeight, Bitmap.Config.ARGB_8888);
-                        }
-
-                        //Log.i("VIsion", "Lastmat: " + lastMat.size().toString() + " BITMAP : " + lastBitmap.getWidth() + " " + lastBitmap.getHeight());
+                        Log.i("Vision", "getFrameBitmap OK");
                         Utils.matToBitmap(lastMat, lastBitmap);
                         lastTimerRequestFrame = System.currentTimeMillis();
-//                        Log.i("Vision", "getFrameBitmap matToBitmap");
                     }
                     countFrameLock.unlock();
                     break;
@@ -250,15 +252,18 @@ public class CameraService extends Service {
             mCam.setParameters(p);
             texture = new SurfaceTexture(10);
             mCam.setPreviewTexture(texture);
-            mCam.startPreview();
-            mCam.addCallbackBuffer(callbackBuffer);
-            mCam.setPreviewCallbackWithBuffer(new Camera.PreviewCallback() {
+//            mCam.addCallbackBuffer(callbackBuffer);
+//            mCam.setPreviewCallbackWithBuffer(new Camera.PreviewCallback() {
+            mCam.setPreviewCallback(new Camera.PreviewCallback() {
                 @Override
                 public void onPreviewFrame(byte[] data, Camera camera) {
-                    previewBufferLock.lock();
-//                    Log.d("Vision", "CameraService onPreview");
+                    Log.d("Vision", "CameraService onPreview before lock");
+//                    countFrame += 1;
+//                    camera.addCallbackBuffer(data);
 
-                    for(int i = 0; i < 10; i++){
+//                    Log.d("Vision", "CameraService onPreview");
+//
+//                    for(int i = 0; i < 10; i++){
                         if( countFrameLock.tryLock() ){
                             countFrame += 1;
 
@@ -269,29 +274,28 @@ public class CameraService extends Service {
                             if(VisionConfig.CAMERA_ORIENTATION == 1)
                                 lastMat = originalMat.t();
                             else
-                                lastMat = originalMat.clone();
+                                lastMat = originalMat;
 
                             if(VisionConfig.CAMERA_ID == 1)
                                 Core.flip(lastMat, lastMat, 0);
 
 
-//                            Log.d("Vision", "Width: " + originalMat.width() + " Height: " + originalMat.height() + " Total: " + originalMat.total() * originalMat.channels());
+                            Log.d("Vision", "Width: " + originalMat.width() + " Height: " + originalMat.height() + " Total: " + originalMat.total() * originalMat.channels());
                             // end save to Mat
-
-                            camera.addCallbackBuffer(data);
                             countFrameLock.unlock();
-                            break;
+//                            break;
                         }
-                        try{
-                            Thread.sleep(50);
-                        }catch (Exception e){
-                            e.printStackTrace();
-                        }
-                    }
-                    previewBufferLock.unlock();
+//                        try{
+//                            Thread.sleep(50);
+//                        }catch (Exception e){
+//                            e.printStackTrace();
+//                        }
+//                    }
+//                    camera.addCallbackBuffer(callbackBuffer);
                 }
             });
 
+            mCam.startPreview();
             Log.d("Vision", "CameraService after setPreviewCallback");
             isActivite = true;
         } catch (Exception e) {
