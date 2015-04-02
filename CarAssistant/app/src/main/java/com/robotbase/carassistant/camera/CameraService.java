@@ -123,7 +123,7 @@ public class CameraService extends Service {
                                 lastBitmap = Bitmap.createBitmap(camWidth, camHeight, Bitmap.Config.ARGB_8888);
                         }
 
-                        Log.i("VIsion", "Lastmat: " + lastMat.size().toString() + " BITMAP : " + lastBitmap.getWidth() + " " + lastBitmap.getHeight());
+                        //Log.i("VIsion", "Lastmat: " + lastMat.size().toString() + " BITMAP : " + lastBitmap.getWidth() + " " + lastBitmap.getHeight());
                         Utils.matToBitmap(lastMat, lastBitmap);
                         lastTimerRequestFrame = System.currentTimeMillis();
 //                        Log.i("Vision", "getFrameBitmap matToBitmap");
