@@ -96,6 +96,14 @@ int main(){
         cout << x << " " << y << endl;
         circle(curImg, Point(x, y), 2, Scalar(0, 255, 0), -1);
 
+        pos = rotation.t() * pos / scale;
+
+        x = pos.at<double>(0, 0);
+        y = pos.at<double>(1, 0);
+
+        cout << x << " " << y << endl;
+        circle(curImg, Point(x, y), 2, Scalar(0, 0, 255), -1);
+
 
     }
 

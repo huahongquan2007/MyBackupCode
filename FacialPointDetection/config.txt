@@ -10,7 +10,7 @@ TRAIN_NUM_OF_IMAGE = 100
 DATASET_TEST = testImages/
 TEST_BOUNDINGBOX = boundingbox_test.txt
 TEST_KEYPOINTS = keypoints_test.txt
-TEST_NUM_OF_IMAGE = 1
+TEST_NUM_OF_IMAGE = 10
 
 MODEL_PATH = shapeModel.txt
 

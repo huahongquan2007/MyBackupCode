@@ -17,8 +17,8 @@ private:
     int num_of_random_pixels;
 public:
     NormalRegressor(int, int, int );
-    vector<Mat_<double>> Train(vector<Mat_<unsigned char>> images, vector<Mat_<double>> keypoints, Mat_<double> meanShape, vector<Rect_<int>> boundingBoxes, vector<Mat_<double>> inputShape, bool isDebug = false);
-    Mat_<double> Test(Mat_<unsigned char> image, Rect_<int> bounding_box, Mat_<double> curShape);
+    vector<Mat_<double>> Train(vector<Mat_<unsigned char>> images, vector<Mat_<double>> keypoints, Mat_<double> meanShape, vector<Rect_<int>> boundingBoxes, vector<Mat_<double>> inputShape, bool isDebug = true);
+    Mat_<double> Test(Mat_<unsigned char> image, Rect_<int> bounding_box, Mat_<double> curShape, Mat_<double> meanShape);
 };
 
 

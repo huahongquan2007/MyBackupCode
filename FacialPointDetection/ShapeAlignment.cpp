@@ -117,7 +117,7 @@ Mat_<double> ShapeAlignment::Test(Mat_<unsigned char> &image, Rect_<int> &boundi
     curShape = ProjectToImageCoordinate(meanShape, bounding_box );
 
     for(int i = 0 ; i < first_level_regressor ; i ++){
-        deltaShape = regressors[i].Test(image, bounding_box, curShape);
+        deltaShape = regressors[i].Test(image, bounding_box, curShape, meanShape);
 
         curShape -= deltaShape;
     }

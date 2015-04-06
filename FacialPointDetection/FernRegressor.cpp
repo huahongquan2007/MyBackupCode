@@ -18,7 +18,7 @@ vector<Mat_<double>> FernRegressor::Train(vector<Mat_<double>> regression_target
 
     RNG rng;
     for (int i = 0; i < feature_per_fern; i++) {
-//        if(isDebug) cout << "FERN: " << i << endl;
+        if(isDebug) cout << "FERN: " << i << endl;
         // create a random direction to project target -> scalar
 
         Mat_<double> random_direction(num_of_landmark, 2);
@@ -28,7 +28,7 @@ vector<Mat_<double>> FernRegressor::Train(vector<Mat_<double>> regression_target
         // project target -> scalar
         Mat_<double> projected_target(1, num_of_images);
         for (int j = 0; j < num_of_images; j++) {
-            projected_target(0, j) = (double) sum(regression_target[j].mul(random_direction))[0];
+            projected_target.at<double>(0, j) = (double) sum(regression_target[j].mul(random_direction))[0];
         }
 
         // calculate cov(i, y)
@@ -37,7 +37,7 @@ vector<Mat_<double>> FernRegressor::Train(vector<Mat_<double>> regression_target
 //        if(isDebug) cout << "PROJECTED: " << projected_target << endl;
 
         for (int j = 0; j < num_of_random_pixels; j++) {
-            covariance_i_y(j, 0) = calculate_covariance(pixels.row(j), projected_target);
+            covariance_i_y.at<double>(j, 0) = calculate_covariance(pixels.row(j), projected_target);
         }
         // calculate var(y)
         double var_y = calculate_covariance(projected_target, projected_target);
@@ -48,7 +48,7 @@ vector<Mat_<double>> FernRegressor::Train(vector<Mat_<double>> regression_target
         int index_j = 0;
         for (int fi = 0; fi < num_of_random_pixels; fi++) {
             for (int fj = fi; fj < num_of_random_pixels; fj++) {
-                double corr = (covariance_i_y(fi, 0) - covariance_i_y(fj, 0)) / (sqrt(var_y * (covariance_matrix(fi, fi) + covariance_matrix(fj, fj) - 2 * covariance_matrix(fi, fj))));
+                double corr = (covariance_i_y.at<double>(fi, 0) - covariance_i_y.at<double>(fj, 0)) / (sqrt(var_y * (covariance_matrix.at<double>(fi, fi) + covariance_matrix.at<double>(fj, fj) - 2 * covariance_matrix.at<double>(fi, fj))));
 
                 corr = abs(corr);
 
@@ -60,8 +60,8 @@ vector<Mat_<double>> FernRegressor::Train(vector<Mat_<double>> regression_target
             }
         }
 
-        max_corr_index(i, 0) = index_i;
-        max_corr_index(i, 1) = index_j;
+        max_corr_index.at<int>(i, 0) = index_i;
+        max_corr_index.at<int>(i, 1) = index_j;
 
         Mat_<double> pixelDiff = pixels.row(index_i) - pixels.row(index_j);
         pixelDiff = abs(pixelDiff);
@@ -73,14 +73,14 @@ vector<Mat_<double>> FernRegressor::Train(vector<Mat_<double>> regression_target
         double threshold = rng.uniform( max * -0.2, max * 0.2 );
 
         Mat_<double> location(2, 2, CV_32F); // x1 y1 ; x2 y2
-        location(0, 0) = pixelLocation(index_i, 0);
-        location(0, 1) = pixelLocation(index_i, 1);
-        location(1, 0) = pixelLocation(index_j, 0);
-        location(1, 1) = pixelLocation(index_j, 1);
+        location.at<double>(0, 0) = pixelLocation.at<double>(index_i, 0);
+        location.at<double>(0, 1) = pixelLocation.at<double>(index_i, 1);
+        location.at<double>(1, 0) = pixelLocation.at<double>(index_j, 0);
+        location.at<double>(1, 1) = pixelLocation.at<double>(index_j, 1);
 
         Mat_<int> nearestLandmark(2, 1, CV_32F);
-        nearestLandmark(0, 0) = nearestLandmarkOfPixel(index_i, 0);
-        nearestLandmark(1, 0) = nearestLandmarkOfPixel(index_j, 0);
+        nearestLandmark.at<int>(0, 0) = nearestLandmarkOfPixel.at<double>(index_i, 0);
+        nearestLandmark.at<int>(1, 0) = nearestLandmarkOfPixel.at<double>(index_j, 0);
 
 //        if(isDebug) cout << "PIXEL DIFF: " << pixelDiff << endl;
 //        if(isDebug) cout << "THRESHOLD " << threshold << endl;
@@ -100,8 +100,8 @@ vector<Mat_<double>> FernRegressor::Train(vector<Mat_<double>> regression_target
         int index = 0;
 
         for(int j = 0 ; j < feature_per_fern; j++){
-            double pixel1 = pixels(max_corr_index(j, 0), i);
-            double pixel2 = pixels(max_corr_index(j, 1), i);
+            double pixel1 = pixels.at<double>(max_corr_index.at<int>(j, 0), i);
+            double pixel2 = pixels.at<double>(max_corr_index.at<int>(j, 1), i);
 
             if(pixel1 - pixel2 >= fernThreshold[j]){
                 index += pow(2.0, j);
@@ -159,9 +159,16 @@ vector<Mat_<double>> FernRegressor::Train(vector<Mat_<double>> regression_target
 }
 
 
-Mat_<double> FernRegressor::Test(Mat_<unsigned char> image, Rect_<int> bounding_box, Mat_<double> curShape){
+Mat_<double> FernRegressor::Test(Mat_<unsigned char> image, Rect_<int> bounding_box, Mat_<double> curShape, Mat_<double> meanShape){
     // project keypoints to box
     Mat_<double> curKeyPoints = ProjectToBoxCoordinate(curShape, bounding_box);
+
+    // align with meanshape
+    Mat_<double> rotationMatrix(2,2 , CV_32FC1);
+    double scale = 1.0;
+    similarity_transform(meanShape, curKeyPoints, rotationMatrix, scale);
+
+    curKeyPoints = ( rotationMatrix * curKeyPoints.t() * scale ).t();
 
     // find bin
     int index = 0;
@@ -169,25 +176,31 @@ Mat_<double> FernRegressor::Test(Mat_<unsigned char> image, Rect_<int> bounding_
 
         Mat_<double> curLocation ( 2, 1 );
         // Get Pixel 1
-        int idx_landmark_1 = fernPairNearestLandmark[i](0, 0);
-        curLocation(0, 0) = fernPairLocation[i](0, 0) + curKeyPoints( idx_landmark_1, 0);
-        curLocation(1, 0) = fernPairLocation[i](0, 1) + curKeyPoints( idx_landmark_1, 1);
+        int idx_landmark_1 = fernPairNearestLandmark[i].at<int>(0, 0);
+        curLocation.at<double>(0, 0) = fernPairLocation[i].at<double>(0, 0) + curKeyPoints.at<double>( idx_landmark_1, 0);
+        curLocation.at<double>(1, 0) = fernPairLocation[i].at<double>(0, 1) + curKeyPoints.at<double>( idx_landmark_1, 1);
+
+        curLocation = rotationMatrix.t() * curLocation * scale;
 
         Mat_<double> curLocationImageCoor = ProjectToImageCoordinate(curLocation, bounding_box);
-        double pixel_1 = (double) image.at<unsigned char>(curLocationImageCoor(0,0), curLocationImageCoor(0, 1));
+        double pixel_1 = (double) image.at<unsigned char>(curLocationImageCoor.at<double>(0,0), curLocationImageCoor.at<double>(0, 1));
 
         // Get Pixel 2
-        int idx_landmark_2 = fernPairNearestLandmark[i](0, 1);
-        curLocation(0, 0) = fernPairLocation[i](1, 0) + curKeyPoints( idx_landmark_2, 0);
-        curLocation(1, 0) = fernPairLocation[i](1, 1) + curKeyPoints( idx_landmark_2, 1);
+        int idx_landmark_2 = fernPairNearestLandmark[i].at<int>(0, 1);
+        curLocation.at<double>(0, 0) = fernPairLocation[i].at<double>(1, 0) + curKeyPoints.at<double>( idx_landmark_2, 0);
+        curLocation.at<double>(1, 0) = fernPairLocation[i].at<double>(1, 1) + curKeyPoints.at<double>( idx_landmark_2, 1);
+
+        curLocation = rotationMatrix.t() * curLocation * scale;
 
         curLocationImageCoor = ProjectToImageCoordinate(curLocation, bounding_box);
-        double pixel_2 = (double) image.at<unsigned char>(curLocationImageCoor(0,0), curLocationImageCoor(0, 1));
+        double pixel_2 = (double) image.at<unsigned char>(curLocationImageCoor.at<double>(0,0), curLocationImageCoor.at<double>(0, 1));
 
         if(pixel_1 - pixel_2 >= fernThreshold[i]){
             index += pow(2.0, i);
         }
     }
     // return regression_output in box-coordinate
-    return regression_output[index]; // box-coordinate
+    Mat_<double> output = ( rotationMatrix.t() * regression_output[index].t() * scale ).t();
+
+    return output; // box-coordinate
 }
