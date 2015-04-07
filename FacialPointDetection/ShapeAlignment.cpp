@@ -1,6 +1,7 @@
 #include <opencv2/opencv.hpp>
 #include "ShapeAlignment.h"
 #include "utility.h"
+#include <iomanip>
 
 ShapeAlignment::ShapeAlignment(int first_level_regressor, int second_level_regressor, int num_of_feature_per_fern, int num_of_random_pixel) {
     ShapeAlignment::first_level_regressor = first_level_regressor;
@@ -32,11 +33,69 @@ void ShapeAlignment::addBoundingBoxes(vector<Rect_<int>> boundingboxVector) {
 
 void ShapeAlignment::Save(string destination) {
     cout << "SAVE MODEL: " << destination << endl;
-    ofstream out(destination, ofstream::out);
-    out << "HEHE" << endl;
-    out.close();
-}
 
+    cout << first_level_regressor << endl;
+    cout << second_level_regressor << endl;
+    cout << num_of_feature_per_fern << endl;
+    cout << num_of_random_pixel << endl;
+    cout << meanShape.rows << endl;
+    cout << meanShape.t() << endl;
+
+
+    FileStorage out(destination, FileStorage::WRITE);
+
+//    ofstream out(destination, ofstream::out);
+    out << "first_level_regressor" << first_level_regressor;
+    out << "second_level_regressor" << second_level_regressor;
+    out << "num_of_feature_per_fern" << num_of_feature_per_fern;
+    out << "num_of_random_pixel" << num_of_random_pixel;
+
+    out << "meanShape" << meanShape;
+
+    out << "regressors_size" << (int)regressors.size();
+
+    for(int i = 0 ; i < regressors.size(); i++){
+        string name = "regressors_";
+        name += to_string(i);
+        out << name << "{";
+        regressors[i].Save(out);
+        out << "}";
+    }
+
+    out.release();
+}
+void ShapeAlignment::Load(string destination) {
+    cout << "LOAD MODEL: " << destination << endl;
+
+    FileStorage in(destination, FileStorage::READ);
+
+    in["first_level_regressor"] >> first_level_regressor;
+    in["second_level_regressor"] >> second_level_regressor;
+    in["num_of_feature_per_fern"] >> num_of_feature_per_fern;
+    in["num_of_random_pixel"] >> num_of_random_pixel;
+
+    in["meanShape"] >> meanShape;
+
+
+    cout << first_level_regressor << endl;
+    cout << second_level_regressor << endl;
+    cout << num_of_feature_per_fern << endl;
+    cout << num_of_random_pixel << endl;
+    cout << meanShape.rows << endl;
+    cout << meanShape.t() << endl;
+
+    int regressors_size = 0;
+    in["regressors_size"] >> regressors_size;
+
+    for(int i = 0 ; i < regressors_size; i++){
+        string name = "regressors_";
+        name += to_string(i);
+
+        regressors[i].Load(in[name]);
+    }
+
+    in.release();
+}
 void ShapeAlignment::Train(){
     cout << "TRAIN SHAPE MODEL" << endl;
 
@@ -47,7 +106,7 @@ void ShapeAlignment::Train(){
 
     // generate more image, keypoints, curShape & inputShape
     int total_image_original = images.size();
-    for(int j = 0 ; j < 10 ; j ++){
+    for(int j = 0 ; j < 0 ; j ++){
         for(int i = 0 ; i < total_image_original; i++){
             cout << "GENERATE " << i << endl;
             images.push_back(images[i].clone());
@@ -66,8 +125,7 @@ void ShapeAlignment::Train(){
             index = rng.uniform(0, images.size() - 1);
         }
 
-
-//        visualizeImage(images[index], keypoints[index], 0);
+//      visualizeImage(images[index], keypoints[index], 0);
 
         Mat_<double> initial = ProjectToBoxCoordinate(keypoints[index], boundingBoxes[index]);
 

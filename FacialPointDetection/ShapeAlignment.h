@@ -29,6 +29,7 @@ public:
     void addKeyPoints( vector<Mat_<double>> );
     void Train();
     void Save(string destination);
+    void Load(string destination);
 
     Mat_<double> Test(Mat_<unsigned char> &image, Rect_<int> &bounding_box);
 };

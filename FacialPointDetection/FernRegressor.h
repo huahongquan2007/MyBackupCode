@@ -19,9 +19,15 @@ class FernRegressor{
     vector<Mat_<int>> fernPairNearestLandmark; // [2x1] nearest 1 , nearest 2
     vector<Mat_<double>> regression_output;
 public:
+    FernRegressor(){
+
+    }
     FernRegressor(int feature_per_fern);
     vector<Mat_<double>> Train(vector<Mat_<double>> regression_target, Mat_<double> covariance_matrix, Mat_<double> pixels, Mat_<double> pixelLocation, Mat_<int> nearestLandmarkOfPixel, bool isDebug = true);
     Mat_<double> Test(Mat_<unsigned char> image, Rect_<int> bounding_box, Mat_<double> curShape, Mat_<double> meanShape);
+
+    void Save(FileStorage &out);
+    void Load(FileNode in);
 };
 
 

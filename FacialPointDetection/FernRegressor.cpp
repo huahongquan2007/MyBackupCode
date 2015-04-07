@@ -1,6 +1,7 @@
 #include <strings.h>
 #include "FernRegressor.h"
 #include "utility.h"
+#include <fstream>
 
 FernRegressor::FernRegressor(int feature_per_fern) {
     FernRegressor::feature_per_fern = feature_per_fern;
@@ -127,8 +128,8 @@ vector<Mat_<double>> FernRegressor::Train(vector<Mat_<double>> regression_target
                 int shape_idx = bins_index[i][j];
                 result += regression_target[shape_idx];
             }
-//            double ratio = (1 + 100.0/ bin_size) * bin_size;
-            double ratio = bin_size;
+            double ratio = (1 + 100.0/ bin_size) * bin_size;
+//            double ratio = bin_size;
             result /= ratio;
 //            if(isDebug) cout << endl;
         }
@@ -190,7 +191,7 @@ Mat_<double> FernRegressor::Test(Mat_<unsigned char> image, Rect_<int> bounding_
         curLocation.at<double>(0, 0) = fernPairLocation[i].at<double>(0, 0) + curKeyPoints.at<double>( idx_landmark_1, 0);
         curLocation.at<double>(1, 0) = fernPairLocation[i].at<double>(0, 1) + curKeyPoints.at<double>( idx_landmark_1, 1);
 
-        curLocation = rotationMatrix.t() * curLocation * scale;
+        curLocation = rotationMatrix.t() * curLocation / scale;
 
         Mat_<double> curLocationImageCoor = ProjectToImageCoordinate(curLocation, bounding_box);
         double pixel_1 = (double) image.at<unsigned char>(curLocationImageCoor.at<double>(0,0), curLocationImageCoor.at<double>(0, 1));
@@ -200,7 +201,7 @@ Mat_<double> FernRegressor::Test(Mat_<unsigned char> image, Rect_<int> bounding_
         curLocation.at<double>(0, 0) = fernPairLocation[i].at<double>(1, 0) + curKeyPoints.at<double>( idx_landmark_2, 0);
         curLocation.at<double>(1, 0) = fernPairLocation[i].at<double>(1, 1) + curKeyPoints.at<double>( idx_landmark_2, 1);
 
-        curLocation = rotationMatrix.t() * curLocation * scale;
+        curLocation = rotationMatrix.t() * curLocation / scale;
 
         curLocationImageCoor = ProjectToImageCoordinate(curLocation, bounding_box);
         double pixel_2 = (double) image.at<unsigned char>(curLocationImageCoor.at<double>(0,0), curLocationImageCoor.at<double>(0, 1));
@@ -210,7 +211,84 @@ Mat_<double> FernRegressor::Test(Mat_<unsigned char> image, Rect_<int> bounding_
         }
     }
     // return regression_output in box-coordinate
-    Mat_<double> output = ( rotationMatrix.t() * regression_output[index].t() * scale ).t();
+    Mat_<double> output = ( rotationMatrix.t() * regression_output[index].t() / scale ).t();
 
     return output; // box-coordinate
+}
+
+void FernRegressor::Save(FileStorage &out){
+    out << "feature_per_fern" << feature_per_fern;
+
+    for(int i = 0 ; i < fernThreshold.size() ; i++){
+        string name = "fern_threshold_";
+        name += to_string(i);
+        out << name << fernThreshold[i];
+    }
+
+    out << "fernPairLocationSize" << (int)fernPairLocation.size();
+
+    for(int i = 0 ; i < fernPairLocation.size(); i++){
+        string name = "fern_pair_location_";
+        name += to_string(i);
+        out << name << fernPairLocation[i];
+    }
+
+    out << "fernPairNearestLandmarkSize" << (int) fernPairNearestLandmark.size();
+    for(int i = 0; i < fernPairNearestLandmark.size(); i++){
+        string name = "fern_pair_nearest_landmark_";
+        name += to_string(i);
+        out << name << fernPairNearestLandmark[i];
+    }
+
+    out << "regressionOutputSize" << (int) regression_output.size();
+    for(int i = 0; i < regression_output.size(); i++){
+        string name = "regression_output_";
+        name += to_string(i);
+        out << name << regression_output[i];
+    }
+//    vector<Mat_<double>> regression_output;
+}
+void FernRegressor::Load(FileNode in){
+    in["feature_per_fern"] >> feature_per_fern;
+
+    fernThreshold.resize(feature_per_fern);
+
+    for(int i = 0 ; i < fernThreshold.size() ; i++){
+        string name = "fern_threshold_";
+        name += to_string(i);
+        in[name] >> fernThreshold[i];
+    }
+
+    int fernPairLocationSize = 0;
+    in["fernPairLocationSize"] >> fernPairLocationSize;
+
+    fernPairLocation.resize(fernPairLocationSize);
+    for(int i = 0 ; i < fernPairLocation.size(); i++){
+        string name = "fern_pair_location_";
+        name += to_string(i);
+        in[name] >> fernPairLocation[i];
+    }
+
+    int fernPairNearestLandmarkSize = 0;
+    in["fernPairNearestLandmarkSize"] >> fernPairNearestLandmarkSize;
+
+    fernPairNearestLandmark.resize(fernPairNearestLandmarkSize);
+    for(int i = 0; i < fernPairNearestLandmark.size(); i++){
+        string name = "fern_pair_nearest_landmark_";
+        name += to_string(i);
+        in[name] >> fernPairNearestLandmark[i];
+    }
+
+    int regressionOutputSize = 0;
+    in["regressionOutputSize"] >> regressionOutputSize;
+    regression_output.resize(regressionOutputSize);
+
+    for(int i = 0; i < regression_output.size(); i++){
+        string name = "regression_output_";
+        name += to_string(i);
+        in[name] >> regression_output[i];
+    }
+
+    cout << "REGRESISON OUTPUT" << endl;
+    cout << regression_output[0].t() << endl;
 }

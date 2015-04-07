@@ -1,6 +1,6 @@
 #include "NormalRegressor.h"
 #include "utility.h"
-#include <opencv2/opencv.hpp>
+#include <fstream>
 
 NormalRegressor::NormalRegressor(int child_level, int feature_per_fern, int num_of_random_pixels) {
 
@@ -172,14 +172,48 @@ Mat_<double> NormalRegressor::Test(Mat_<unsigned char> image, Rect_<int> boundin
 
     for(int i = 0 ; i < childRegressor.size(); i++){
         deltaShape = childRegressor[i].Test(image, bounding_box, inputShape, meanShape);
-        regression_output = ProjectToImageCoordinate(
-                ProjectToBoxCoordinate( inputShape , bounding_box ) - deltaShape,
-                bounding_box) - inputShape;
 
-        inputShape -= regression_output;
+        regression_output += ProjectToImageCoordinate(
+                ProjectToBoxCoordinate( inputShape , bounding_box ) + deltaShape, bounding_box) - inputShape;
+
+        inputShape = curShape + regression_output;
 
         visualizeImage(image, inputShape, 10);
     }
 
-    return curShape - inputShape;
+    return regression_output;
+}
+
+void NormalRegressor::Save(FileStorage &out){
+    out << "num_of_random_pixels" << num_of_random_pixels;
+
+    out << "child_regressor_size" << (int)childRegressor.size();
+
+    cout << num_of_random_pixels << endl;
+    cout << childRegressor.size() << endl;
+
+    for(int i = 0 ; i < childRegressor.size(); i++){
+        string name = "child_regressors_";
+        name += to_string(i);
+        out << name << "{";
+        childRegressor[i].Save(out);
+        out << "}";
+    }
+}
+
+void NormalRegressor::Load(FileNode in){
+    in["num_of_random_pixels"] >> num_of_random_pixels;
+
+    int childSize = 0;
+    in["child_regressor_size"] >> childSize;
+
+    cout << num_of_random_pixels << endl;
+    cout << childSize << endl;
+
+    childRegressor.resize(childSize);
+    for(int i = 0 ; i < childSize; i++) {
+        string name = "child_regressors_";
+        name += to_string(i);
+        childRegressor[i].Load(in[name]);
+    }
 }

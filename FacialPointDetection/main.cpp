@@ -69,7 +69,10 @@ int main() {
     shapeAlignment.addKeyPoints(keypoints);
     shapeAlignment.Train();
     shapeAlignment.Save(options.getModelPath());
+    shapeAlignment.Load(options.getModelPath());
 
+
+    waitKey(0);
 //    }//isTraining == true
 
     // =========================================
