@@ -7,12 +7,18 @@ import android.content.ServiceConnection;
 import aios.core.vision.camera.CameraService;
 import aios.core.vision.facedetection.FaceDetectionCVService;
 import aios.core.vision.facelearning.FaceLearningService;
+import aios.core.vision.facerecognition.FaceManager;
 import aios.core.vision.facerecognition.FaceRecognitionService;
 import aios.core.vision.facetracking.FaceTrackingService;
 
 public class VisionConfig {
+    public enum CAMERA_ORDER_ID{ BACK(0), FRONT(1);
+        private final int id;
+        CAMERA_ORDER_ID(int id) { this.id = id; }
+        public int getValue() { return id; }
+    }
     // ----------- camera info ----------------
-    public static final int CAMERA_ID = 1;
+    public static final CAMERA_ORDER_ID CAMERA_ID = CAMERA_ORDER_ID.BACK;
     // 0 : Back Camera
     // 1 : Front Camera
 
@@ -25,7 +31,7 @@ public class VisionConfig {
     public static final int FACE_REG_MAX_TRY = 1;
     public static final int FACE_REG_THRESHOLD = 50;
     public static final int FACE_REG_TIME_WAIT_TRAIN = 30 * 1000; // Send training command after 30s of no face tracking
-    public static final String FACE_REG_GROUP_NAME = "techcrunch";
+    public static final String FACE_REG_GROUP_NAME = "robotbase-demo";
     public static final boolean FACE_REG_BACKUP = false;
     public static final boolean FACE_REG_BACKUP_TO_SDCARD = true;
 
@@ -35,7 +41,8 @@ public class VisionConfig {
             c.startService(new Intent(c, FaceDetectionCVService.class));
             c.startService(new Intent(c, FaceTrackingService.class));
             c.startService(new Intent(c, FaceRecognitionService.class));
-            c.startService(new Intent(c, FaceLearningService.class));
+//            c.startService(new Intent(c, FaceLearningService.class));
+            c.startService(new Intent(c, FaceManager.class));
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -46,7 +53,8 @@ public class VisionConfig {
             c.stopService(new Intent(c, FaceDetectionCVService.class));
             c.stopService(new Intent(c, FaceTrackingService.class));
             c.stopService(new Intent(c, FaceRecognitionService.class));
-            c.stopService(new Intent(c, FaceLearningService.class));
+//            c.stopService(new Intent(c, FaceLearningService.class));
+            c.stopService(new Intent(c, FaceManager.class));
         }catch (Exception e) {
             e.printStackTrace();
         }

@@ -1,4 +1,4 @@
-#include <strings.h>
+#include <opencv2/opencv.hpp>
 #include "ShapeAlignment.h"
 #include "utility.h"
 
@@ -40,12 +40,10 @@ void ShapeAlignment::Save(string destination) {
 void ShapeAlignment::Train(){
     cout << "TRAIN SHAPE MODEL" << endl;
 
-    vector<Mat_<double>> inputShape;
     vector<Mat_<double>> curShape;
     vector<Mat_<double>> deltaShape;
 
     meanShape = GetMeanShape(keypoints, boundingBoxes);
-
 
     // generate more image, keypoints, curShape & inputShape
     int total_image_original = images.size();
@@ -68,13 +66,24 @@ void ShapeAlignment::Train(){
             index = rng.uniform(0, images.size() - 1);
         }
 
-//        index = i;
         Mat_<double> initial = ProjectToBoxCoordinate(keypoints[index], boundingBoxes[index]);
-//        initial += 0.45;
-        curShape.push_back( ProjectToImageCoordinate(initial, boundingBoxes[i] ) );
-        inputShape.push_back( ProjectToImageCoordinate(initial, boundingBoxes[i] ) );
+
+        Mat_<double> new_points = ProjectToImageCoordinate(initial, boundingBoxes[i] );
+        Point mean_new_points = GetMeanPoint(new_points);
+        Point mean_old_points = GetMeanPoint(keypoints[i]);
+
+        Point translation = mean_new_points - mean_old_points;
+
+        for(int j = 0 ; j < new_points.rows ; j++){
+            new_points.at<double>(j, 0) = new_points.at<double>(j, 0) - translation.x;
+            new_points.at<double>(j, 1) = new_points.at<double>(j, 1) - translation.y;
+        }
+
+        curShape.push_back( new_points );
         // method 2: use mean
 //        curShape.push_back(ProjectToImageCoordinate(meanShape, boundingBoxes[i] ));
+
+//        visualizeImage(images[i], ProjectToImageCoordinate(initial, boundingBoxes[i] ) , 0);
     }
 
     int visualIdx = 0;
@@ -86,7 +95,7 @@ void ShapeAlignment::Train(){
         deltaShape = regressors[i].Train(images, keypoints, meanShape, boundingBoxes, curShape);
 
         for(int j = 0 ; j < curShape.size() ; j++){
-            curShape[j] -= deltaShape[j];
+            curShape[j] += deltaShape[j];
         }
 
         cout << "---------FIRST LEVEL ------------" << endl;
@@ -98,14 +107,8 @@ void ShapeAlignment::Train(){
         cout << deltaShape[visualIdx].t() << endl;
         visualizeImage(images[visualIdx], curShape[visualIdx], 10);
 
-//        waitKey(0);
+        waitKey(10);
     }
-
-//    cout << "-----------------FOR EACH IMAGES  -------------------" << endl;
-//    for(int i = 0 ; i < inputShape.size() ; i++){
-//        visualizeImageCompare(images[i], curShape[i], inputShape[i], 500);
-//    }
-
 }
 
 Mat_<double> ShapeAlignment::Test(Mat_<unsigned char> &image, Rect_<int> &bounding_box) {
@@ -119,7 +122,7 @@ Mat_<double> ShapeAlignment::Test(Mat_<unsigned char> &image, Rect_<int> &boundi
     for(int i = 0 ; i < first_level_regressor ; i ++){
         deltaShape = regressors[i].Test(image, bounding_box, curShape, meanShape);
 
-        curShape -= deltaShape;
+        curShape += deltaShape;
     }
     return curShape;
 }

@@ -2,9 +2,9 @@
 #include <opencv2/opencv.hpp>
 #include "iomanip"
 
-void visualizeImage(Mat img, Mat_<double> keypoints, int delay, bool debug){
+void visualizeImage(Mat img, Mat_<double> keypoints, int delay, bool debug, string win_name){
     // --------------- DRAW A FACE + KEYPOINT --------
-    namedWindow("Images", WINDOW_NORMAL);
+    namedWindow(win_name, WINDOW_NORMAL);
 
     Mat curImg;
 
@@ -21,7 +21,7 @@ void visualizeImage(Mat img, Mat_<double> keypoints, int delay, bool debug){
         circle(curImg, Point(x, y), 1, Scalar(255, 0, 0), -1);
     }
 
-    imshow("Images", curImg);
+    imshow(win_name, curImg);
 
     waitKey(delay);
 }
@@ -74,6 +74,18 @@ Mat_<double> GetMeanShape(vector<Mat_<double>> keypoints, vector<Rect_<int>> box
     cout << "Keypoints size: " << keypoints[0].size() << endl;
     cout << "Meanshape: " << result << endl;
     return result;
+}
+
+Point GetMeanPoint(Mat_<double> keypoints){
+    Point meanIndex;
+    for(int j = 0 ; j < keypoints.rows ; j++){
+        meanIndex.x += keypoints.at<double>(j, 0);
+        meanIndex.y += keypoints.at<double>(j, 1);
+    }
+    meanIndex.x = meanIndex.x / keypoints.rows;
+    meanIndex.y = meanIndex.y / keypoints.rows;
+
+    return meanIndex;
 }
 
 Mat_<double> ProjectToBoxCoordinate( Mat_<double> points, Rect_<int> box ){

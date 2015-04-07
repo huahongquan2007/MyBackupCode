@@ -5,14 +5,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.util.Log;
 
 import java.util.Vector;
 import java.util.concurrent.locks.ReentrantLock;
 import aios.core.vision.baseclasses.VisionBaseClass;
+import aios.core.vision.facerecognition.backup.BackupAPI;
 import aios.core.vision.facerecognition.facepp.FaceppAPI;
 import aios.core.vision.facerecognition.facepp.FaceppAsyncResponse;
+import aios.core.vision.facerecognition.facepp.OnFaceppCompleted;
 import aios.core.vision.utils.VisionConfig;
 import aios.core.vision.utils.VisionUtilities;
 import org.opencv.android.Utils;
@@ -43,7 +44,7 @@ public class FaceRecognitionService extends VisionBaseClass implements
     protected void setup() {
         // ---- Face tracking
         faceTrackingReceiver = new FaceTrackingReceiver();
-        IntentFilter filterFaceTracking = new IntentFilter(aios.core.vision.Intent.ACTION_FACE_TRACKING);
+        IntentFilter filterFaceTracking = new IntentFilter(ai.vision.Intent.ACTION_FACE_TRACKING);
         registerReceiver(faceTrackingReceiver, filterFaceTracking);
     }
     @Override
@@ -55,27 +56,35 @@ public class FaceRecognitionService extends VisionBaseClass implements
         try{
             if(faceTrackingLock.tryLock()){
                 needBroadcast = false;
-                if(lastFaceTrackingTime != faceTrackingTime){
-                    String faceRecResult = "[]";
-                    if(faceRecognitionLock.tryLock()){
-                        if(listResult.size() > 0){
-                            faceRecResult = "[";
-                            for(int i = 0 ; i < listResult.size() ; i++){
-                                if(i == listResult.size() - 1){
-                                    faceRecResult += listResult.get(i);
-                                }else{
-                                    faceRecResult += listResult.get(i) + ",";
-                                }
+                String faceRecResult = "[]";
+                if(faceRecognitionLock.tryLock()){
+                    if(listResult.size() > 0){
+                        faceRecResult = "[";
+                        for(int i = 0 ; i < listResult.size() ; i++){
+                            if(i == listResult.size() - 1){
+                                faceRecResult += listResult.get(i);
+                            }else{
+                                faceRecResult += listResult.get(i) + ",";
                             }
-                            faceRecResult += "]";
-                            listResult.clear();
-                            Log.d("Vision", "FaceRec: faceRecResult in update " + faceRecResult);
                         }
-                        faceRecognitionLock.unlock();
+                        faceRecResult += "]";
+                        listResult.clear();
+                        Log.d("Vision", "FaceRec: faceRecResult in update " + faceRecResult);
                     }
+                    faceRecognitionLock.unlock();
+                }
+                if(lastFaceTrackingTime != faceTrackingTime){
                     lastFaceTrackingTime = faceTrackingTime;
                     result = NativeFaceRecognition.update(this, frame, width, height, faceTrackingResult, faceRecResult);
+                    Log.e("Vision", "FaceRec: result: " + result);
                     needBroadcast = true;
+                } else {
+                    if (faceRecResult.length() > 3){
+                        Log.e("Vision", "faceRec exists but no face in frame");
+                        result = NativeFaceRecognition.update(this, frame, width, height, "[]", faceRecResult);
+                        Log.e("Vision", "FaceRec: result: " + result);
+                        needBroadcast = true;
+                    }
                 }
                 faceTrackingLock.unlock();
             }
@@ -92,7 +101,7 @@ public class FaceRecognitionService extends VisionBaseClass implements
                 Log.i("Vision", "FaceRec broadcast " + System.currentTimeMillis() + " " + result);
                 Intent intent = new Intent();
                 intent.putExtra("data", result);
-                intent.setAction(aios.core.vision.Intent.ACTION_FACE_RECOGNITION);
+                intent.setAction(ai.vision.Intent.ACTION_FACE_RECOGNITION);
 
                 sendBroadcast(intent);
             }catch (Exception e){
@@ -106,19 +115,7 @@ public class FaceRecognitionService extends VisionBaseClass implements
         return 10;
     }
 
-
-
-    @Override
-    public void updateLastPersonAddTime() {
-
-    }
-
-    @Override
-    public void trainFinish() {
-
-    }
-
-    public class FaceTrackingReceiver extends BroadcastReceiver {
+    protected class FaceTrackingReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
 
@@ -135,14 +132,22 @@ public class FaceRecognitionService extends VisionBaseClass implements
         }
     }
 
-    public void sendServer(String face_id, int width, int height, byte[] data){
+    private BackupAPI backup = new BackupAPI();
+    OnFaceppCompleted listener = new OnFaceppCompleted() {
+
+        @Override
+        public void personAddFace(String person_name, byte[] data, String face_id) {
+            backup.personAddFace(person_name, data, face_id);
+        }
+    };
+    protected void sendServer(String face_id, int width, int height, byte[] data){
         Mat mat = new Mat(height, width, CvType.CV_8UC3);
         mat.put(0, 0, data);
         Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         Utils.matToBitmap(mat, bitmap);
         VisionUtilities.saveImage(bitmap);
 
-        facepp.recognitionIdentify(VisionConfig.FACE_REG_GROUP_NAME, bitmap, face_id);
+        facepp.recognitionIdentify(listener, VisionConfig.FACE_REG_GROUP_NAME, bitmap, face_id);
         Log.e("Vision", "SendServer is here " + data.length);
     }
     @Override

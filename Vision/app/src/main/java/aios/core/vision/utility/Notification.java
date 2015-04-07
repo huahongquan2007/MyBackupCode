@@ -16,14 +16,14 @@ public class Notification {
 	
 	public static void voiceNotification(Context context, String content) {
     	Intent broadcast_intent = new Intent();
-    	broadcast_intent.setAction(aios.core.vision.Intent.TEXT_TO_SPEECH);
+    	broadcast_intent.setAction(ai.vision.Intent.TEXT_TO_SPEECH);
     	broadcast_intent.putExtra("text", content);
     	context.sendBroadcast(broadcast_intent);
 	}
 	public static void voiceNotification(Context context, String[] content) {
 		try{
 	    	Intent broadcast_intent = new Intent();
-	    	broadcast_intent.setAction(aios.core.vision.Intent.TEXT_TO_SPEECH);
+	    	broadcast_intent.setAction(ai.vision.Intent.TEXT_TO_SPEECH);
 	    	broadcast_intent.putExtra("text", content[(int)(Math.random() * content.length + Math.random() * content.length)/2]);
 	    	context.sendBroadcast(broadcast_intent);			
 		}catch(Exception e){
@@ -33,7 +33,7 @@ public class Notification {
 	public static void voiceNotification(Context context, Vector<String> content) {
 		try{
 	    	Intent broadcast_intent = new Intent();
-	    	broadcast_intent.setAction(aios.core.vision.Intent.TEXT_TO_SPEECH);
+	    	broadcast_intent.setAction(ai.vision.Intent.TEXT_TO_SPEECH);
 	    	broadcast_intent.putExtra("text", content.get((int)(Math.random() * content.size() + Math.random() * content.size())/2));
 	    	context.sendBroadcast(broadcast_intent);			
 		}catch(Exception e){

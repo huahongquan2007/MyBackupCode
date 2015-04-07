@@ -1,7 +1,6 @@
 package aios.core.vision.facedetection;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
 import android.util.Log;
 
 import java.io.File;
@@ -49,7 +48,7 @@ public class FaceDetectionCVService extends VisionBaseClass {
 //                Log.i("Vision", "FaceDetect broadcast " + System.currentTimeMillis() + " " + result);
                 Intent intent = new Intent();
                 intent.putExtra("data", result);
-                intent.setAction(aios.core.vision.Intent.ACTION_FACE_DETECTION);
+                intent.setAction(ai.vision.Intent.ACTION_FACE_DETECTION);
 
                 sendBroadcast(intent);
             }catch (Exception e){

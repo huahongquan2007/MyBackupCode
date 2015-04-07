@@ -1,12 +1,9 @@
 package aios.core.vision.facetracking;
 
-import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.Bundle;
-import android.os.IBinder;
 import android.util.Log;
 
 import java.util.concurrent.locks.ReentrantLock;
@@ -30,7 +27,7 @@ public class FaceTrackingService extends VisionBaseClass {
     @Override
     protected void setup() {
         faceDetectionReceiver = new FaceDetectionReceiver();
-        IntentFilter filterFaceDetection  = new IntentFilter(aios.core.vision.Intent.ACTION_FACE_DETECTION);
+        IntentFilter filterFaceDetection  = new IntentFilter(ai.vision.Intent.ACTION_FACE_DETECTION);
         registerReceiver(faceDetectionReceiver, filterFaceDetection);
     }
     @Override
@@ -61,7 +58,7 @@ public class FaceTrackingService extends VisionBaseClass {
 //                Log.i("Vision", "FaceTracking broadcast " + System.currentTimeMillis() + " " + result);
                 Intent intent = new Intent();
                 intent.putExtra("data", result);
-                intent.setAction(aios.core.vision.Intent.ACTION_FACE_TRACKING);
+                intent.setAction(ai.vision.Intent.ACTION_FACE_TRACKING);
 
                 sendBroadcast(intent);
             }catch (Exception e){

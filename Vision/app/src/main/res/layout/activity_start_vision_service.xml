@@ -6,32 +6,61 @@
     android:paddingBottom="@dimen/activity_vertical_margin"
     tools:context="aios.core.vision.StartVisionService">
 
-    <Button
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Start Vision Service"
-        android:id="@+id/btn_startService"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="20dp"
-        android:onClick="onStartServiceClicked" />
-
-    <ScrollView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/scrollView"
-        android:layout_below="@+id/btn_startService"
-        android:layout_marginTop="42dp" >
-        <TextView
-            android:text=
-"\n
-Version: 0.0.2: \n
-- Implement Camera Android Service \n
-Version: 0.0.1: \n
-- Activate Services through StartVisionService Activity \n
-"
-            android:layout_width="wrap_content"
+        android:orientation="vertical" >
+        <Button
+            android:layout_width="fill_parent"
+            android:layout_height="45dp"
+            android:text="Start Vision Service"
+            android:id="@+id/btn_startService"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="20dp"
+            android:onClick="onStartServiceClicked" />
+        <LinearLayout
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-        />
-    </ScrollView>
+            android:orientation="horizontal" >
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="45dp"
+            android:text="Bind"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="20dp"
+            android:onClick="onBindFaceManagerClicked" />
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="45dp"
+            android:text="FaceManager"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="20dp"
+            android:onClick="onProcessFaceManagerClicked" />
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="45dp"
+            android:text="Unbind"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="20dp"
+            android:onClick="onUnbindFaceManagerClicked" />
+        </LinearLayout>
 
+        <ScrollView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/scrollView"
+        >
+            <TextView
+                android:text=
+    "\n
+    Version: 0.0.2: \n
+    - Implement Camera Android Service \n
+    Version: 0.0.1: \n
+    - Activate Services through StartVisionService Activity \n
+    "
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+            />
+        </ScrollView>
+    </LinearLayout>
 </RelativeLayout>

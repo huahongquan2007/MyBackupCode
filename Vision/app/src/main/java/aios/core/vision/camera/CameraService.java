@@ -30,13 +30,12 @@ public class CameraService extends Service {
     private long lastTimerRequestFrame = 0;
     private Timer timer;
     private ToggleCameraReceiver toggleCameraReceiver;
-    private int CAMERA_ID = VisionConfig.CAMERA_ID;
+    private int CAMERA_ID = VisionConfig.CAMERA_ID.getValue();
     public static int camWidth = 480, camHeight = 640, camChannels = 3;
     private Camera mCam;
     private int fps = 15;
     private SurfaceTexture texture;
     private byte[] callbackBuffer = new byte[camWidth * camHeight * 3];
-    public ReentrantLock previewBufferLock = new ReentrantLock();
     private ReentrantLock countFrameLock = new ReentrantLock();
     private int countFrame = 0;
     byte[] frameData = null;
@@ -65,7 +64,7 @@ public class CameraService extends Service {
 
         toggleCameraReceiver = new ToggleCameraReceiver();
         IntentFilter filterToggle = new IntentFilter(
-                aios.core.vision.Intent.TOGGLE_CAMERA_SERVICE);
+                ai.vision.Intent.TOGGLE_CAMERA_SERVICE);
         registerReceiver(toggleCameraReceiver, filterToggle);
 
         turnOnCamera();
@@ -85,6 +84,7 @@ public class CameraService extends Service {
                         if(frameData == null)
                             frameData = new byte[(int)lastMat.total() * lastMat.channels()];
                         lastMat.get(0, 0, frameData);
+                        lastTimerRequestFrame = System.currentTimeMillis();
                     }
                     countFrameLock.unlock();
                     break;
@@ -118,6 +118,7 @@ public class CameraService extends Service {
                         if(lastBitmap == null)
                             lastBitmap = Bitmap.createBitmap(camWidth, camHeight, Bitmap.Config.ARGB_8888);
                         Utils.matToBitmap(lastMat, lastBitmap);
+                        lastTimerRequestFrame = System.currentTimeMillis();
 //                        Log.i("Vision", "getFrameBitmap matToBitmap");
                     }
                     countFrameLock.unlock();
@@ -240,13 +241,11 @@ public class CameraService extends Service {
             texture = new SurfaceTexture(10);
             mCam.setPreviewTexture(texture);
             mCam.startPreview();
-            mCam.addCallbackBuffer(callbackBuffer);
-            mCam.setPreviewCallbackWithBuffer(new Camera.PreviewCallback() {
+//            mCam.addCallbackBuffer(callbackBuffer);
+//            mCam.setPreviewCallbackWithBuffer(new Camera.PreviewCallback() {
+            mCam.setPreviewCallback(new Camera.PreviewCallback() {
                 @Override
                 public void onPreviewFrame(byte[] data, Camera camera) {
-                    previewBufferLock.lock();
-//                    Log.d("Vision", "CameraService onPreview");
-
                     for(int i = 0; i < 10; i++){
                         if( countFrameLock.tryLock() ){
                             countFrame += 1;
@@ -256,12 +255,15 @@ public class CameraService extends Service {
                             Imgproc.cvtColor(yuvMat, originalMat, Imgproc.COLOR_YUV420sp2RGB);
 
                             lastMat = originalMat.t();
-                            Core.flip(lastMat, lastMat, 0);
 
+                            if(VisionConfig.CAMERA_ID == VisionConfig.CAMERA_ORDER_ID.FRONT)
+                                Core.flip(lastMat, lastMat, 0);
+                            else
+                                Core.flip(lastMat, lastMat, 1);
 //                            Log.d("Vision", "Width: " + originalMat.width() + " Height: " + originalMat.height() + " Total: " + originalMat.total() * originalMat.channels());
                             // end save to Mat
 
-                            camera.addCallbackBuffer(data);
+//                            camera.addCallbackBuffer(data);
                             countFrameLock.unlock();
                             break;
                         }
@@ -271,7 +273,6 @@ public class CameraService extends Service {
                             e.printStackTrace();
                         }
                     }
-                    previewBufferLock.unlock();
                 }
             });
 

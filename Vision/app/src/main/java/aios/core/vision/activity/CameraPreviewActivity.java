@@ -66,11 +66,11 @@ public class CameraPreviewActivity extends ActionBarActivity {
         // Setup broadcast Receiver
         // ---- Face detection
         faceDetectionReceiver = new FaceDetectionReceiver();
-        IntentFilter filterFaceDetection = new IntentFilter(aios.core.vision.Intent.ACTION_FACE_DETECTION);
+        IntentFilter filterFaceDetection = new IntentFilter(ai.vision.Intent.ACTION_FACE_DETECTION);
         registerReceiver(faceDetectionReceiver, filterFaceDetection);
         // ---- Face tracking
         faceTrackingReceiver = new FaceTrackingReceiver();
-        IntentFilter filterFaceTracking = new IntentFilter(aios.core.vision.Intent.ACTION_FACE_TRACKING);
+        IntentFilter filterFaceTracking = new IntentFilter(ai.vision.Intent.ACTION_FACE_TRACKING);
         registerReceiver(faceTrackingReceiver, filterFaceTracking);
     }
 
