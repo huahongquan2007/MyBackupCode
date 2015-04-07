@@ -47,7 +47,7 @@ void ShapeAlignment::Train(){
 
     // generate more image, keypoints, curShape & inputShape
     int total_image_original = images.size();
-    for(int j = 0 ; j < 0 ; j ++){
+    for(int j = 0 ; j < 10 ; j ++){
         for(int i = 0 ; i < total_image_original; i++){
             cout << "GENERATE " << i << endl;
             images.push_back(images[i].clone());
@@ -66,6 +66,9 @@ void ShapeAlignment::Train(){
             index = rng.uniform(0, images.size() - 1);
         }
 
+
+//        visualizeImage(images[index], keypoints[index], 0);
+
         Mat_<double> initial = ProjectToBoxCoordinate(keypoints[index], boundingBoxes[index]);
 
         Mat_<double> new_points = ProjectToImageCoordinate(initial, boundingBoxes[i] );
@@ -82,7 +85,6 @@ void ShapeAlignment::Train(){
         curShape.push_back( new_points );
         // method 2: use mean
 //        curShape.push_back(ProjectToImageCoordinate(meanShape, boundingBoxes[i] ));
-
 //        visualizeImage(images[i], ProjectToImageCoordinate(initial, boundingBoxes[i] ) , 0);
     }
 
@@ -105,7 +107,7 @@ void ShapeAlignment::Train(){
         cout << curShape[visualIdx].t() << endl;
         cout << "DELTASHAPE" << endl;
         cout << deltaShape[visualIdx].t() << endl;
-        visualizeImage(images[visualIdx], curShape[visualIdx], 10);
+//        visualizeImage(images[visualIdx], curShape[visualIdx], 10);
 
         waitKey(10);
     }

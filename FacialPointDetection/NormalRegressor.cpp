@@ -124,42 +124,39 @@ vector<Mat_<double>> NormalRegressor::Train(vector<Mat_<unsigned char>> images, 
 //                    ProjectToBoxCoordinate( inputShape[j] , boundingBoxes[j] ) + (rotationMatrixArray[j].t() * deltaShape[j].t() / scaleArray[j]).t(),
 //                    boundingBoxes[j])  - inputShape[j];
         }
-//        cout << "------------------------------" << endl;
-//        if(isDebug){
-//
-//            cout << "Initial SHAPE: " << endl;
-//            cout << initialShape.t() << endl;
-//            cout << "Initial SHAPE (PROJECT): " << endl;
-//            cout << ProjectToBoxCoordinate( initialShape , boundingBoxes[visualIdx] ).t() << endl;
-//            cout << "DELTA SHAPE: " << endl;
-//            cout << deltaShape[visualIdx].t() << endl;
-//            cout << "BOUNDINGBOXES: " << boundingBoxes[visualIdx] << endl;
-//            cout << "INITIAL + DELTA SHAPE: " << endl;
-//            cout << (ProjectToBoxCoordinate( initialShape , boundingBoxes[visualIdx] ) + deltaShape[visualIdx]).t() << endl;
-//            cout << "INITIAL + DELTA SHAPE (PROJECT): " << endl;
-//            cout << (ProjectToImageCoordinate(ProjectToBoxCoordinate( initialShape , boundingBoxes[visualIdx] ) + regression_target[visualIdx], boundingBoxes[visualIdx])).t() << endl;
-//            cout << "INITIAL + DELTA SHAPE (ORIGINAL): " << endl;
-//            cout << (ProjectToImageCoordinate(ProjectToBoxCoordinate( initialShape , boundingBoxes[visualIdx] ) + regression_target[visualIdx], boundingBoxes[visualIdx]) - initialShape).t() << endl;
-//            cout << "REGRESSION TARGET: " << endl;
-//            cout << regression_target[visualIdx].t() << endl;
-//            cout << "DELTA SHAPE: " << endl;
-//            cout << deltaShape[visualIdx].t() << endl;
-//            cout << "REGRESSION OUTPUT: " << endl;
-//            cout << regression_output[visualIdx].t() << endl;
-//            resultShape = initialShape + regression_output[visualIdx];
-//            cout << "RESULT SHAPE: " << endl;
-//            cout << resultShape.t() << endl;
-//            cout << "GROUND TRUTH SHAPE: " << endl;
-//            cout << keypoints[visualIdx].t() << endl;
-//        }
+        cout << "------------------------------" << endl;
+        if(isDebug){
 
-//        resultShape = ProjectToImageCoordinate(
-//                ProjectToBoxCoordinate( inputShape[visualIdx] , boundingBoxes[visualIdx] ) - regression_target[visualIdx],
-//                boundingBoxes[visualIdx]);
-//
-//        resultShape = ProjectToImageCoordinate(ProjectToBoxCoordinate( initialShape , boundingBoxes[visualIdx] ) + deltaShape[visualIdx], boundingBoxes[visualIdx]);
+            cout << "Initial SHAPE: " << endl;
+            cout << initialShape.t() << endl;
+            cout << "Initial SHAPE (PROJECT): " << endl;
+            cout << ProjectToBoxCoordinate( initialShape , boundingBoxes[visualIdx] ).t() << endl;
+            cout << "DELTA SHAPE: " << endl;
+            cout << deltaShape[visualIdx].t() << endl;
+            cout << "BOUNDINGBOXES: " << boundingBoxes[visualIdx] << endl;
+            cout << "INITIAL + DELTA SHAPE: " << endl;
+            cout << (ProjectToBoxCoordinate( initialShape , boundingBoxes[visualIdx] ) + deltaShape[visualIdx]).t() << endl;
+            cout << "INITIAL + DELTA SHAPE (PROJECT): " << endl;
+            cout << (ProjectToImageCoordinate(ProjectToBoxCoordinate( initialShape , boundingBoxes[visualIdx] ) + regression_target[visualIdx], boundingBoxes[visualIdx])).t() << endl;
+            cout << "INITIAL + DELTA SHAPE (ORIGINAL): " << endl;
+            cout << (ProjectToImageCoordinate(ProjectToBoxCoordinate( initialShape , boundingBoxes[visualIdx] ) + regression_target[visualIdx], boundingBoxes[visualIdx]) - initialShape).t() << endl;
+            cout << "REGRESSION TARGET: " << endl;
+            cout << regression_target[visualIdx].t() << endl;
+            cout << "DELTA SHAPE: " << endl;
+            cout << deltaShape[visualIdx].t() << endl;
+            cout << "REGRESSION OUTPUT: " << endl;
+            cout << regression_output[visualIdx].t() << endl;
+            resultShape = initialShape + regression_output[visualIdx];
+            cout << "Initial SHAPE: " << endl;
+            cout << initialShape.t() << endl;
+            cout << "RESULT SHAPE: " << endl;
+            cout << resultShape.t() << endl;
+            cout << "GROUND TRUTH SHAPE: " << endl;
+            cout << keypoints[visualIdx].t() << endl;
+        }
+
         resultShape = inputShape[visualIdx] + regression_output[visualIdx];
-        if(isDebug) visualizeImageCompare(images[visualIdx], resultShape, initialShape, 0);
+        if(isDebug) visualizeImageCompare(images[visualIdx], resultShape, initialShape, 10);
     }
 
     if(isDebug) cout << "REGRESSION OUTPUT - BEFORE[0] : " << endl;

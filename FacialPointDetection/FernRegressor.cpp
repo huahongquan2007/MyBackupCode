@@ -127,7 +127,8 @@ vector<Mat_<double>> FernRegressor::Train(vector<Mat_<double>> regression_target
                 int shape_idx = bins_index[i][j];
                 result += regression_target[shape_idx];
             }
-            double ratio = (1 + 1000.0/ bin_size) * bin_size;
+//            double ratio = (1 + 100.0/ bin_size) * bin_size;
+            double ratio = bin_size;
             result /= ratio;
 //            if(isDebug) cout << endl;
         }
@@ -135,6 +136,8 @@ vector<Mat_<double>> FernRegressor::Train(vector<Mat_<double>> regression_target
         regression_output[i] = result;
     }
     if(isDebug) cout << endl;
+
+    int visualIdx = 0;
 
     // compute output for each shape in training
     vector<Mat_<double>> deltaShape;
@@ -144,8 +147,15 @@ vector<Mat_<double>> FernRegressor::Train(vector<Mat_<double>> regression_target
         for (int j = 0; j < bins_index[i].size(); j++) {
             int shape_idx = bins_index[i][j];
             deltaShape[shape_idx] = regression_output[i];
+
+            if(shape_idx == visualIdx){
+                cout << "BIN: " << i << "/" << bins_index[i].size() << endl;
+            }
+
         }
     }
+
+
 
 //    cout << "---------- DELTA SHAPE" << endl << deltaShape[0].t() << endl;
 //    for(Mat_<double> r : deltaShape){
