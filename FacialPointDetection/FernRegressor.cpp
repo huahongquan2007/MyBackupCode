@@ -118,6 +118,7 @@ vector<Mat_<double>> FernRegressor::Train(vector<Mat_<double>> regression_target
     for(int i = 0 ; i < bins_index.size() ; i++){
         int bin_size = bins_index[i].size();
 
+
         Mat_<double> result = Mat::zeros (num_of_landmark, 2, CV_32F);
         if(bin_size > 0){
             if(isDebug) cout << "[" << i << "_"<< bin_size << "] ";
@@ -127,9 +128,10 @@ vector<Mat_<double>> FernRegressor::Train(vector<Mat_<double>> regression_target
 //                if(isDebug) cout << bins_index[i][j] << " " ;
                 int shape_idx = bins_index[i][j];
                 result += regression_target[shape_idx];
+
             }
-            double ratio = (1 + 100.0/ bin_size) * bin_size;
-//            double ratio = bin_size;
+//            double ratio = (1 + 10.0/ bin_size ) * bin_size;
+            double ratio = bin_size;
             result /= ratio;
 //            if(isDebug) cout << endl;
         }
@@ -151,6 +153,43 @@ vector<Mat_<double>> FernRegressor::Train(vector<Mat_<double>> regression_target
 
             if(shape_idx == visualIdx){
                 cout << "BIN: " << i << "/" << bins_index[i].size() << endl;
+
+                Mat_<double> result = Mat::zeros (num_of_landmark, 2, CV_32F);
+                for(int ti = 0 ; ti < bins_index.size() ; ti++){
+                    int bin_size = bins_index[ti].size();
+
+                    if(bin_size > 0){
+
+                        for(int tj = 0 ; tj < bin_size ; tj++){
+                            int shape_idx = bins_index[ti][tj];
+
+                            if(ti == i){
+                                if(tj < 5){
+                                    cout << "TARGET: " << endl;
+                                    cout << endl << regression_target[shape_idx].t() << endl;
+                                }
+
+                                result += regression_target[shape_idx];
+                            }
+                        }
+                        if(ti == i){
+                            cout << "RESULT: " << endl;
+                            cout << result.t() << endl;
+                            cout << "OUTPUT: " << endl;
+                            cout << regression_output[i].t() << endl;
+                            waitKey(10);
+                            if (bin_size < 10){
+                                cout << " =================================================================================== " << endl;
+                                cout << " =================================================================================== " << endl;
+                                cout << " =================================================================================== " << endl;
+                                cout << " =================================================================================== " << endl;
+                                cout << " =================================================================================== " << endl;
+
+                            }
+
+                        }
+                    }
+                }
             }
 
         }
@@ -174,6 +213,7 @@ Mat_<double> FernRegressor::Test(Mat_<unsigned char> image, Rect_<int> bounding_
     // project keypoints to box
     Mat_<double> curKeyPoints = ProjectToBoxCoordinate(curShape, bounding_box);
 
+    cout << "TEST" << endl;
     // align with meanshape
     Mat_<double> rotationMatrix(2,2 , CV_32FC1);
     double scale = 1.0;
@@ -210,6 +250,7 @@ Mat_<double> FernRegressor::Test(Mat_<unsigned char> image, Rect_<int> bounding_
             index += pow(2.0, i);
         }
     }
+    cout << "REGRESSION OUTPUT TEST " << index << " : " << regression_output[index].t() << endl;
     // return regression_output in box-coordinate
     Mat_<double> output = ( rotationMatrix.t() * regression_output[index].t() / scale ).t();
 

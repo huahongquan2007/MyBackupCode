@@ -69,10 +69,7 @@ int main() {
     shapeAlignment.addKeyPoints(keypoints);
     shapeAlignment.Train();
     shapeAlignment.Save(options.getModelPath());
-    shapeAlignment.Load(options.getModelPath());
 
-
-    waitKey(0);
 //    }//isTraining == true
 
     // =========================================
@@ -108,11 +105,15 @@ int main() {
 //    int feature_per_fern = options.getNumOfFeaturePerFern();
 //    ShapeAlignment shapeAlignment(first_level, second_level, feature_per_fern);
 
+    ShapeAlignment shapeAlignmentTest(first_level, second_level, feature_per_fern);
+
+    shapeAlignmentTest.Load(options.getModelPath());
+
     for(int i = 0 ; i < images_test.size(); i++){
 //        Mat_<double> prediction = shapeAlignment.Test(images_test[i], bounding_boxes_test[i]);
 //        visualizeImageCompare(images_test[i], prediction, keypoints_test[i], 10);
 
-        Mat_<double> prediction = shapeAlignment.Test(images[i], bounding_boxes[i]);
+        Mat_<double> prediction = shapeAlignmentTest.Test(images[i], bounding_boxes[i]);
         visualizeImageCompare(images[i], prediction, keypoints[i], 10);
 
         cout << "==============================" << endl;

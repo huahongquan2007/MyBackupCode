@@ -128,6 +128,10 @@ void ShapeAlignment::Train(){
 //      visualizeImage(images[index], keypoints[index], 0);
 
         Mat_<double> initial = ProjectToBoxCoordinate(keypoints[index], boundingBoxes[index]);
+        Mat_<double> rotation;
+        double scale = 0;
+        similarity_transform(meanShape, initial, rotation, scale);
+        initial = (rotation * initial.t() * scale).t();
 
         Mat_<double> new_points = ProjectToImageCoordinate(initial, boundingBoxes[i] );
         Point mean_new_points = GetMeanPoint(new_points);
@@ -135,14 +139,17 @@ void ShapeAlignment::Train(){
 
         Point translation = mean_new_points - mean_old_points;
 
+        translation.x += rng.uniform(-10, 10);
+        translation.y += rng.uniform(-10, 10);
+
         for(int j = 0 ; j < new_points.rows ; j++){
             new_points.at<double>(j, 0) = new_points.at<double>(j, 0) - translation.x;
             new_points.at<double>(j, 1) = new_points.at<double>(j, 1) - translation.y;
         }
 
-        curShape.push_back( new_points );
+//        curShape.push_back( new_points );
         // method 2: use mean
-//        curShape.push_back(ProjectToImageCoordinate(meanShape, boundingBoxes[i] ));
+        curShape.push_back(ProjectToImageCoordinate(meanShape, boundingBoxes[i] ));
 //        visualizeImage(images[i], ProjectToImageCoordinate(initial, boundingBoxes[i] ) , 0);
     }
 
@@ -152,6 +159,7 @@ void ShapeAlignment::Train(){
     for(int i = 0 ; i < first_level_regressor ; i ++){
         cout << "=================================" << endl;
         cout << "FIRST LEVEL " << i << endl;
+
         deltaShape = regressors[i].Train(images, keypoints, meanShape, boundingBoxes, curShape);
 
         for(int j = 0 ; j < curShape.size() ; j++){
@@ -165,6 +173,7 @@ void ShapeAlignment::Train(){
         cout << curShape[visualIdx].t() << endl;
         cout << "DELTASHAPE" << endl;
         cout << deltaShape[visualIdx].t() << endl;
+
 //        visualizeImage(images[visualIdx], curShape[visualIdx], 10);
 
         waitKey(10);
@@ -179,7 +188,12 @@ Mat_<double> ShapeAlignment::Test(Mat_<unsigned char> &image, Rect_<int> &boundi
 
     curShape = ProjectToImageCoordinate(meanShape, bounding_box );
 
+    cout << "ShapeAlignment: Test" << endl;
+    visualizeImage(image, curShape, 1000, false, "initialize");
+
     for(int i = 0 ; i < first_level_regressor ; i ++){
+        cout << "ShapeAlignment: Test first level " << i << endl;
+
         deltaShape = regressors[i].Test(image, bounding_box, curShape, meanShape);
 
         curShape += deltaShape;

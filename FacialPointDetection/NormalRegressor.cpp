@@ -43,7 +43,7 @@ vector<Mat_<double>> NormalRegressor::Train(vector<Mat_<unsigned char>> images, 
 
         shapeIndexLocation.at<double>(i, 0) = rand_x - meanShape.at<double>(min_idx, 0);
         shapeIndexLocation.at<double>(i, 1) = rand_y - meanShape.at<double>(min_idx, 1);
-        shapeIndexNearestLandmark.at<double>(i, 0) = min_idx;
+        shapeIndexNearestLandmark.at<int>(i, 0) = min_idx;
     }
 
     // Get pixel intensity of each P pixels over training set
@@ -67,7 +67,7 @@ vector<Mat_<double>> NormalRegressor::Train(vector<Mat_<unsigned char>> images, 
 
         // calculate shapeIndexLocation
         for(int j = 0 ; j < num_of_random_pixels; j++){
-            int idx_landmark = shapeIndexNearestLandmark.at<double>(j, 0);
+            int idx_landmark = shapeIndexNearestLandmark.at<int>(j, 0);
             curLocation.at<double>(j , 0 ) = shapeIndexLocation.at<double>(j , 0) + curKeyPoints.at<double>(idx_landmark, 0);
             curLocation.at<double>(j , 1 ) = shapeIndexLocation.at<double>(j , 1) + curKeyPoints.at<double>(idx_landmark, 1);
         }
@@ -75,6 +75,7 @@ vector<Mat_<double>> NormalRegressor::Train(vector<Mat_<unsigned char>> images, 
 //        Mat_<double> curLocationImageCoor = ( rotationMatrixArray[i].t() * ProjectToImageCoordinate(curLocation, boundingBoxes[i]).t() / scaleArray[i] ).t();
 
         curLocation = (rotationMatrixArray[i].t() * curLocation.t() / scaleArray[i] ).t();
+
         Mat_<double> curLocationImageCoor = ProjectToImageCoordinate(curLocation, boundingBoxes[i]);
 
         // get pixels
@@ -127,19 +128,17 @@ vector<Mat_<double>> NormalRegressor::Train(vector<Mat_<unsigned char>> images, 
         cout << "------------------------------" << endl;
         if(isDebug){
 
-            cout << "Initial SHAPE: " << endl;
-            cout << initialShape.t() << endl;
-            cout << "Initial SHAPE (PROJECT): " << endl;
-            cout << ProjectToBoxCoordinate( initialShape , boundingBoxes[visualIdx] ).t() << endl;
-            cout << "DELTA SHAPE: " << endl;
-            cout << deltaShape[visualIdx].t() << endl;
-            cout << "BOUNDINGBOXES: " << boundingBoxes[visualIdx] << endl;
-            cout << "INITIAL + DELTA SHAPE: " << endl;
-            cout << (ProjectToBoxCoordinate( initialShape , boundingBoxes[visualIdx] ) + deltaShape[visualIdx]).t() << endl;
-            cout << "INITIAL + DELTA SHAPE (PROJECT): " << endl;
-            cout << (ProjectToImageCoordinate(ProjectToBoxCoordinate( initialShape , boundingBoxes[visualIdx] ) + regression_target[visualIdx], boundingBoxes[visualIdx])).t() << endl;
-            cout << "INITIAL + DELTA SHAPE (ORIGINAL): " << endl;
-            cout << (ProjectToImageCoordinate(ProjectToBoxCoordinate( initialShape , boundingBoxes[visualIdx] ) + regression_target[visualIdx], boundingBoxes[visualIdx]) - initialShape).t() << endl;
+//            cout << "Initial SHAPE: " << endl;
+//            cout << initialShape.t() << endl;
+//            cout << "DELTA SHAPE: " << endl;
+//            cout << deltaShape[visualIdx].t() << endl;
+//            cout << "BOUNDINGBOXES: " << boundingBoxes[visualIdx] << endl;
+//            cout << "INITIAL + DELTA SHAPE: " << endl;
+//            cout << (ProjectToBoxCoordinate( initialShape , boundingBoxes[visualIdx] ) + deltaShape[visualIdx]).t() << endl;
+//            cout << "INITIAL + DELTA SHAPE (PROJECT): " << endl;
+//            cout << (ProjectToImageCoordinate(ProjectToBoxCoordinate( initialShape , boundingBoxes[visualIdx] ) + regression_target[visualIdx], boundingBoxes[visualIdx])).t() << endl;
+//            cout << "INITIAL + DELTA SHAPE (ORIGINAL): " << endl;
+//            cout << (ProjectToImageCoordinate(ProjectToBoxCoordinate( initialShape , boundingBoxes[visualIdx] ) + regression_target[visualIdx], boundingBoxes[visualIdx]) - initialShape).t() << endl;
             cout << "REGRESSION TARGET: " << endl;
             cout << regression_target[visualIdx].t() << endl;
             cout << "DELTA SHAPE: " << endl;
@@ -149,6 +148,8 @@ vector<Mat_<double>> NormalRegressor::Train(vector<Mat_<unsigned char>> images, 
             resultShape = initialShape + regression_output[visualIdx];
             cout << "Initial SHAPE: " << endl;
             cout << initialShape.t() << endl;
+            cout << "Initial SHAPE (PROJECT): " << endl;
+            cout << ProjectToBoxCoordinate( initialShape , boundingBoxes[visualIdx] ).t() << endl;
             cout << "RESULT SHAPE: " << endl;
             cout << resultShape.t() << endl;
             cout << "GROUND TRUTH SHAPE: " << endl;
@@ -178,7 +179,7 @@ Mat_<double> NormalRegressor::Test(Mat_<unsigned char> image, Rect_<int> boundin
 
         inputShape = curShape + regression_output;
 
-        visualizeImage(image, inputShape, 10);
+        visualizeImage(image, inputShape, 1);
     }
 
     return regression_output;
