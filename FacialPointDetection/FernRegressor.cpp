@@ -65,13 +65,15 @@ vector<Mat_<double>> FernRegressor::Train(vector<Mat_<double>> regression_target
         max_corr_index.at<int>(i, 1) = index_j;
 
         Mat_<double> pixelDiff = pixels.row(index_i) - pixels.row(index_j);
+
         pixelDiff = abs(pixelDiff);
 
         double min, max;
         minMaxLoc(pixelDiff, &min, &max);
 
+        max = abs(min - max);
 //        double threshold = mean(pixelDiff)[0];
-        double threshold = rng.uniform( max * -0.2, max * 0.2 );
+        double threshold = rng.uniform( max * -0.1, max * 0.1 );
 
         Mat_<double> location(2, 2, CV_32F); // x1 y1 ; x2 y2
         location.at<double>(0, 0) = pixelLocation.at<double>(index_i, 0);
@@ -80,8 +82,8 @@ vector<Mat_<double>> FernRegressor::Train(vector<Mat_<double>> regression_target
         location.at<double>(1, 1) = pixelLocation.at<double>(index_j, 1);
 
         Mat_<int> nearestLandmark(2, 1, CV_32F);
-        nearestLandmark.at<int>(0, 0) = nearestLandmarkOfPixel.at<double>(index_i, 0);
-        nearestLandmark.at<int>(1, 0) = nearestLandmarkOfPixel.at<double>(index_j, 0);
+        nearestLandmark.at<int>(0, 0) = nearestLandmarkOfPixel.at<int>(index_i, 0);
+        nearestLandmark.at<int>(1, 0) = nearestLandmarkOfPixel.at<int>(index_j, 0);
 
 //        if(isDebug) cout << "PIXEL DIFF: " << pixelDiff << endl;
 //        if(isDebug) cout << "THRESHOLD " << threshold << endl;
@@ -131,8 +133,9 @@ vector<Mat_<double>> FernRegressor::Train(vector<Mat_<double>> regression_target
 
             }
 //            double ratio = (1 + 10.0/ bin_size ) * bin_size;
-            double ratio = bin_size;
-            result /= ratio;
+//            double ratio = bin_size;
+
+            result = (1.0/((1.0+10.0/bin_size) * bin_size)) * result;
 //            if(isDebug) cout << endl;
         }
 

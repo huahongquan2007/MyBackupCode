@@ -106,7 +106,7 @@ void ShapeAlignment::Train(){
 
     // generate more image, keypoints, curShape & inputShape
     int total_image_original = images.size();
-    for(int j = 0 ; j < 0 ; j ++){
+    for(int j = 0 ; j < 20 ; j ++){
         for(int i = 0 ; i < total_image_original; i++){
             cout << "GENERATE " << i << endl;
             images.push_back(images[i].clone());
@@ -139,17 +139,18 @@ void ShapeAlignment::Train(){
 
         Point translation = mean_new_points - mean_old_points;
 
-        translation.x += rng.uniform(-10, 10);
-        translation.y += rng.uniform(-10, 10);
+        translation.x += rng.uniform(-20, 20);
+        translation.y += rng.uniform(-20, 20);
 
         for(int j = 0 ; j < new_points.rows ; j++){
             new_points.at<double>(j, 0) = new_points.at<double>(j, 0) - translation.x;
             new_points.at<double>(j, 1) = new_points.at<double>(j, 1) - translation.y;
         }
 
-//        curShape.push_back( new_points );
+        curShape.push_back( new_points );
+
         // method 2: use mean
-        curShape.push_back(ProjectToImageCoordinate(meanShape, boundingBoxes[i] ));
+//        curShape.push_back(ProjectToImageCoordinate(meanShape, boundingBoxes[i] ));
 //        visualizeImage(images[i], ProjectToImageCoordinate(initial, boundingBoxes[i] ) , 0);
     }
 

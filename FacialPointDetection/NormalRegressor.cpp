@@ -139,13 +139,8 @@ vector<Mat_<double>> NormalRegressor::Train(vector<Mat_<unsigned char>> images, 
 //            cout << (ProjectToImageCoordinate(ProjectToBoxCoordinate( initialShape , boundingBoxes[visualIdx] ) + regression_target[visualIdx], boundingBoxes[visualIdx])).t() << endl;
 //            cout << "INITIAL + DELTA SHAPE (ORIGINAL): " << endl;
 //            cout << (ProjectToImageCoordinate(ProjectToBoxCoordinate( initialShape , boundingBoxes[visualIdx] ) + regression_target[visualIdx], boundingBoxes[visualIdx]) - initialShape).t() << endl;
-            cout << "REGRESSION TARGET: " << endl;
-            cout << regression_target[visualIdx].t() << endl;
-            cout << "DELTA SHAPE: " << endl;
-            cout << deltaShape[visualIdx].t() << endl;
-            cout << "REGRESSION OUTPUT: " << endl;
-            cout << regression_output[visualIdx].t() << endl;
             resultShape = initialShape + regression_output[visualIdx];
+
             cout << "Initial SHAPE: " << endl;
             cout << initialShape.t() << endl;
             cout << "Initial SHAPE (PROJECT): " << endl;
@@ -154,10 +149,15 @@ vector<Mat_<double>> NormalRegressor::Train(vector<Mat_<unsigned char>> images, 
             cout << resultShape.t() << endl;
             cout << "GROUND TRUTH SHAPE: " << endl;
             cout << keypoints[visualIdx].t() << endl;
-        }
+            cout << "REGRESSION TARGET: " << endl;
+            cout << regression_target[visualIdx].t() << endl;
+            cout << "DELTA SHAPE: " << endl;
+            cout << deltaShape[visualIdx].t() << endl;
+            cout << "REGRESSION OUTPUT: " << endl;
+            cout << regression_output[visualIdx].t() << endl;
 
-        resultShape = inputShape[visualIdx] + regression_output[visualIdx];
-        if(isDebug) visualizeImageCompare(images[visualIdx], resultShape, initialShape, 10);
+            visualizeImageCompare(images[visualIdx], resultShape, initialShape, 10);
+        }
     }
 
     if(isDebug) cout << "REGRESSION OUTPUT - BEFORE[0] : " << endl;
