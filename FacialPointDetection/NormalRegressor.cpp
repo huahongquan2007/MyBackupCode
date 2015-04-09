@@ -30,6 +30,10 @@ vector<Mat_<double>> NormalRegressor::Train(vector<Mat_<unsigned char>> images, 
         rand_x = rng.uniform(-1.0, 1.0);
         rand_y = rng.uniform(-1.0, 1.0);
 
+        if (rand_x * rand_x + rand_y * rand_y > 1.0){
+            i--;
+            continue;
+        }
         // Find nearest landmark
         double min_dist = 1e10;
         int min_idx = -1;
@@ -95,10 +99,18 @@ vector<Mat_<double>> NormalRegressor::Train(vector<Mat_<unsigned char>> images, 
         }
     }
 
+
+    // calculate regression target
+
     vector< Mat_<double> > regression_target;
     vector< Mat_<double> > regression_output;
     for(int i = 0 ; i < num_of_images; i ++){
-        regression_target.push_back( ProjectToBoxCoordinate( keypoints[i], boundingBoxes[i] ) - ProjectToBoxCoordinate( inputShape[i], boundingBoxes[i] ) );
+        Mat_<double> target = ProjectToBoxCoordinate( keypoints[i], boundingBoxes[i] ) - ProjectToBoxCoordinate( inputShape[i], boundingBoxes[i] );
+        Mat_<double> rotation;
+        double scale = 0;
+        similarity_transform(meanShape, target, rotation, scale);
+        target = (rotation.t() * target.t() / scale).t();
+        regression_target.push_back( target );
 
         regression_output.push_back(Mat::zeros(inputShape[i].size(), CV_32F ));
     }
@@ -118,9 +130,15 @@ vector<Mat_<double>> NormalRegressor::Train(vector<Mat_<unsigned char>> images, 
         deltaShape = childRegressor[i].Train(regression_target, covariance_matrix, shapeIndexPixels, shapeIndexLocation, shapeIndexNearestLandmark);
 
         for(int j = 0 ; j < num_of_images ; j++){
-            regression_target[j] -= (rotationMatrixArray[j].t() * deltaShape[j].t() / scaleArray[j]).t();
+            regression_target[j] -= deltaShape[j];
 //            regression_output[j] -= deltaShape[j];
-            regression_output[j] += ProjectToImageCoordinate(ProjectToBoxCoordinate( inputShape[j] , boundingBoxes[j] ) + (rotationMatrixArray[j].t() * deltaShape[j].t() / scaleArray[j]).t(), boundingBoxes[j]) - inputShape[j];
+
+
+//            Mat_<double> output = ProjectToBoxCoordinate( inputShape[j] , boundingBoxes[j] ) + (rotationMatrixArray[j].t() * deltaShape[j].t() / scaleArray[j]).t();
+
+
+            regression_output[j] += deltaShape[j];
+//            regression_output[j] += ProjectToImageCoordinate(output, boundingBoxes[j]) - inputShape[j];
 // /            regression_output[j] = ProjectToImageCoordinate(
 //                    ProjectToBoxCoordinate( inputShape[j] , boundingBoxes[j] ) + (rotationMatrixArray[j].t() * deltaShape[j].t() / scaleArray[j]).t(),
 //                    boundingBoxes[j])  - inputShape[j];
@@ -139,7 +157,15 @@ vector<Mat_<double>> NormalRegressor::Train(vector<Mat_<unsigned char>> images, 
 //            cout << (ProjectToImageCoordinate(ProjectToBoxCoordinate( initialShape , boundingBoxes[visualIdx] ) + regression_target[visualIdx], boundingBoxes[visualIdx])).t() << endl;
 //            cout << "INITIAL + DELTA SHAPE (ORIGINAL): " << endl;
 //            cout << (ProjectToImageCoordinate(ProjectToBoxCoordinate( initialShape , boundingBoxes[visualIdx] ) + regression_target[visualIdx], boundingBoxes[visualIdx]) - initialShape).t() << endl;
-            resultShape = initialShape + regression_output[visualIdx];
+            Mat_<double> rotation;
+            double scale = 0;
+            similarity_transform(ProjectToBoxCoordinate(inputShape[visualIdx], boundingBoxes[visualIdx]), meanShape, rotation, scale);
+//            Mat_<double> output = ProjectToBoxCoordinate(inputShape[visualIdx], boundingBoxes[visualIdx]) + (rotation.t() * regression_output[visualIdx].t() / scale).t();
+            Mat_<double> output = ProjectToBoxCoordinate(inputShape[visualIdx], boundingBoxes[visualIdx]) + (rotation * regression_output[visualIdx].t() * scale).t();
+
+            cout << "OUTPUT" << endl;
+            cout << output.t() << endl;
+            resultShape = ProjectToImageCoordinate(output, boundingBoxes[visualIdx]);
 
             cout << "Initial SHAPE: " << endl;
             cout << initialShape.t() << endl;
@@ -160,9 +186,16 @@ vector<Mat_<double>> NormalRegressor::Train(vector<Mat_<unsigned char>> images, 
         }
     }
 
-    if(isDebug) cout << "REGRESSION OUTPUT - BEFORE[0] : " << endl;
-    if(isDebug) cout << regression_output[visualIdx].t() << endl;
+//    if(isDebug) cout << "REGRESSION OUTPUT - BEFORE[0] : " << endl;
+//    if(isDebug) cout << regression_output[visualIdx].t() << endl;
 
+    for(int j = 0 ; j < num_of_images ; j++){
+        Mat_<double> rotation;
+        double scale = 0;
+        similarity_transform(ProjectToBoxCoordinate(inputShape[j], boundingBoxes[j]), meanShape, rotation, scale);
+        Mat_<double> output = ProjectToBoxCoordinate(inputShape[j], boundingBoxes[j]) + (rotation * regression_output[j].t() * scale).t();
+        regression_output[j] = ProjectToImageCoordinate(output, boundingBoxes[j]) - inputShape[j];
+    }
     return regression_output;
 }
 

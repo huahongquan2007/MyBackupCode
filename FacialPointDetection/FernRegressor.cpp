@@ -135,7 +135,7 @@ vector<Mat_<double>> FernRegressor::Train(vector<Mat_<double>> regression_target
 //            double ratio = (1 + 10.0/ bin_size ) * bin_size;
 //            double ratio = bin_size;
 
-            result = (1.0/((1.0+10.0/bin_size) * bin_size)) * result;
+            result = (1.0/((1.0+1000.0/bin_size) * bin_size)) * result;
 //            if(isDebug) cout << endl;
         }
 

@@ -102,11 +102,9 @@ void ShapeAlignment::Train(){
     vector<Mat_<double>> curShape;
     vector<Mat_<double>> deltaShape;
 
-    meanShape = GetMeanShape(keypoints, boundingBoxes);
-
     // generate more image, keypoints, curShape & inputShape
     int total_image_original = images.size();
-    for(int j = 0 ; j < 20 ; j ++){
+    for(int j = 0 ; j < 0 ; j ++){
         for(int i = 0 ; i < total_image_original; i++){
             cout << "GENERATE " << i << endl;
             images.push_back(images[i].clone());
@@ -114,6 +112,8 @@ void ShapeAlignment::Train(){
             boundingBoxes.push_back(boundingBoxes[i]);
         }
     }
+
+    meanShape = GetMeanShape(keypoints, boundingBoxes);
 
     // Use boundingBox to generate initialized locations for training data
     RNG rng;
@@ -128,25 +128,27 @@ void ShapeAlignment::Train(){
 //      visualizeImage(images[index], keypoints[index], 0);
 
         Mat_<double> initial = ProjectToBoxCoordinate(keypoints[index], boundingBoxes[index]);
-        Mat_<double> rotation;
-        double scale = 0;
-        similarity_transform(meanShape, initial, rotation, scale);
-        initial = (rotation * initial.t() * scale).t();
 
+        // try rotation, scale & translation
+//        Mat_<double> rotation;
+//        double scale = 0;
+//        similarity_transform(meanShape, initial, rotation, scale);
+//        initial = (rotation * initial.t() * scale).t();
+//
         Mat_<double> new_points = ProjectToImageCoordinate(initial, boundingBoxes[i] );
-        Point mean_new_points = GetMeanPoint(new_points);
-        Point mean_old_points = GetMeanPoint(keypoints[i]);
-
-        Point translation = mean_new_points - mean_old_points;
-
-        translation.x += rng.uniform(-20, 20);
-        translation.y += rng.uniform(-20, 20);
-
-        for(int j = 0 ; j < new_points.rows ; j++){
-            new_points.at<double>(j, 0) = new_points.at<double>(j, 0) - translation.x;
-            new_points.at<double>(j, 1) = new_points.at<double>(j, 1) - translation.y;
-        }
-
+//        Point mean_new_points = GetMeanPoint(new_points);
+//        Point mean_old_points = GetMeanPoint(keypoints[i]);
+//
+//        Point translation = mean_new_points - mean_old_points;
+//
+//        translation.x += rng.uniform(-20, 20);
+//        translation.y += rng.uniform(-20, 20);
+//
+//        for(int j = 0 ; j < new_points.rows ; j++){
+//            new_points.at<double>(j, 0) = new_points.at<double>(j, 0) - translation.x;
+//            new_points.at<double>(j, 1) = new_points.at<double>(j, 1) - translation.y;
+//        }
+//
         curShape.push_back( new_points );
 
         // method 2: use mean
