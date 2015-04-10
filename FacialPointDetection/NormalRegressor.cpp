@@ -66,6 +66,7 @@ vector<Mat_<double>> NormalRegressor::Train(vector<Mat_<unsigned char>> images, 
 //        Mat_<double> curKeyPoints = ProjectToBoxCoordinate(keypoints[i], boundingBoxes[i]);
 
         Mat_<double> curKeyPoints = ProjectToBoxCoordinate(inputShape[i], boundingBoxes[i]);
+
         // align with meanshape
         similarity_transform(meanShape, curKeyPoints, rotation, scale);
 
@@ -143,13 +144,11 @@ vector<Mat_<double>> NormalRegressor::Train(vector<Mat_<unsigned char>> images, 
 
         Mat_<double> box = ProjectToBoxCoordinate( inputShape[i], boundingBoxes[i] );
         similarity_transform(meanShape, box, rotation, scale);
-
-        Mat_<double> target = ProjectToBoxCoordinate( keypoints[i], boundingBoxes[i] ) - (rotation * box.t() * scale).t();
+        Mat_<double> keybox = ProjectToBoxCoordinate( keypoints[i], boundingBoxes[i] );
+        Mat_<double> target = (rotation * keybox.t() * scale).t() - (rotation * box.t() * scale).t();
 
         regression_target.push_back( target );
-
-        regression_output.push_back(Mat::zeros(inputShape[i].size(), CV_32F ));
-
+        regression_output.push_back( Mat::zeros(inputShape[i].size(), CV_32F ) );
 
 //        Mat_<double> test = ProjectToImageCoordinate((rotation * box.t() * scale).t(), boundingBoxes[i]);
 //
@@ -250,6 +249,9 @@ vector<Mat_<double>> NormalRegressor::Train(vector<Mat_<unsigned char>> images, 
         similarity_transform(ProjectToBoxCoordinate(inputShape[j], boundingBoxes[j]), meanShape, rotation, scale);
         Mat_<double> output = ProjectToBoxCoordinate(inputShape[j], boundingBoxes[j]) + (rotation *  regression_output[j].t() * scale).t();
         regression_output[j] = ProjectToImageCoordinate(output, boundingBoxes[j]) - inputShape[j];
+
+//        Mat_<double> output = (rotation *  regression_output[j].t() * scale).t();
+//        regression_output[j] = ProjectToImageCoordinate(output, boundingBoxes[j]);
 
 //        Mat_<double> test = ProjectToImageCoordinate((rotation * box.t() * scale).t(), boundingBoxes[i]);
 //

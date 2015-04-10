@@ -71,8 +71,8 @@ vector<Mat_<double>> FernRegressor::Train(vector<Mat_<double>> regression_target
         double min, max;
         minMaxLoc(pixelDiff, &min, &max);
 
-//        double threshold = mean(pixelDiff)[0];
-        double threshold = rng.uniform( max * -0.2, max * 0.2 );
+        double threshold = mean(pixelDiff)[0];
+//        double threshold = rng.uniform( max * -0.2, max * 0.2 );
 
         Mat_<double> location(2, 2, CV_32F); // x1 y1 ; x2 y2
         location.at<double>(0, 0) = pixelLocation.at<double>(index_i, 0);
@@ -134,7 +134,7 @@ vector<Mat_<double>> FernRegressor::Train(vector<Mat_<double>> regression_target
 //            double ratio = (1 + 10.0/ bin_size ) * bin_size;
 //            double ratio = bin_size;
 
-            result = (1.0/((1.0+10.0/bin_size) * bin_size)) * result;
+            result = (1.0/((1.0 + 1.0/bin_size) * bin_size)) * result;
 //            if(isDebug) cout << endl;
         }
 
@@ -217,8 +217,8 @@ Mat_<double> FernRegressor::Test(Mat_<unsigned char> image, Rect_<int> bounding_
 
     cout << "TEST" << endl;
     // align with meanshape
-    Mat_<double> rotationMatrix(2,2 , CV_32FC1);
-    double scale = 1.0;
+    Mat_<double> rotationMatrix;
+    double scale = 0.0;
     similarity_transform(meanShape, curKeyPoints, rotationMatrix, scale);
 
     curKeyPoints = ( rotationMatrix * curKeyPoints.t() * scale ).t();
@@ -229,13 +229,13 @@ Mat_<double> FernRegressor::Test(Mat_<unsigned char> image, Rect_<int> bounding_
     int index = 0;
     for (int i = 0; i < feature_per_fern; i++) {
 
-        Mat_<double> curLocation ( 2, 1 );
+        Mat_<double> curLocation ( 1, 2 );
         // Get Pixel 1
         int idx_landmark_1 = fernPairNearestLandmark[i].at<int>(0, 0);
         curLocation.at<double>(0, 0) = fernPairLocation[i].at<double>(0, 0) + curKeyPoints.at<double>( idx_landmark_1, 0);
-        curLocation.at<double>(1, 0) = fernPairLocation[i].at<double>(0, 1) + curKeyPoints.at<double>( idx_landmark_1, 1);
+        curLocation.at<double>(0, 1) = fernPairLocation[i].at<double>(0, 1) + curKeyPoints.at<double>( idx_landmark_1, 1);
 
-        curLocation = rotationMatrix * curLocation * scale;
+        curLocation = (rotationMatrix * curLocation.t() * scale).t();
 
         Mat_<double> curLocationImageCoor = ProjectToImageCoordinate(curLocation, bounding_box);
         double pixel_1 = (double) image.at<unsigned char>(curLocationImageCoor.at<double>(0,0), curLocationImageCoor.at<double>(0, 1));
@@ -243,9 +243,9 @@ Mat_<double> FernRegressor::Test(Mat_<unsigned char> image, Rect_<int> bounding_
         // Get Pixel 2
         int idx_landmark_2 = fernPairNearestLandmark[i].at<int>(0, 1);
         curLocation.at<double>(0, 0) = fernPairLocation[i].at<double>(1, 0) + curKeyPoints.at<double>( idx_landmark_2, 0);
-        curLocation.at<double>(1, 0) = fernPairLocation[i].at<double>(1, 1) + curKeyPoints.at<double>( idx_landmark_2, 1);
+        curLocation.at<double>(0, 1) = fernPairLocation[i].at<double>(1, 1) + curKeyPoints.at<double>( idx_landmark_2, 1);
 
-        curLocation = rotationMatrix * curLocation * scale;
+        curLocation = (rotationMatrix * curLocation.t() * scale).t();
 
         curLocationImageCoor = ProjectToImageCoordinate(curLocation, bounding_box);
         double pixel_2 = (double) image.at<unsigned char>(curLocationImageCoor.at<double>(0,0), curLocationImageCoor.at<double>(0, 1));
@@ -281,7 +281,7 @@ Mat_<double> FernRegressor::Test(Mat_<unsigned char> image, Rect_<int> bounding_
     }
     namedWindow("test project", WINDOW_NORMAL);
     imshow("test project", curImg);
-    waitKey(0);
+    waitKey(10);
 
     return output - curShape; // box-coordinate
 }
