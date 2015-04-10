@@ -104,7 +104,7 @@ void ShapeAlignment::Train(){
 
     // generate more image, keypoints, curShape & inputShape
     int total_image_original = images.size();
-    for(int j = 0 ; j < 0 ; j ++){
+    for(int j = 0 ; j < 20 ; j ++){
         for(int i = 0 ; i < total_image_original; i++){
             cout << "GENERATE " << i << endl;
             images.push_back(images[i].clone());

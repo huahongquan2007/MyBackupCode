@@ -71,9 +71,8 @@ vector<Mat_<double>> FernRegressor::Train(vector<Mat_<double>> regression_target
         double min, max;
         minMaxLoc(pixelDiff, &min, &max);
 
-        max = abs(min - max);
 //        double threshold = mean(pixelDiff)[0];
-        double threshold = rng.uniform( max * -0.1, max * 0.1 );
+        double threshold = rng.uniform( max * -0.2, max * 0.2 );
 
         Mat_<double> location(2, 2, CV_32F); // x1 y1 ; x2 y2
         location.at<double>(0, 0) = pixelLocation.at<double>(index_i, 0);
@@ -135,7 +134,7 @@ vector<Mat_<double>> FernRegressor::Train(vector<Mat_<double>> regression_target
 //            double ratio = (1 + 10.0/ bin_size ) * bin_size;
 //            double ratio = bin_size;
 
-            result = (1.0/((1.0+1000.0/bin_size) * bin_size)) * result;
+            result = (1.0/((1.0+10.0/bin_size) * bin_size)) * result;
 //            if(isDebug) cout << endl;
         }
 
@@ -224,6 +223,8 @@ Mat_<double> FernRegressor::Test(Mat_<unsigned char> image, Rect_<int> bounding_
 
     curKeyPoints = ( rotationMatrix * curKeyPoints.t() * scale ).t();
 
+    similarity_transform(ProjectToBoxCoordinate(curShape, bounding_box), meanShape, rotationMatrix, scale);
+
     // find bin
     int index = 0;
     for (int i = 0; i < feature_per_fern; i++) {
@@ -234,7 +235,7 @@ Mat_<double> FernRegressor::Test(Mat_<unsigned char> image, Rect_<int> bounding_
         curLocation.at<double>(0, 0) = fernPairLocation[i].at<double>(0, 0) + curKeyPoints.at<double>( idx_landmark_1, 0);
         curLocation.at<double>(1, 0) = fernPairLocation[i].at<double>(0, 1) + curKeyPoints.at<double>( idx_landmark_1, 1);
 
-        curLocation = rotationMatrix.t() * curLocation / scale;
+        curLocation = rotationMatrix * curLocation * scale;
 
         Mat_<double> curLocationImageCoor = ProjectToImageCoordinate(curLocation, bounding_box);
         double pixel_1 = (double) image.at<unsigned char>(curLocationImageCoor.at<double>(0,0), curLocationImageCoor.at<double>(0, 1));
@@ -244,7 +245,7 @@ Mat_<double> FernRegressor::Test(Mat_<unsigned char> image, Rect_<int> bounding_
         curLocation.at<double>(0, 0) = fernPairLocation[i].at<double>(1, 0) + curKeyPoints.at<double>( idx_landmark_2, 0);
         curLocation.at<double>(1, 0) = fernPairLocation[i].at<double>(1, 1) + curKeyPoints.at<double>( idx_landmark_2, 1);
 
-        curLocation = rotationMatrix.t() * curLocation / scale;
+        curLocation = rotationMatrix * curLocation * scale;
 
         curLocationImageCoor = ProjectToImageCoordinate(curLocation, bounding_box);
         double pixel_2 = (double) image.at<unsigned char>(curLocationImageCoor.at<double>(0,0), curLocationImageCoor.at<double>(0, 1));
@@ -255,9 +256,34 @@ Mat_<double> FernRegressor::Test(Mat_<unsigned char> image, Rect_<int> bounding_
     }
     cout << "REGRESSION OUTPUT TEST " << index << " : " << regression_output[index].t() << endl;
     // return regression_output in box-coordinate
-    Mat_<double> output = ( rotationMatrix.t() * regression_output[index].t() / scale ).t();
+    Mat_<double> output = curKeyPoints + regression_output[index];
 
-    return output; // box-coordinate
+
+    cout << output.t() << endl;
+    cout << "project to image" << endl;
+    output = ( rotationMatrix * output.t() * scale ).t();
+    output = ProjectToImageCoordinate(output, bounding_box);
+    cout << output.t() << endl;
+
+    Mat curImg;
+    Mat img = image.clone();
+    cvtColor( img, curImg, CV_GRAY2BGR );
+    cout << "test 2" << endl;
+    for(int j = 0 ; j < curShape.rows ; j++){
+        int x = (int) curShape.at<double>(j, 0);
+        int y = (int) curShape.at<double>(j, 1);
+        circle(curImg, Point(x, y), 1, Scalar(0, 0, 255), -1);
+    }
+    for(int j = 0 ; j < output.rows ; j++){
+        int x = (int) output.at<double>(j, 0);
+        int y = (int) output.at<double>(j, 1);
+        circle(curImg, Point(x, y), 1, Scalar(255, 0, 0), -1);
+    }
+    namedWindow("test project", WINDOW_NORMAL);
+    imshow("test project", curImg);
+    waitKey(0);
+
+    return output - curShape; // box-coordinate
 }
 
 void FernRegressor::Save(FileStorage &out){
