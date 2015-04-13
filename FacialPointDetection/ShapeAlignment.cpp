@@ -108,7 +108,7 @@ void ShapeAlignment::Train(){
     int total_image_original = images.size();
 
     for(int i = 0 ; i < total_image_original; i++){
-        for(int j = 0 ; j < 10 ; j ++){
+        for(int j = 0 ; j < 20 ; j ++){
 
             images.push_back(images[i].clone());
             keypoints.push_back(keypoints[i].clone());
@@ -196,6 +196,7 @@ Mat_<double> ShapeAlignment::Test(Mat_<unsigned char> &image, Rect_<int> &boundi
     curShape = ProjectToImageCoordinate(meanShape, bounding_box );
 
     cout << "ShapeAlignment: Test" << endl;
+    Mat_<double> initial = curShape.clone();
     visualizeImage(image, curShape, 1000, false, "initialize");
 
     for(int i = 0 ; i < first_level_regressor ; i ++){
@@ -205,5 +206,14 @@ Mat_<double> ShapeAlignment::Test(Mat_<unsigned char> &image, Rect_<int> &boundi
 
         curShape += deltaShape;
     }
+
+
+    for(int i = 0 ; i < initial.rows ; i++){
+        int x = (int) initial.at<double>(i, 0);
+        int y = (int) initial.at<double>(i, 1);
+        circle(image, Point(x, y), 1, Scalar(255, 0, 255), -1);
+    }
+    visualizeImage(image, curShape, 10, false, "test_result");
+
     return curShape;
 }

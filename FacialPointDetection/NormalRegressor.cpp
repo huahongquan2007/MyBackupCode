@@ -173,26 +173,6 @@ vector<Mat_<double>> NormalRegressor::Train(vector<Mat_<unsigned char>> images, 
         regression_target.push_back( target );
         regression_output.push_back( Mat::zeros(inputShape[i].size(), CV_32F ) );
 
-//        Mat_<double> test = ProjectToImageCoordinate((rotation * box.t() * scale).t(), boundingBoxes[i]);
-//
-//        cout << "test 1" << endl;
-//        Mat curImg;
-//        Mat img = images[i].clone();
-//        cvtColor( img, curImg, CV_GRAY2BGR );
-//        cout << "test 2" << endl;
-//        for(int j = 0 ; j < inputShape[i].rows ; j++){
-//            int x = (int) inputShape[i].at<double>(j, 0);
-//            int y = (int) inputShape[i].at<double>(j, 1);
-//            circle(curImg, Point(x, y), 1, Scalar(0, 0, 255), -1);
-//        }
-//        for(int j = 0 ; j < test.rows ; j++){
-//            int x = (int) test.at<double>(j, 0);
-//            int y = (int) test.at<double>(j, 1);
-//            circle(curImg, Point(x, y), 1, Scalar(255, 0, 0), -1);
-//        }
-//        namedWindow("target", WINDOW_NORMAL);
-//        imshow("target", curImg);
-//        waitKey(0);
     }
 
     int visualIdx = 0;
@@ -270,8 +250,8 @@ vector<Mat_<double>> NormalRegressor::Train(vector<Mat_<unsigned char>> images, 
     for(int j = 0 ; j < num_of_images ; j++){
         Mat_<double> rotation;
         double scale = 0;
-        //similarity_transform(ProjectToBoxCoordinate(inputShape[j], boundingBoxes[j]), meanShape, rotation, scale);
         similarity_transform(ProjectToBoxCoordinate(inputShape[j], boundingBoxes[j]), meanShape, rotation, scale);
+//        similarity_transform(meanShape, ProjectToBoxCoordinate(inputShape[j], boundingBoxes[j]), rotation, scale);
 
         transpose(rotation, rotation);
         Mat_<double> output = ProjectToBoxCoordinate(inputShape[j], boundingBoxes[j]) + scale *  regression_output[j] * rotation;

@@ -71,7 +71,8 @@ vector<Mat_<double>> FernRegressor::Train(vector<Mat_<double>> regression_target
         double min, max;
         minMaxLoc(pixelDiff, &min, &max);
 
-//        double threshold = mean(pixelDiff)[0];
+//        double meanvalue = mean(pixelDiff)[0];
+//        double threshold = rng.uniform( meanvalue * -0.2, meanvalue * 0.2 );
         double threshold = rng.uniform( max * -0.2, max * 0.2 );
 
         Mat_<double> location(2, 2, CV_32F); // x1 y1 ; x2 y2
@@ -134,7 +135,7 @@ vector<Mat_<double>> FernRegressor::Train(vector<Mat_<double>> regression_target
 //            double ratio = (1 + 10.0/ bin_size ) * bin_size;
 //            double ratio = bin_size;
 
-            result = (1.0/((1.0 + 10.0/bin_size) * bin_size)) * result;
+            result = (1.0/((1.0 + 100.0/bin_size) * bin_size)) * result;
 //            if(isDebug) cout << endl;
         }
 
@@ -153,49 +154,8 @@ vector<Mat_<double>> FernRegressor::Train(vector<Mat_<double>> regression_target
             int shape_idx = bins_index[i][j];
             deltaShape[shape_idx] = regression_output[i];
 
-            if(shape_idx == visualIdx){
-                cout << "BIN: " << i << "/" << bins_index[i].size() << endl;
-
-                Mat_<double> result = Mat::zeros (num_of_landmark, 2, CV_32F);
-                for(int ti = 0 ; ti < bins_index.size() ; ti++){
-                    int bin_size = bins_index[ti].size();
-
-                    if(bin_size > 0){
-
-                        for(int tj = 0 ; tj < bin_size ; tj++){
-                            int shape_idx = bins_index[ti][tj];
-
-                            if(ti == i){
-                                if(tj < 5){
-                                    cout << "TARGET: " << endl;
-                                    cout << endl << regression_target[shape_idx].t() << endl;
-                                }
-
-                                result += regression_target[shape_idx];
-                            }
-                        }
-                        if(ti == i){
-                            cout << "RESULT: " << endl;
-                            cout << result.t() << endl;
-                            cout << "OUTPUT: " << endl;
-                            cout << regression_output[i].t() << endl;
-                        }
-                    }
-                }
-            }
-
         }
     }
-
-
-
-//    cout << "---------- DELTA SHAPE" << endl << deltaShape[0].t() << endl;
-//    for(Mat_<double> r : deltaShape){
-//        cout << r << endl;
-//    }
-    // to do:
-    // 1. similarity transform
-    // 2. how to deal with threshold & bins
 
     return deltaShape;
 }
@@ -205,7 +165,6 @@ Mat_<double> FernRegressor::Test(Mat_<unsigned char> image, Rect_<int> bounding_
     // project keypoints to box
     Mat_<double> curKeyPoints = ProjectToBoxCoordinate(curShape, bounding_box);
 
-    cout << "TEST" << endl;
     // align with meanshape
     Mat_<double> rotationMatrix;
     double scale = 0.0;
@@ -230,7 +189,7 @@ Mat_<double> FernRegressor::Test(Mat_<unsigned char> image, Rect_<int> bounding_
         curLocation = scale * curLocation * rotationMatrix;
 
         Mat_<double> curLocationImageCoor = ProjectToImageCoordinate(curLocation, bounding_box);
-        double pixel_1 = (double) image.at<unsigned char>(curLocationImageCoor.at<double>(0,0), curLocationImageCoor.at<double>(0, 1));
+        double pixel_1 = (double) image.at<unsigned char>((int)curLocationImageCoor.at<double>(0,0),(int) curLocationImageCoor.at<double>(0, 1));
 
         // Get Pixel 2
         int idx_landmark_2 = fernPairNearestLandmark[i].at<int>(0, 1);
@@ -240,42 +199,47 @@ Mat_<double> FernRegressor::Test(Mat_<unsigned char> image, Rect_<int> bounding_
         curLocation = scale * curLocation * rotationMatrix;
 
         curLocationImageCoor = ProjectToImageCoordinate(curLocation, bounding_box);
-        double pixel_2 = (double) image.at<unsigned char>(curLocationImageCoor.at<double>(0,0), curLocationImageCoor.at<double>(0, 1));
+        double pixel_2 = (double) image.at<unsigned char>((int)curLocationImageCoor.at<double>(0,0), (int)curLocationImageCoor.at<double>(0, 1));
 
         if(pixel_1 - pixel_2 >= fernThreshold[i]){
             index += pow(2.0, i);
         }
     }
-    cout << "REGRESSION OUTPUT TEST " << index << " : " << regression_output[index].t() << endl;
+//    cout << "REGRESSION OUTPUT TEST " << index << " : " << regression_output[index].t() << endl;
     // return regression_output in box-coordinate
-    Mat_<double> output = curKeyPoints + regression_output[index];
+//
+ Mat_<double> output = curKeyPoints + regression_output[index];
+//    Mat_<double> output = regression_output[index];
+//    cout << output.t() << endl;
+//    cout << "project to image" << endl;
 
 
-    cout << output.t() << endl;
-    cout << "project to image" << endl;
+
     output = scale * output * rotationMatrix;
-    output = ProjectToImageCoordinate(output, bounding_box);
-    cout << output.t() << endl;
 
-    Mat curImg;
-    Mat img = image.clone();
-    cvtColor( img, curImg, CV_GRAY2BGR );
-    cout << "test 2" << endl;
-    for(int j = 0 ; j < curShape.rows ; j++){
-        int x = (int) curShape.at<double>(j, 0);
-        int y = (int) curShape.at<double>(j, 1);
-        circle(curImg, Point(x, y), 1, Scalar(0, 0, 255), -1);
-    }
-    for(int j = 0 ; j < output.rows ; j++){
-        int x = (int) output.at<double>(j, 0);
-        int y = (int) output.at<double>(j, 1);
-        circle(curImg, Point(x, y), 1, Scalar(255, 0, 0), -1);
-    }
-    namedWindow("test project", WINDOW_NORMAL);
-    imshow("test project", curImg);
-    waitKey(10);
+    output = ProjectToImageCoordinate(output, bounding_box);
+//    cout << output.t() << endl;
+//
+//    Mat curImg;
+//    Mat img = image.clone();
+//    cvtColor( img, curImg, CV_GRAY2BGR );
+//    cout << "test 2" << endl;
+//    for(int j = 0 ; j < curShape.rows ; j++){
+//        int x = (int) curShape.at<double>(j, 0);
+//        int y = (int) curShape.at<double>(j, 1);
+//        circle(curImg, Point(x, y), 1, Scalar(0, 0, 255), -1);
+//    }
+//    for(int j = 0 ; j < output.rows ; j++){
+//        int x = (int) output.at<double>(j, 0);
+//        int y = (int) output.at<double>(j, 1);
+//        circle(curImg, Point(x, y), 1, Scalar(255, 0, 0), -1);
+//    }
+//    namedWindow("test project", WINDOW_NORMAL);
+//    imshow("test project", curImg);
+//    waitKey(10);
 
     return output - curShape; // box-coordinate
+//    return output;
 }
 
 void FernRegressor::Save(FileStorage &out){

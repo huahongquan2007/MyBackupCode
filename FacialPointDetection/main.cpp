@@ -62,12 +62,12 @@ int main() {
     int second_level = options.getNumOfSecondLevel();
     int feature_per_fern = options.getNumOfFeaturePerFern();
     int num_of_random_pixel = options.getNumOfRandomPixel();
-    ShapeAlignment shapeAlignment(first_level, second_level, feature_per_fern, num_of_random_pixel);
-    shapeAlignment.addImages(images);
-    shapeAlignment.addBoundingBoxes(bounding_boxes);
-    shapeAlignment.addKeyPoints(keypoints);
-    shapeAlignment.Train();
-    shapeAlignment.Save(options.getModelPath());
+//    ShapeAlignment shapeAlignment(first_level, second_level, feature_per_fern, num_of_random_pixel);
+//    shapeAlignment.addImages(images);
+//    shapeAlignment.addBoundingBoxes(bounding_boxes);
+//    shapeAlignment.addKeyPoints(keypoints);
+//    shapeAlignment.Train();
+//    shapeAlignment.Save(options.getModelPath());
 
 //    }//isTraining == true
 
