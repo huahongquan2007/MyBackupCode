@@ -103,10 +103,13 @@ void ShapeAlignment::Train(){
     vector<Mat_<double>> deltaShape;
 
     // generate more image, keypoints, curShape & inputShape
+    // Use boundingBox to generate initialized locations for training data
+    RNG rng;
     int total_image_original = images.size();
-    for(int j = 0 ; j < 20 ; j ++){
-        for(int i = 0 ; i < total_image_original; i++){
-            cout << "GENERATE " << i << endl;
+
+    for(int i = 0 ; i < total_image_original; i++){
+        for(int j = 0 ; j < 10 ; j ++){
+
             images.push_back(images[i].clone());
             keypoints.push_back(keypoints[i].clone());
             boundingBoxes.push_back(boundingBoxes[i]);
@@ -115,19 +118,23 @@ void ShapeAlignment::Train(){
 
     meanShape = GetMeanShape(keypoints, boundingBoxes);
 
-    // Use boundingBox to generate initialized locations for training data
-    RNG rng;
-    for(int i = 0 ; i < images.size(); i++){
 
+    for(int i = 0 ; i < images.size(); i++){
         // method 1: random
         int index = i;
         while(index == i){
             index = rng.uniform(0, images.size() - 1);
         }
 
-//      visualizeImage(images[index], keypoints[index], 0);
+
 
         Mat_<double> initial = ProjectToBoxCoordinate(keypoints[index], boundingBoxes[index]);
+        Mat_<double> new_points = ProjectToImageCoordinate(initial, boundingBoxes[i] );
+
+
+//        visualizeImage(images[i], new_points, 0);
+
+        curShape.push_back( new_points );
 
         // try rotation, scale & translation
 //        Mat_<double> rotation;
@@ -135,7 +142,6 @@ void ShapeAlignment::Train(){
 //        similarity_transform(meanShape, initial, rotation, scale);
 //        initial = (rotation * initial.t() * scale).t();
 //
-        Mat_<double> new_points = ProjectToImageCoordinate(initial, boundingBoxes[i] );
 //        Point mean_new_points = GetMeanPoint(new_points);
 //        Point mean_old_points = GetMeanPoint(keypoints[i]);
 //
@@ -149,7 +155,7 @@ void ShapeAlignment::Train(){
 //            new_points.at<double>(j, 1) = new_points.at<double>(j, 1) - translation.y;
 //        }
 //
-        curShape.push_back( new_points );
+
 
         // method 2: use mean
 //        curShape.push_back(ProjectToImageCoordinate(meanShape, boundingBoxes[i] ));
@@ -178,8 +184,6 @@ void ShapeAlignment::Train(){
         cout << deltaShape[visualIdx].t() << endl;
 
 //        visualizeImage(images[visualIdx], curShape[visualIdx], 10);
-
-        waitKey(10);
     }
 }
 

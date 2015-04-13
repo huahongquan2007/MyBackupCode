@@ -53,43 +53,43 @@ vector<Mat_<double>> NormalRegressor::Train(vector<Mat_<unsigned char>> images, 
     // Get pixel intensity of each P pixels over training set
     if(isDebug) cout << "Get Pixel Intensity" << endl;
     Mat_<double> shapeIndexPixels (num_of_random_pixels, num_of_images);
-//    vector<Mat_<double>> rotationMatrixArray;
-//    vector<double> scaleArray;
-//    rotationMatrixArray.resize(num_of_images);
-//    scaleArray.resize(num_of_images);
+
 
     for(int i = 0 ; i < num_of_images ; i++){
         // project keypoints to box
-
         Mat_<double> rotation;
         double scale = 0;
-//        Mat_<double> curKeyPoints = ProjectToBoxCoordinate(keypoints[i], boundingBoxes[i]);
+//        cout << i << "/" << num_of_images << endl;
 
         Mat_<double> curKeyPoints = ProjectToBoxCoordinate(inputShape[i], boundingBoxes[i]);
 
         // align with meanshape
         similarity_transform(meanShape, curKeyPoints, rotation, scale);
 
-        curKeyPoints = (rotation * curKeyPoints.t() * scale).t();
+        transpose(rotation, rotation);
+        curKeyPoints = scale * curKeyPoints * rotation;
 
-        similarity_transform(curKeyPoints, meanShape, rotation, scale);
+//        cout << "HQHHQ" << endl;
 
         Mat_<double> curLocation (num_of_random_pixels, 2);
 
+//        cout << "HQHHQ" << endl;
         // calculate shapeIndexLocation
         for(int j = 0 ; j < num_of_random_pixels; j++){
             int idx_landmark = shapeIndexNearestLandmark.at<int>(j, 0);
             curLocation.at<double>(j , 0 ) = shapeIndexLocation.at<double>(j , 0) + curKeyPoints.at<double>(idx_landmark, 0);
             curLocation.at<double>(j , 1 ) = shapeIndexLocation.at<double>(j , 1) + curKeyPoints.at<double>(idx_landmark, 1);
         }
-        // project location to image coordinates
-//        Mat_<double> curLocationImageCoor = ( rotationMatrixArray[i].t() * ProjectToImageCoordinate(curLocation, boundingBoxes[i]).t() / scaleArray[i] ).t();
 
-        curLocation = (rotation * curLocation.t() * scale ).t();
+        // project location to image coordinates
+        similarity_transform(curKeyPoints, meanShape, rotation, scale);
+        transpose(rotation, rotation);
+        curLocation = scale * curLocation * rotation;
 
         Mat_<double> curLocationImageCoor = ProjectToImageCoordinate(curLocation, boundingBoxes[i]);
 
-//        // --------------- DRAW A FACE + KEYPOINT --------
+        if ( i == 2020){
+        // --------------- DRAW A FACE + KEYPOINT --------
 //        namedWindow("shapeIndex", WINDOW_NORMAL);
 //
 //        Mat curImg;
@@ -113,10 +113,30 @@ vector<Mat_<double>> NormalRegressor::Train(vector<Mat_<unsigned char>> images, 
 //        imshow("shapeIndex", curImg);
 //
 //        waitKey(0);
+        }
+
 
         // get pixels
         for(int j = 0 ; j < num_of_random_pixels; j++){
-            shapeIndexPixels.at<double>(j, i) = (double) images[i].at<unsigned char>(curLocationImageCoor.at<double>(j,0), curLocationImageCoor.at<double>(j, 1));
+//            cout << curLocationImageCoor.at<double>(j,0) << " " <<  curLocationImageCoor.at<double>(j, 1) << " " << images[i].size() <<  " " << shapeIndexPixels.size() <<endl;
+
+            int x = (int)curLocationImageCoor.at<double>(j,0);
+//            cout << "X: " << x << endl;
+            int y = (int)curLocationImageCoor.at<double>(j, 1);
+//            cout << "Y: " << y << endl;
+            try{
+//                cout << "images[i] " << images[i].at<unsigned char>(x, y) << endl;
+                unsigned char uc = images[i].at<unsigned char>(x, y);
+//                cout << "uc " << uc << endl;
+                double tt = (double) uc;
+//                cout << "tt " << tt << endl;
+                shapeIndexPixels.at<double>(j, i) = tt;
+            } catch (exception& e)
+            {
+                cout << "Standard exception: " << e.what() << endl;
+            }
+
+
         }
     }
 //    cout << "Shape Index Pixels: " << shapeIndexPixels << endl;
@@ -143,9 +163,12 @@ vector<Mat_<double>> NormalRegressor::Train(vector<Mat_<unsigned char>> images, 
 
 
         Mat_<double> box = ProjectToBoxCoordinate( inputShape[i], boundingBoxes[i] );
-        similarity_transform(meanShape, box, rotation, scale);
         Mat_<double> keybox = ProjectToBoxCoordinate( keypoints[i], boundingBoxes[i] );
-        Mat_<double> target = (rotation * keybox.t() * scale).t() - (rotation * box.t() * scale).t();
+
+        similarity_transform(meanShape, box, rotation, scale);
+        transpose(rotation, rotation);
+
+        Mat_<double> target = scale * (keybox - box) * rotation;
 
         regression_target.push_back( target );
         regression_output.push_back( Mat::zeros(inputShape[i].size(), CV_32F ) );
@@ -214,8 +237,9 @@ vector<Mat_<double>> NormalRegressor::Train(vector<Mat_<unsigned char>> images, 
             Mat_<double> rotation;
             double scale = 0;
             similarity_transform(ProjectToBoxCoordinate(inputShape[visualIdx], boundingBoxes[visualIdx]), meanShape, rotation, scale);
-//            Mat_<double> output = ProjectToBoxCoordinate(inputShape[visualIdx], boundingBoxes[visualIdx]) + (rotation.t() * regression_output[visualIdx].t() / scale).t();
-            Mat_<double> output = ProjectToBoxCoordinate(inputShape[visualIdx], boundingBoxes[visualIdx]) + (rotation * regression_output[visualIdx].t() * scale).t();
+            transpose(rotation, rotation);
+
+            Mat_<double> output = ProjectToBoxCoordinate(inputShape[visualIdx], boundingBoxes[visualIdx]) + scale * regression_output[visualIdx] * rotation;
 
             cout << "OUTPUT" << endl;
             cout << output.t() << endl;
@@ -246,8 +270,11 @@ vector<Mat_<double>> NormalRegressor::Train(vector<Mat_<unsigned char>> images, 
     for(int j = 0 ; j < num_of_images ; j++){
         Mat_<double> rotation;
         double scale = 0;
+        //similarity_transform(ProjectToBoxCoordinate(inputShape[j], boundingBoxes[j]), meanShape, rotation, scale);
         similarity_transform(ProjectToBoxCoordinate(inputShape[j], boundingBoxes[j]), meanShape, rotation, scale);
-        Mat_<double> output = ProjectToBoxCoordinate(inputShape[j], boundingBoxes[j]) + (rotation *  regression_output[j].t() * scale).t();
+
+        transpose(rotation, rotation);
+        Mat_<double> output = ProjectToBoxCoordinate(inputShape[j], boundingBoxes[j]) + scale *  regression_output[j] * rotation;
         regression_output[j] = ProjectToImageCoordinate(output, boundingBoxes[j]) - inputShape[j];
 
 //        Mat_<double> output = (rotation *  regression_output[j].t() * scale).t();

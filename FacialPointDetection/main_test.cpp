@@ -71,40 +71,41 @@ int main(){
         int x = (int) ( curKey.at<double>(j, 0) * 100 ) + 250;
         int y = (int) ( curKey.at<double>(j, 1) * 100 ) + 250;
 
-        cout << x << " " << y << endl;
         circle(curImg, Point(x, y), 2, Scalar(255, 0, 0), -1);
         circle(prevImg, Point(x, y), 2, Scalar(255, 0, 0), -1);
     }
 
     curKey = key2;
+    transpose(rotation, rotation);
+    Mat_<double> rotateKey = scale * curKey * rotation;
+
+    similarity_transform(key2, key1, rotation, scale);
+    transpose(rotation, rotation);
+    Mat_<double> reconstructKey = scale * rotateKey * rotation;
     for(int j = 0 ; j < curKey.rows ; j++){
-        Mat_<double> pos ( 2, 1, CV_32FC1);
-
-        pos.at<double>(0, 0) = (int) ( curKey.at<double>(j, 0) * 100 ) + 250;
-        pos.at<double>(1, 0) = (int) ( curKey.at<double>(j, 1) * 100 ) + 250;
-
-        int x = pos.at<double>(0, 0);
-        int y = pos.at<double>(1, 0);
+        int x = (int) ( curKey.at<double>(j, 0) * 100 ) + 250;
+        int y = (int) ( curKey.at<double>(j, 1) * 100 ) + 250;
 
         circle(prevImg, Point(x, y), 2, Scalar(0, 255, 0), -1);
-
-        pos = rotation * pos * scale;
-
-        x = pos.at<double>(0, 0);
-        y = pos.at<double>(1, 0);
-
-        cout << x << " " << y << endl;
         circle(curImg, Point(x, y), 2, Scalar(0, 255, 0), -1);
 
-        pos = rotation.t() * pos / scale;
+        x = (int) ( rotateKey.at<double>(j, 0) * 100 ) + 250;
+        y = (int) ( rotateKey.at<double>(j, 1) * 100 ) + 250;
 
-        x = pos.at<double>(0, 0);
-        y = pos.at<double>(1, 0);
+        circle(curImg, Point(x, y), 3, Scalar(0, 0, 255), -1);
 
-        cout << x << " " << y << endl;
-        circle(curImg, Point(x, y), 2, Scalar(0, 0, 255), -1);
+        x = (int) ( reconstructKey.at<double>(j, 0) * 100 ) + 250;
+        y = (int) ( reconstructKey.at<double>(j, 1) * 100 ) + 250;
 
+        circle(curImg, Point(x, y), 3, Scalar(0, 255, 255), -1);
 
+//        pos = rotation.t() * pos / scale;
+//
+//        x = pos.at<double>(0, 0);
+//        y = pos.at<double>(1, 0);
+//
+//        cout << x << " " << y << endl;
+//        circle(curImg, Point(x, y), 2, Scalar(0, 0, 255), -1);
     }
 
     namedWindow("img", WINDOW_NORMAL);
