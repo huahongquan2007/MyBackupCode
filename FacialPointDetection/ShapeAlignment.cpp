@@ -108,7 +108,7 @@ void ShapeAlignment::Train(){
     int total_image_original = images.size();
 
     for(int i = 0 ; i < total_image_original; i++){
-        for(int j = 0 ; j < 20 ; j ++){
+        for(int j = 0 ; j < 10 ; j ++){
 
             images.push_back(images[i].clone());
             keypoints.push_back(keypoints[i].clone());

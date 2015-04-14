@@ -21,7 +21,7 @@ int main() {
     // =========================================
     // Read Configuration
     Configuration options("/home/robotbase/github/MyBackupCode/FacialPointDetection/config.txt");
-
+//    Configuration options("/Users/quanhua92/workspace/MyBackupCode/FacialPointDetection/config.txt");
     const int num_of_landmark = options.getNumOfLandmark();
 
     // =========================================
@@ -42,6 +42,7 @@ int main() {
         images.push_back(img_data);
         cout << "train_img: " << img_path << endl;
     }
+
 
     // -------------- READ BOUNDING BOX ----------
     string bounding_box_train_path = options.getTrainBoundingBoxPath();
