@@ -60,37 +60,15 @@ vector<Mat_<double>> FernRegressor::Train(vector<Mat_<double>> regression_target
                 }
             }
         }
-
         max_corr_index.at<int>(i, 0) = index_i;
         max_corr_index.at<int>(i, 1) = index_j;
 
-        Mat_<double> pixelDiff = pixels.row(index_i) - pixels.row(index_j);
-
-        pixelDiff = abs(pixelDiff);
-
-        double curMax = -1;
-        for(int j = 0; j < pixels.cols ; j++){
-            double t = pixels.at<double>(index_i, j) - pixels.at<double>(index_j, j);
-            if(abs(t) > curMax){
-                curMax = abs(t);
-            }
-        }
         double min, max;
+        Mat_<double> pixelDiff = pixels.row(index_i) - pixels.row(index_j);
+        pixelDiff = abs(pixelDiff);
         minMaxLoc(pixelDiff, &min, &max);
-
-        if(curMax != max){
-            cout << "==========================================================" << endl;
-            cout << "==========================================================" << endl;
-            cout << "==========================================================" << endl;cout << "==========================================================" << endl;
-            cout << "==========================================================" << endl;
-            cout << "==========================================================" << endl;cout << "==========================================================" << endl;
-            cout << "==========================================================" << endl;cout << "==========================================================" << endl;cout << "==========================================================" << endl;cout << "==========================================================" << endl;cout << "==========================================================" << endl;cout << "==========================================================" << endl;
-        }
-        cout << "MAX: " << curMax << "/" << max << endl;
-
-//        double meanvalue = mean(pixelDiff)[0];
-//        double threshold = rng.uniform( meanvalue * -0.2, meanvalue * 0.2 );
-        double threshold = rng.uniform( max * -0.2, max * 0.2 );
+        cout << "MAX: " << max << endl;
+        double threshold = rng.uniform( max * -0.3, max * 0.3 );
 
         Mat_<double> location(2, 2, CV_32F); // x1 y1 ; x2 y2
         location.at<double>(0, 0) = pixelLocation.at<double>(index_i, 0);
@@ -131,8 +109,6 @@ vector<Mat_<double>> FernRegressor::Train(vector<Mat_<double>> regression_target
     if(isDebug) cout << "BIN: ";
     for(int i = 0 ; i < bins_index.size() ; i++){
         int bin_size = bins_index[i].size();
-
-
         Mat_<double> result = Mat::zeros (num_of_landmark, 2, CV_32F);
         if(bin_size > 0){
             if(isDebug) cout << "[" << i << "_"<< bin_size << "] ";
@@ -142,14 +118,12 @@ vector<Mat_<double>> FernRegressor::Train(vector<Mat_<double>> regression_target
 
             }
 
-            result = (1.0/((1.0 + 1000.0/bin_size) * bin_size)) * result;
+            result = (1.0/((1.0 + 10.0/bin_size) * bin_size)) * result;
         }
 
         regression_output[i] = result;
     }
     if(isDebug) cout << endl;
-
-    int visualIdx = 0;
 
     // compute output for each shape in training
     vector<Mat_<double>> deltaShape;

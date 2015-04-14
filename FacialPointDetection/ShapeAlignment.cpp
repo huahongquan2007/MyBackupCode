@@ -108,7 +108,7 @@ void ShapeAlignment::Train(){
     int total_image_original = images.size();
 
     for(int i = 0 ; i < total_image_original; i++){
-        for(int j = 0 ; j < 10 ; j ++){
+        for(int j = 0 ; j < 20 ; j ++){
 
             images.push_back(images[i].clone());
             keypoints.push_back(keypoints[i].clone());
@@ -117,7 +117,6 @@ void ShapeAlignment::Train(){
     }
 
     meanShape = GetMeanShape(keypoints, boundingBoxes);
-
 
     for(int i = 0 ; i < images.size(); i++){
         // method 1: random
@@ -132,9 +131,6 @@ void ShapeAlignment::Train(){
         curShape.push_back( new_points );
     }
 
-    int visualIdx = 0;
-    Mat_<double> initialShape = curShape[visualIdx].clone();
-
     for(int i = 0 ; i < first_level_regressor ; i ++){
         cout << "=================================" << endl;
         cout << "FIRST LEVEL " << i << endl;
@@ -145,16 +141,6 @@ void ShapeAlignment::Train(){
             curShape[j] = ProjectToBoxCoordinate(curShape[j], boundingBoxes[j]) + deltaShape[j];
             curShape[j] = ProjectToImageCoordinate(curShape[j], boundingBoxes[j]);
         }
-
-        cout << "---------FIRST LEVEL ------------" << endl;
-        cout << "INITIALSHAPE" << endl;
-        cout << initialShape.t() << endl;
-        cout << "CURSHAPE" << endl;
-        cout << curShape[visualIdx].t() << endl;
-        cout << "DELTASHAPE" << endl;
-        cout << deltaShape[visualIdx].t() << endl;
-
-//        visualizeImage(images[visualIdx], curShape[visualIdx], 10);
     }
 }
 
@@ -168,13 +154,12 @@ Mat_<double> ShapeAlignment::Test(Mat_<unsigned char> &image, Rect_<int> &boundi
 
     cout << "ShapeAlignment: Test" << endl;
     Mat_<double> initial = curShape.clone();
-    visualizeImage(image, curShape, 1000, false, "initialize");
+    visualizeImage(image, curShape, 100, false, "initialize");
 
     for(int i = 0 ; i < first_level_regressor ; i ++){
         cout << "ShapeAlignment: Test first level " << i << endl;
 
         deltaShape = regressors[i].Test(image, bounding_box, curShape, meanShape);
-
         curShape += deltaShape;
     }
 
