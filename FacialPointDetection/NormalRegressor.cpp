@@ -66,14 +66,25 @@ vector<Mat_<double>> NormalRegressor::Train(vector<Mat_<unsigned char>> images, 
         // align with meanshape
         similarity_transform(meanShape, curKeyPoints, rotation, scale);
 
+//        for(int j = 0;j < num_of_random_pixels;j++){
+//            double project_x = rotation(0,0) * shapeIndexLocation.at<double>(j,0) + rotation(0,1) * shapeIndexLocation.at<double>(j,1);
+//            double project_y = rotation(1,0) * shapeIndexLocation.at<double>(j,0) + rotation(1,1) * shapeIndexLocation.at<double>(j,1);
+//            project_x = scale * project_x * boundingBoxes[i].width / 2.0;
+//            project_y = scale * project_y * boundingBoxes[i].height / 2.0;
+//            int index = shapeIndexNearestLandmark.at<int>(j, 0);
+//            int real_x = project_x + inputShape[i](index,0);
+//            int real_y = project_y + inputShape[i](index,1);
+//            real_x = std::max(0.0,std::min((double)real_x,images[i].cols-1.0));
+//            real_y = std::max(0.0,std::min((double)real_y,images[i].rows-1.0));
+//
+//            shapeIndexPixels.at<double>(j, i) = (double) images[i].at<unsigned char>(real_x, real_y);
+//        }
+
         transpose(rotation, rotation);
         curKeyPoints = scale * curKeyPoints * rotation;
 
-//        cout << "HQHHQ" << endl;
-
         Mat_<double> curLocation (num_of_random_pixels, 2);
 
-//        cout << "HQHHQ" << endl;
         // calculate shapeIndexLocation
         for(int j = 0 ; j < num_of_random_pixels; j++){
             int idx_landmark = shapeIndexNearestLandmark.at<int>(j, 0);
@@ -88,58 +99,18 @@ vector<Mat_<double>> NormalRegressor::Train(vector<Mat_<unsigned char>> images, 
 
         Mat_<double> curLocationImageCoor = ProjectToImageCoordinate(curLocation, boundingBoxes[i]);
 
-        if ( i == 2020){
-        // --------------- DRAW A FACE + KEYPOINT --------
-//        namedWindow("shapeIndex", WINDOW_NORMAL);
-//
-//        Mat curImg;
-//
-//        cvtColor( images[i], curImg, CV_GRAY2BGR );
-//
-//        Mat_<double> curKey = curLocationImageCoor;
-//
-//        for(int j = 0 ; j < curKey.rows ; j++){
-//            int x = (int) curKey.at<double>(j, 0);
-//            int y = (int) curKey.at<double>(j, 1);
-//            circle(curImg, Point(x, y), 1, Scalar(255, 0, 0), -1);
-//        }
-//
-//        for(int j = 0 ; j < inputShape[i].rows ; j++){
-//            int x = (int) inputShape[i].at<double>(j, 0);
-//            int y = (int) inputShape[i].at<double>(j, 1);
-//            circle(curImg, Point(x, y), 1, Scalar(0, 255, 0), -1);
-//        }
-//
-//        imshow("shapeIndex", curImg);
-//
-//        waitKey(0);
-        }
-
-
         // get pixels
         for(int j = 0 ; j < num_of_random_pixels; j++){
-//            cout << curLocationImageCoor.at<double>(j,0) << " " <<  curLocationImageCoor.at<double>(j, 1) << " " << images[i].size() <<  " " << shapeIndexPixels.size() <<endl;
-
-            int x = (int)curLocationImageCoor.at<double>(j,0);
-//            cout << "X: " << x << endl;
+            int x = (int)curLocationImageCoor.at<double>(j, 0);
             int y = (int)curLocationImageCoor.at<double>(j, 1);
-//            cout << "Y: " << y << endl;
             try{
-//                cout << "images[i] " << images[i].at<unsigned char>(x, y) << endl;
-                unsigned char uc = images[i].at<unsigned char>(x, y);
-//                cout << "uc " << uc << endl;
-                double tt = (double) uc;
-//                cout << "tt " << tt << endl;
-                shapeIndexPixels.at<double>(j, i) = tt;
+                shapeIndexPixels.at<double>(j, i) = (double) images[i].at<unsigned char>(x, y);
             } catch (exception& e)
             {
                 cout << "Standard exception: " << e.what() << endl;
             }
-
-
         }
     }
-//    cout << "Shape Index Pixels: " << shapeIndexPixels << endl;
 
     // Calculate covariance between i, j
     Mat_<double> covariance_matrix(num_of_random_pixels, num_of_random_pixels);
@@ -191,44 +162,22 @@ vector<Mat_<double>> NormalRegressor::Train(vector<Mat_<unsigned char>> images, 
 
         for(int j = 0 ; j < num_of_images ; j++){
             regression_target[j] -= deltaShape[j];
-//            regression_output[j] -= deltaShape[j];
-//            Mat_<double> output = ProjectToBoxCoordinate( inputShape[j] , boundingBoxes[j] ) + (rotationMatrixArray[j].t() * deltaShape[j].t() / scaleArray[j]).t();
-
             regression_output[j] += deltaShape[j];
-//            regression_output[j] += ProjectToImageCoordinate(output, boundingBoxes[j]) - inputShape[j];
-// /            regression_output[j] = ProjectToImageCoordinate(
-//                    ProjectToBoxCoordinate( inputShape[j] , boundingBoxes[j] ) + (rotationMatrixArray[j].t() * deltaShape[j].t() / scaleArray[j]).t(),
-//                    boundingBoxes[j])  - inputShape[j];
         }
         cout << "------------------------------" << endl;
         if(isDebug){
 
-//            cout << "Initial SHAPE: " << endl;
-//            cout << initialShape.t() << endl;
-//            cout << "DELTA SHAPE: " << endl;
-//            cout << deltaShape[visualIdx].t() << endl;
-//            cout << "BOUNDINGBOXES: " << boundingBoxes[visualIdx] << endl;
-//            cout << "INITIAL + DELTA SHAPE: " << endl;
-//            cout << (ProjectToBoxCoordinate( initialShape , boundingBoxes[visualIdx] ) + deltaShape[visualIdx]).t() << endl;
-//            cout << "INITIAL + DELTA SHAPE (PROJECT): " << endl;
-//            cout << (ProjectToImageCoordinate(ProjectToBoxCoordinate( initialShape , boundingBoxes[visualIdx] ) + regression_target[visualIdx], boundingBoxes[visualIdx])).t() << endl;
-//            cout << "INITIAL + DELTA SHAPE (ORIGINAL): " << endl;
-//            cout << (ProjectToImageCoordinate(ProjectToBoxCoordinate( initialShape , boundingBoxes[visualIdx] ) + regression_target[visualIdx], boundingBoxes[visualIdx]) - initialShape).t() << endl;
             Mat_<double> rotation;
             double scale = 0;
             similarity_transform(ProjectToBoxCoordinate(inputShape[visualIdx], boundingBoxes[visualIdx]), meanShape, rotation, scale);
             transpose(rotation, rotation);
 
-            Mat_<double> output = ProjectToBoxCoordinate(inputShape[visualIdx], boundingBoxes[visualIdx]) + scale * regression_output[visualIdx] * rotation;
-
-            cout << "OUTPUT" << endl;
-            cout << output.t() << endl;
-            resultShape = ProjectToImageCoordinate(output, boundingBoxes[visualIdx]);
+            resultShape = ProjectToImageCoordinate( ProjectToBoxCoordinate(initialShape, boundingBoxes[visualIdx]) + scale * regression_output[visualIdx] * rotation, boundingBoxes[visualIdx]);
 
             cout << "Initial SHAPE: " << endl;
             cout << initialShape.t() << endl;
-            cout << "Initial SHAPE (PROJECT): " << endl;
-            cout << ProjectToBoxCoordinate( initialShape , boundingBoxes[visualIdx] ).t() << endl;
+//            cout << "Initial SHAPE (PROJECT): " << endl;
+//            cout << ProjectToBoxCoordinate( initialShape , boundingBoxes[visualIdx] ).t() << endl;
             cout << "RESULT SHAPE: " << endl;
             cout << resultShape.t() << endl;
             cout << "GROUND TRUTH SHAPE: " << endl;
@@ -239,48 +188,19 @@ vector<Mat_<double>> NormalRegressor::Train(vector<Mat_<unsigned char>> images, 
             cout << deltaShape[visualIdx].t() << endl;
             cout << "REGRESSION OUTPUT: " << endl;
             cout << regression_output[visualIdx].t() << endl;
-
+            cout << "REGRESSION OUTPUT: PROJECT:" << endl;
+            cout << ProjectToImageCoordinate(scale * regression_output[visualIdx] * rotation, boundingBoxes[visualIdx], false).t() << endl;
             visualizeImageCompare(images[visualIdx], resultShape, initialShape, 10);
         }
     }
 
-//    if(isDebug) cout << "REGRESSION OUTPUT - BEFORE[0] : " << endl;
-//    if(isDebug) cout << regression_output[visualIdx].t() << endl;
+    Mat_<double> rotation;
+    double scale = 0;
 
     for(int j = 0 ; j < num_of_images ; j++){
-        Mat_<double> rotation;
-        double scale = 0;
         similarity_transform(ProjectToBoxCoordinate(inputShape[j], boundingBoxes[j]), meanShape, rotation, scale);
-//        similarity_transform(meanShape, ProjectToBoxCoordinate(inputShape[j], boundingBoxes[j]), rotation, scale);
-
         transpose(rotation, rotation);
-        Mat_<double> output = ProjectToBoxCoordinate(inputShape[j], boundingBoxes[j]) + scale *  regression_output[j] * rotation;
-        regression_output[j] = ProjectToImageCoordinate(output, boundingBoxes[j]) - inputShape[j];
-
-//        Mat_<double> output = (rotation *  regression_output[j].t() * scale).t();
-//        regression_output[j] = ProjectToImageCoordinate(output, boundingBoxes[j]);
-
-//        Mat_<double> test = ProjectToImageCoordinate((rotation * box.t() * scale).t(), boundingBoxes[i]);
-//
-//        cout << "test 1" << endl;
-//        Mat curImg;
-//        Mat img = images[i].clone();
-//        cvtColor( img, curImg, CV_GRAY2BGR );
-//        cout << "test 2" << endl;
-//        for(int j = 0 ; j < inputShape[i].rows ; j++){
-//            int x = (int) inputShape[i].at<double>(j, 0);
-//            int y = (int) inputShape[i].at<double>(j, 1);
-//            circle(curImg, Point(x, y), 1, Scalar(0, 0, 255), -1);
-//        }
-//        for(int j = 0 ; j < test.rows ; j++){
-//            int x = (int) test.at<double>(j, 0);
-//            int y = (int) test.at<double>(j, 1);
-//            circle(curImg, Point(x, y), 1, Scalar(255, 0, 0), -1);
-//        }
-//        namedWindow("target", WINDOW_NORMAL);
-//        imshow("target", curImg);
-//        waitKey(0);
-
+        regression_output[j] = scale * regression_output[j] * rotation;
     }
     return regression_output;
 }
@@ -292,9 +212,6 @@ Mat_<double> NormalRegressor::Test(Mat_<unsigned char> image, Rect_<int> boundin
 
     for(int i = 0 ; i < childRegressor.size(); i++){
         deltaShape = childRegressor[i].Test(image, bounding_box, inputShape, meanShape);
-//
-//        regression_output += ProjectToImageCoordinate(
-//                ProjectToBoxCoordinate( inputShape , bounding_box ) + deltaShape, bounding_box) - inputShape;
 
         regression_output += deltaShape;
         inputShape = curShape + regression_output;

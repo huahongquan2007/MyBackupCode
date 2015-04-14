@@ -24,9 +24,6 @@ int main() {
 
     const int num_of_landmark = options.getNumOfLandmark();
 
-    bool isTraining = true;
-//    if(isTraining){
-
     // =========================================
     // Training
     const int num_of_training = options.getNumOfTraining();
@@ -62,14 +59,13 @@ int main() {
     int second_level = options.getNumOfSecondLevel();
     int feature_per_fern = options.getNumOfFeaturePerFern();
     int num_of_random_pixel = options.getNumOfRandomPixel();
-//    ShapeAlignment shapeAlignment(first_level, second_level, feature_per_fern, num_of_random_pixel);
-//    shapeAlignment.addImages(images);
-//    shapeAlignment.addBoundingBoxes(bounding_boxes);
-//    shapeAlignment.addKeyPoints(keypoints);
-//    shapeAlignment.Train();
-//    shapeAlignment.Save(options.getModelPath());
 
-//    }//isTraining == true
+    ShapeAlignment shapeAlignment(first_level, second_level, feature_per_fern, num_of_random_pixel);
+    shapeAlignment.addImages(images);
+    shapeAlignment.addBoundingBoxes(bounding_boxes);
+    shapeAlignment.addKeyPoints(keypoints);
+    shapeAlignment.Train();
+    shapeAlignment.Save(options.getModelPath());
 
     // =========================================
     // Testing
@@ -113,7 +109,7 @@ int main() {
 //        visualizeImageCompare(images_test[i], prediction, keypoints_test[i], 10);
 
         Mat_<double> prediction = shapeAlignmentTest.Test(images[i], bounding_boxes[i]);
-        visualizeImageCompare(images[i], prediction, keypoints[i], 10);
+        visualizeImageCompare(images[i], prediction, keypoints[i], 0);
 
         cout << "==============================" << endl;
         cout << "FINISH " << i << endl;

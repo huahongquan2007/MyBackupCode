@@ -12,7 +12,7 @@ void visualizeImageCompare(Mat img, Mat_<double> keypoints, Mat_<double> keypoin
 Mat_<double> GetMeanShape(vector<Mat_<double>> keypoints, vector<Rect_<int>> boxes);
 Point GetMeanPoint(Mat_<double> keypoints);
 Mat_<double> ProjectToBoxCoordinate( Mat_<double> points, Rect_<int> box );
-Mat_<double> ProjectToImageCoordinate( Mat_<double> points, Rect_<int> box );
+Mat_<double> ProjectToImageCoordinate( Mat_<double> points, Rect_<int> box , bool translationToBox = true );
 double calculate_covariance(Mat_<double> x, Mat_<double> y);
 void similarity_transform(const Mat_<double>& destination, const Mat_<double>& alignInput, Mat_<double>& rotation,double& scale);
 #endif //_FACIALPOINTDETECTION_UTILITY_H_

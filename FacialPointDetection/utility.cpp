@@ -102,15 +102,17 @@ Mat_<double> ProjectToBoxCoordinate( Mat_<double> points, Rect_<int> box ){
     return result;
 }
 
-Mat_<double> ProjectToImageCoordinate( Mat_<double> points, Rect_<int> box ){
+Mat_<double> ProjectToImageCoordinate( Mat_<double> points, Rect_<int> box , bool translationToBox){
     Mat_<double> result = Mat::zeros(points.size(), CV_32F);
 
     double half_w = box.width / 2.0;    double half_h = box.height / 2.0;
     double center_x = box.x + half_w;   double center_y = box.y + half_h;
 
     for(int i = 0 ; i < points.size().height ; i ++){
-        result.at<double>(i, 0) = ( points.at<double>(i, 0) * half_w ) + center_x;
-        result.at<double>(i, 1) = ( points.at<double>(i, 1) * half_h ) + center_y;
+
+        result.at<double>(i, 0) = (translationToBox) ? ( points.at<double>(i, 0) * half_w ) + center_x : ( points.at<double>(i, 0) * half_w );
+
+        result.at<double>(i, 1) = (translationToBox) ? ( points.at<double>(i, 1) * half_h ) + center_y : ( points.at<double>(i, 1) * half_h );
     }
 
     return result;

@@ -108,7 +108,7 @@ void ShapeAlignment::Train(){
     int total_image_original = images.size();
 
     for(int i = 0 ; i < total_image_original; i++){
-        for(int j = 0 ; j < 20 ; j ++){
+        for(int j = 0 ; j < 10 ; j ++){
 
             images.push_back(images[i].clone());
             keypoints.push_back(keypoints[i].clone());
@@ -126,40 +126,10 @@ void ShapeAlignment::Train(){
             index = rng.uniform(0, images.size() - 1);
         }
 
-
-
         Mat_<double> initial = ProjectToBoxCoordinate(keypoints[index], boundingBoxes[index]);
         Mat_<double> new_points = ProjectToImageCoordinate(initial, boundingBoxes[i] );
 
-
-//        visualizeImage(images[i], new_points, 0);
-
         curShape.push_back( new_points );
-
-        // try rotation, scale & translation
-//        Mat_<double> rotation;
-//        double scale = 0;
-//        similarity_transform(meanShape, initial, rotation, scale);
-//        initial = (rotation * initial.t() * scale).t();
-//
-//        Point mean_new_points = GetMeanPoint(new_points);
-//        Point mean_old_points = GetMeanPoint(keypoints[i]);
-//
-//        Point translation = mean_new_points - mean_old_points;
-//
-//        translation.x += rng.uniform(-20, 20);
-//        translation.y += rng.uniform(-20, 20);
-//
-//        for(int j = 0 ; j < new_points.rows ; j++){
-//            new_points.at<double>(j, 0) = new_points.at<double>(j, 0) - translation.x;
-//            new_points.at<double>(j, 1) = new_points.at<double>(j, 1) - translation.y;
-//        }
-//
-
-
-        // method 2: use mean
-//        curShape.push_back(ProjectToImageCoordinate(meanShape, boundingBoxes[i] ));
-//        visualizeImage(images[i], ProjectToImageCoordinate(initial, boundingBoxes[i] ) , 0);
     }
 
     int visualIdx = 0;
@@ -172,7 +142,8 @@ void ShapeAlignment::Train(){
         deltaShape = regressors[i].Train(images, keypoints, meanShape, boundingBoxes, curShape);
 
         for(int j = 0 ; j < curShape.size() ; j++){
-            curShape[j] += deltaShape[j];
+            curShape[j] = ProjectToBoxCoordinate(curShape[j], boundingBoxes[j]) + deltaShape[j];
+            curShape[j] = ProjectToImageCoordinate(curShape[j], boundingBoxes[j]);
         }
 
         cout << "---------FIRST LEVEL ------------" << endl;
