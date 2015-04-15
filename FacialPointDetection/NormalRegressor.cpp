@@ -30,7 +30,7 @@ vector<Mat_<double>> NormalRegressor::Train(vector<Mat_<unsigned char>> images, 
     RNG rng;
     double rand_x , rand_y;
     for(int i = 0 ; i < num_of_random_pixels ; i ++){
-        rand_x = rng.uniform(-1.0, 1.0);
+            rand_x = rng.uniform(-1.0, 1.0);
         rand_y = rng.uniform(-1.0, 1.0);
 
         if (rand_x * rand_x + rand_y * rand_y > 1.0){
@@ -55,42 +55,59 @@ vector<Mat_<double>> NormalRegressor::Train(vector<Mat_<unsigned char>> images, 
 
     // Get pixel intensity of each P pixels over training set
     if(isDebug) cout << "Get Pixel Intensity of " << num_of_images << " images" << endl;
-    Mat_<double> shapeIndexPixels (num_of_random_pixels, num_of_images);
+    Mat_<int> shapeIndexPixels (num_of_random_pixels, num_of_images);
 
     Mat_<double> curLocation (num_of_random_pixels, 2);
 
     for(int i = 0 ; i < num_of_images ; i++){
-        // project keypoints to box
-        Mat_<double> curKeyPoints = ProjectToBoxCoordinate(inputShape[i], boundingBoxes[i]);
+        Mat_<double> rotation;
+        double scale;
+        Mat_<double> temp = ProjectToBoxCoordinate(inputShape[i],boundingBoxes[i]);
+        // my way: similarity_transform(meanShape, temp, rotation, scale);
+        similarity_transform(temp, meanShape, rotation, scale);
+        for(int j = 0;j < num_of_random_pixels;j++){
+            double project_x = rotation(0,0) * shapeIndexLocation.at<double>(j,0) + rotation(0,1) * shapeIndexLocation.at<double>(j,1);
+            double project_y = rotation(1,0) * shapeIndexLocation.at<double>(j,0) + rotation(1,1) * shapeIndexLocation.at<double>(j,1);
+            project_x = scale * project_x * boundingBoxes[i].width / 2.0;
+            project_y = scale * project_y * boundingBoxes[i].height / 2.0;
+            int index = shapeIndexNearestLandmark.at<int>(j, 0);
+            int real_x = project_x + inputShape[i](index,0);
+            int real_y = project_y + inputShape[i](index,1);
+            real_x = std::max(0 ,std::min((int)real_x,images[i].cols- 1));
+            real_y = std::max(0 ,std::min((int)real_y,images[i].rows- 1));
 
-        // align with meanshape
-        similarity_transform(meanShape, curKeyPoints, rotation, scale);
-
-        transpose(rotation, rotation);
-        curKeyPoints = scale * curKeyPoints * rotation;
-
-        int idx_landmark = 0;
-        // calculate shapeIndexLocation
-        for(int j = 0 ; j < num_of_random_pixels; j++){
-            idx_landmark = shapeIndexNearestLandmark.at<int>(j, 0);
-            curLocation.at<double>(j , 0 ) = shapeIndexLocation.at<double>(j , 0) + curKeyPoints.at<double>(idx_landmark, 0);
-            curLocation.at<double>(j , 1 ) = shapeIndexLocation.at<double>(j , 1) + curKeyPoints.at<double>(idx_landmark, 1);
-        }
-
-        // project location to image coordinates
-        similarity_transform(curKeyPoints, meanShape, rotation, scale);
-        transpose(rotation, rotation);
-        curLocation = scale * curLocation * rotation;
-
-        Mat_<double> curLocationImageCoor = ProjectToImageCoordinate(curLocation, boundingBoxes[i]);
-
-        int x , y ;
-        // get pixels
-        for(int j = 0 ; j < num_of_random_pixels; j++){
-            x = max(0, min( (int)curLocationImageCoor.at<double>(j, 0) , images[i].cols-1));
-            y = max(0, min(  (int)curLocationImageCoor.at<double>(j, 1) , images[i].rows-1));
-
-            shapeIndexPixels.at<double>(j, i) = (double) images[i].at<unsigned char>(y, x);
+            shapeIndexPixels.at<int>(j, i) = (int) images[i].at<unsigned char>(real_y, real_x);
+//        // project keypoints to box
+//        Mat_<double> curKeyPoints = ProjectToBoxCoordinate(inputShape[i], boundingBoxes[i]);
+//
+//        // align with meanshape
+//        similarity_transform(meanShape, curKeyPoints, rotation, scale);
+//
+//        transpose(rotation, rotation);
+//        curKeyPoints = scale * curKeyPoints * rotation;
+//
+//        int idx_landmark = 0;
+//        // calculate shapeIndexLocation
+//        for(int j = 0 ; j < num_of_random_pixels; j++){
+//            idx_landmark = shapeIndexNearestLandmark.at<int>(j, 0);
+//            curLocation.at<double>(j , 0 ) = shapeIndexLocation.at<double>(j , 0) + curKeyPoints.at<double>(idx_landmark, 0);
+//            curLocation.at<double>(j , 1 ) = shapeIndexLocation.at<double>(j , 1) + curKeyPoints.at<double>(idx_landmark, 1);
+//        }
+//
+//        // project location to image coordinates
+//        similarity_transform(curKeyPoints, meanShape, rotation, scale);
+//        transpose(rotation, rotation);
+//        curLocation = scale * curLocation * rotation;
+//
+//        Mat_<double> curLocationImageCoor = ProjectToImageCoordinate(curLocation, boundingBoxes[i]);
+//
+//        int x , y ;
+//        // get pixels
+//        for(int j = 0 ; j < num_of_random_pixels; j++){
+//            x = max(0, min( (int)curLocationImageCoor.at<double>(j, 0) , images[i].cols-1));
+//            y = max(0, min(  (int)curLocationImageCoor.at<double>(j, 1) , images[i].rows-1));
+//
+//            shapeIndexPixels.at<double>(j, i) = (double) images[i].at<unsigned char>(y, x);
         }
     }
 

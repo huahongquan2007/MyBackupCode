@@ -7,7 +7,7 @@ FernRegressor::FernRegressor(int feature_per_fern) {
     FernRegressor::feature_per_fern = feature_per_fern;
 }
 
-vector<Mat_<double>> FernRegressor::Train(vector<Mat_<double>> regression_target, Mat_<double> covariance_matrix, Mat_<double> pixels, Mat_<double> pixelLocation, Mat_<int> nearestLandmarkOfPixel, bool isDebug) {
+vector<Mat_<double>> FernRegressor::Train(vector<Mat_<double>> regression_target, Mat_<double> covariance_matrix, Mat_<int> pixels, Mat_<double> pixelLocation, Mat_<int> nearestLandmarkOfPixel, bool isDebug) {
 
     if(isDebug) cout << "-FernRegressor: Train" << endl;
 
@@ -115,8 +115,8 @@ vector<Mat_<double>> FernRegressor::Train(vector<Mat_<double>> regression_target
         int index = 0;
 
         for(int j = 0 ; j < feature_per_fern; j++){
-            double pixel1 = pixels.at<double>(max_corr_index.at<int>(j, 0), i);
-            double pixel2 = pixels.at<double>(max_corr_index.at<int>(j, 1), i);
+            int pixel1 = pixels.at<int>(max_corr_index.at<int>(j, 0), i);
+            int pixel2 = pixels.at<int>(max_corr_index.at<int>(j, 1), i);
 
             if(pixel1 - pixel2 >= fernThreshold[j]){
                 index += pow(2.0, j);
@@ -140,7 +140,7 @@ vector<Mat_<double>> FernRegressor::Train(vector<Mat_<double>> regression_target
 
             }
 
-            result = 1.0/((1.0 + 1000.0/bin_size) * bin_size) * result;
+            result = 1.0/((1.0 + 100.0/bin_size) * bin_size) * result;
         }
 
         regression_output[i] = result;
