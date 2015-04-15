@@ -105,10 +105,32 @@ void ShapeAlignment::Train(){
     // generate more image, keypoints, curShape & inputShape
     // Use boundingBox to generate initialized locations for training data
     RNG rng;
+
     int total_image_original = images.size();
 
+    for(int i = 0 ; i < images.size(); i++){
+        // method 1: random
+        int index = i;
+        while(index == i){
+            index = rng.uniform(0, images.size() - 1);
+        }
+        Mat_<double> initial = ProjectToBoxCoordinate(keypoints[index], boundingBoxes[index]);
+        Mat_<double> new_points = ProjectToImageCoordinate(initial, boundingBoxes[i] );
+
+        curShape.push_back( new_points );
+    }
     for(int i = 0 ; i < total_image_original; i++){
-        for(int j = 0 ; j < 10 ; j ++){
+        for(int j = 0 ; j < 20 ; j ++){
+
+            // method 1: random
+            int index = i;
+            while(index == i){
+                index = rng.uniform(0, images.size() - 1);
+            }
+            Mat_<double> initial = ProjectToBoxCoordinate(keypoints[index], boundingBoxes[index]);
+            Mat_<double> new_points = ProjectToImageCoordinate(initial, boundingBoxes[i] );
+
+            curShape.push_back( new_points );
 
             images.push_back(images[i].clone());
             keypoints.push_back(keypoints[i].clone());
@@ -117,19 +139,6 @@ void ShapeAlignment::Train(){
     }
 
     meanShape = GetMeanShape(keypoints, boundingBoxes);
-
-    for(int i = 0 ; i < images.size(); i++){
-        // method 1: random
-        int index = i;
-        while(index == i){
-            index = rng.uniform(0, images.size() - 1);
-        }
-
-        Mat_<double> initial = ProjectToBoxCoordinate(keypoints[index], boundingBoxes[index]);
-        Mat_<double> new_points = ProjectToImageCoordinate(initial, boundingBoxes[i] );
-
-        curShape.push_back( new_points );
-    }
 
     for(int i = 0 ; i < first_level_regressor ; i ++){
         cout << "=================================" << endl;
@@ -151,8 +160,9 @@ Mat_<double> ShapeAlignment::Test(Mat_<unsigned char> &image, Rect_<int> &boundi
 
     // initialize curShape
     RNG rng;
-    result.resize(2);
-    for(int resultID = 0 ; resultID < 2 ; resultID++){
+    int total_test = 2;
+    result.resize(total_test);
+    for(int resultID = 0 ; resultID < total_test ; resultID++){
         Mat_<double> curShape;
 
         // method 1: random
@@ -171,13 +181,13 @@ Mat_<double> ShapeAlignment::Test(Mat_<unsigned char> &image, Rect_<int> &boundi
             curShape += deltaShape;
         }
 
-
+        Mat tImg = image.clone();
         for(int i = 0 ; i < initial.rows ; i++){
             int x = (int) initial.at<double>(i, 0);
             int y = (int) initial.at<double>(i, 1);
-            circle(image, Point(x, y), 1, Scalar(255, 0, 255), -1);
+            circle(tImg, Point(x, y), 1, Scalar(255, 0, 255), -1);
         }
-        visualizeImage(image, curShape, 1, false, "test_result");
+        visualizeImage(tImg, curShape, 1, false, "test_result");
 
         result[resultID] = curShape;
         cout << "RESULT ID: " << resultID << endl;

@@ -47,14 +47,35 @@ vector<Mat_<double>> FernRegressor::Train(vector<Mat_<double>> regression_target
         int index_j = 0;
         for (int fi = 0; fi < num_of_random_pixels; fi++) {
             for (int fj = fi; fj < num_of_random_pixels; fj++) {
-                double corr = (covariance_i_y.at<double>(fi, 0) - covariance_i_y.at<double>(fj, 0)) / (sqrt(var_y * (covariance_matrix.at<double>(fi, fi) + covariance_matrix.at<double>(fj, fj) - 2 * covariance_matrix.at<double>(fi, fj))));
-
-                corr = abs(corr);
-                if(corr < 1e-10){
+//                double corr = (covariance_i_y.at<double>(fi, 0) - covariance_i_y.at<double>(fj, 0)) / (sqrt(var_y * (covariance_matrix.at<double>(fi, fi) + covariance_matrix.at<double>(fj, fj) - 2 * covariance_matrix.at<double>(fi, fj))));
+//                corr = abs(corr);
+//
+//                if(corr > max_correlation){
+//                    max_correlation = corr;
+//                    index_i = fi;
+//                    index_j = fj;
+//                }
+                double temp1 = covariance_matrix.at<double>(fi, fi) + covariance_matrix.at<double>(fj, fj) - 2 * covariance_matrix.at<double>(fi, fj);
+                if(abs(temp1) < 1e-10){
                     continue;
                 }
-                if(corr > max_correlation){
-                    max_correlation = corr;
+                bool isSelected = false;
+                for(int p = 0;p < fi;p++){
+                    if(fi == max_corr_index.at<int>(p,0) && fj == max_corr_index.at<int>(p,1)){
+                        isSelected = true;
+                        break;
+                    }else if(fi == max_corr_index.at<int>(p,1) && fj == max_corr_index.at<int>(p,0)){
+                        isSelected = true;
+                        break;
+                    }
+                }
+                if(isSelected){
+                    continue;
+                }
+                double temp = (covariance_i_y.at<double>(fi, 0) - covariance_i_y.at<double>(fj, 0))
+                              / sqrt(temp1);
+                if(abs(temp) > max_correlation){
+                    max_correlation = temp;
                     index_i = fi;
                     index_j = fj;
                 }
@@ -67,8 +88,9 @@ vector<Mat_<double>> FernRegressor::Train(vector<Mat_<double>> regression_target
         Mat_<double> pixelDiff = pixels.row(index_i) - pixels.row(index_j);
         pixelDiff = abs(pixelDiff);
         minMaxLoc(pixelDiff, &min, &max);
-        cout << "MAX: " << max << endl;
-        double threshold = rng.uniform( max * -0.3, max * 0.3 );
+
+        cout << "max: " << max << endl;
+        double threshold = rng.uniform( max * -0.2, max * 0.2 );
 
         Mat_<double> location(2, 2, CV_32F); // x1 y1 ; x2 y2
         location.at<double>(0, 0) = pixelLocation.at<double>(index_i, 0);
@@ -118,7 +140,7 @@ vector<Mat_<double>> FernRegressor::Train(vector<Mat_<double>> regression_target
 
             }
 
-            result = (1.0/((1.0 + 10.0/bin_size) * bin_size)) * result;
+            result = 1.0/((1.0 + 1000.0/bin_size) * bin_size) * result;
         }
 
         regression_output[i] = result;
@@ -169,7 +191,7 @@ Mat_<double> FernRegressor::Test(Mat_<unsigned char> image, Rect_<int> bounding_
         curLocation = scale * curLocation * rotationMatrix;
 
         Mat_<double> curLocationImageCoor = ProjectToImageCoordinate(curLocation, bounding_box);
-        double pixel_1 = (double) image.at<unsigned char>((int)curLocationImageCoor.at<double>(0,0),(int) curLocationImageCoor.at<double>(0, 1));
+        double pixel_1 = (double) image.at<unsigned char>((int)curLocationImageCoor.at<double>(0,1),(int) curLocationImageCoor.at<double>(0, 0));
 
         // Get Pixel 2
         int idx_landmark_2 = fernPairNearestLandmark[i].at<int>(0, 1);
@@ -179,7 +201,7 @@ Mat_<double> FernRegressor::Test(Mat_<unsigned char> image, Rect_<int> bounding_
         curLocation = scale * curLocation * rotationMatrix;
 
         curLocationImageCoor = ProjectToImageCoordinate(curLocation, bounding_box);
-        double pixel_2 = (double) image.at<unsigned char>((int)curLocationImageCoor.at<double>(0,0), (int)curLocationImageCoor.at<double>(0, 1));
+        double pixel_2 = (double) image.at<unsigned char>((int)curLocationImageCoor.at<double>(0,1), (int)curLocationImageCoor.at<double>(0, 0));
 
         if(pixel_1 - pixel_2 >= fernThreshold[i]){
             index += pow(2.0, i);

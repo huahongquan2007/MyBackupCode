@@ -20,8 +20,8 @@ int main() {
 
     // =========================================
     // Read Configuration
-//    Configuration options("/home/robotbase/github/MyBackupCode/FacialPointDetection/config.txt");
-    Configuration options("/Users/quanhua92/workspace/MyBackupCode/FacialPointDetection/config.txt");
+    Configuration options("/home/robotbase/github/MyBackupCode/FacialPointDetection/config.txt");
+//    Configuration options("/Users/quanhua92/workspace/MyBackupCode/FacialPointDetection/config.txt");
     const int num_of_landmark = options.getNumOfLandmark();
 
     // =========================================
@@ -61,12 +61,12 @@ int main() {
     int feature_per_fern = options.getNumOfFeaturePerFern();
     int num_of_random_pixel = options.getNumOfRandomPixel();
 
-//    ShapeAlignment shapeAlignment(first_level, second_level, feature_per_fern, num_of_random_pixel);
-//    shapeAlignment.addImages(images);
-//    shapeAlignment.addBoundingBoxes(bounding_boxes);
-//    shapeAlignment.addKeyPoints(keypoints);
-//    shapeAlignment.Train();
-//    shapeAlignment.Save(options.getModelPath());
+    ShapeAlignment shapeAlignment(first_level, second_level, feature_per_fern, num_of_random_pixel);
+    shapeAlignment.addImages(images);
+    shapeAlignment.addBoundingBoxes(bounding_boxes);
+    shapeAlignment.addKeyPoints(keypoints);
+    shapeAlignment.Train();
+    shapeAlignment.Save(options.getModelPath());
 
     // =========================================
     // Testing
@@ -96,19 +96,13 @@ int main() {
 
     cout << "Start Testing: numOfImages: " << images_test.size() << endl;
 
-//    int first_level = options.getNumOfFirstLevel();
-//    int second_level = options.getNumOfSecondLevel();
-//    int feature_per_fern = options.getNumOfFeaturePerFern();
-//    ShapeAlignment shapeAlignment(first_level, second_level, feature_per_fern);
-
     ShapeAlignment shapeAlignmentTest(first_level, second_level, feature_per_fern);
     shapeAlignmentTest.addKeyPoints(keypoints);
     shapeAlignmentTest.addBoundingBoxes(bounding_boxes);
     shapeAlignmentTest.Load(options.getModelPath());
 
-    for(int i = 0 ; i < images_test.size(); i++){
-//        Mat_<double> prediction = shapeAlignment.Test(images_test[i], bounding_boxes_test[i]);
-//        visualizeImageCompare(images_test[i], prediction, keypoints_test[i], 10);
+    int start_position = 100;
+    for(int i = start_position ; i < images_test.size() + start_position; i++){
 
         Mat_<double> prediction = shapeAlignmentTest.Test(images[i], bounding_boxes[i]);
         visualizeImageCompare(images[i], prediction, keypoints[i], 0);
