@@ -140,7 +140,7 @@ vector<Mat_<double>> FernRegressor::Train(vector<Mat_<double>> regression_target
 
             }
 
-            result = 1.0/((1.0 + 100.0/bin_size) * bin_size) * result;
+            result = 1.0/((1.0 + 1000.0/bin_size) * bin_size) * result;
         }
 
         regression_output[i] = result;
@@ -191,7 +191,7 @@ Mat_<double> FernRegressor::Test(Mat_<unsigned char> image, Rect_<int> bounding_
         curLocation = scale * curLocation * rotationMatrix;
 
         Mat_<double> curLocationImageCoor = ProjectToImageCoordinate(curLocation, bounding_box);
-        double pixel_1 = (double) image.at<unsigned char>((int)curLocationImageCoor.at<double>(0,1),(int) curLocationImageCoor.at<double>(0, 0));
+        int pixel_1 = (int) image.at<unsigned char>((int)curLocationImageCoor.at<double>(0,1),(int) curLocationImageCoor.at<double>(0, 0));
 
         // Get Pixel 2
         int idx_landmark_2 = fernPairNearestLandmark[i].at<int>(0, 1);
@@ -201,7 +201,7 @@ Mat_<double> FernRegressor::Test(Mat_<unsigned char> image, Rect_<int> bounding_
         curLocation = scale * curLocation * rotationMatrix;
 
         curLocationImageCoor = ProjectToImageCoordinate(curLocation, bounding_box);
-        double pixel_2 = (double) image.at<unsigned char>((int)curLocationImageCoor.at<double>(0,1), (int)curLocationImageCoor.at<double>(0, 0));
+        int pixel_2 = (int) image.at<unsigned char>((int)curLocationImageCoor.at<double>(0,1), (int)curLocationImageCoor.at<double>(0, 0));
 
         if(pixel_1 - pixel_2 >= fernThreshold[i]){
             index += pow(2.0, i);

@@ -160,7 +160,7 @@ Mat_<double> ShapeAlignment::Test(Mat_<unsigned char> &image, Rect_<int> &boundi
 
     // initialize curShape
     RNG rng;
-    int total_test = 2;
+    int total_test = 20;
     result.resize(total_test);
     for(int resultID = 0 ; resultID < total_test ; resultID++){
         Mat_<double> curShape;
@@ -203,7 +203,7 @@ Mat_<double> ShapeAlignment::Test(Mat_<unsigned char> &image, Rect_<int> &boundi
     }
     curShape = 1.0 / result.size() * curShape;
     cout << curShape.t() << endl;
-    visualizeImage(image, curShape, 0, false, "final mean 10");
+    visualizeImage(image, curShape, 10, false, "final mean 10");
 
     return curShape;
 }
