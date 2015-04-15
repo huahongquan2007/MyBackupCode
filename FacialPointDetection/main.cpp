@@ -20,8 +20,8 @@ int main() {
 
     // =========================================
     // Read Configuration
-    Configuration options("/home/robotbase/github/MyBackupCode/FacialPointDetection/config.txt");
-//    Configuration options("/Users/quanhua92/workspace/MyBackupCode/FacialPointDetection/config.txt");
+//    Configuration options("/home/robotbase/github/MyBackupCode/FacialPointDetection/config.txt");
+    Configuration options("/Users/quanhua92/workspace/MyBackupCode/FacialPointDetection/config.txt");
     const int num_of_landmark = options.getNumOfLandmark();
 
     // =========================================
@@ -61,12 +61,12 @@ int main() {
     int feature_per_fern = options.getNumOfFeaturePerFern();
     int num_of_random_pixel = options.getNumOfRandomPixel();
 
-    ShapeAlignment shapeAlignment(first_level, second_level, feature_per_fern, num_of_random_pixel);
-    shapeAlignment.addImages(images);
-    shapeAlignment.addBoundingBoxes(bounding_boxes);
-    shapeAlignment.addKeyPoints(keypoints);
-    shapeAlignment.Train();
-    shapeAlignment.Save(options.getModelPath());
+//    ShapeAlignment shapeAlignment(first_level, second_level, feature_per_fern, num_of_random_pixel);
+//    shapeAlignment.addImages(images);
+//    shapeAlignment.addBoundingBoxes(bounding_boxes);
+//    shapeAlignment.addKeyPoints(keypoints);
+//    shapeAlignment.Train();
+//    shapeAlignment.Save(options.getModelPath());
 
     // =========================================
     // Testing
@@ -102,7 +102,8 @@ int main() {
 //    ShapeAlignment shapeAlignment(first_level, second_level, feature_per_fern);
 
     ShapeAlignment shapeAlignmentTest(first_level, second_level, feature_per_fern);
-
+    shapeAlignmentTest.addKeyPoints(keypoints);
+    shapeAlignmentTest.addBoundingBoxes(bounding_boxes);
     shapeAlignmentTest.Load(options.getModelPath());
 
     for(int i = 0 ; i < images_test.size(); i++){

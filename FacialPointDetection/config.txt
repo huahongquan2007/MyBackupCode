@@ -1,5 +1,5 @@
-ROOT = /home/robotbase/github/MyBackupCode/FacialPointDetection/
-ROOT_MAC = /Users/quanhua92/workspace/MyBackupCode/FacialPointDetection/
+ROOT_U = /home/robotbase/github/MyBackupCode/FacialPointDetection/
+ROOT = /Users/quanhua92/workspace/MyBackupCode/FacialPointDetection/
 DATASET = Datasets/COFW/
 
 DATASET_TRAIN = trainingImages/
