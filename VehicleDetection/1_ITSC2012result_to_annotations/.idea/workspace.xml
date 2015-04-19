@@ -2,23 +2,13 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="d5a027b3-3424-4ca6-b592-f6e74f56df6c" name="Default" comment="">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/../../Vision/app/src/main/java/aios/core/vision/Intent.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/../../Vision/app/src/main/java/aios/core/vision/facerecognition/facepp/BackUpParam.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/../../Vision/app/src/main/java/aios/core/vision/facerecognition/facepp/FaceppParam.java" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../Vision/app/src/main/jniLibs/armeabi-v7a/libNativeFaceRecognition.so" afterPath="$PROJECT_DIR$/../../Vision/app/src/main/jniLibs/armeabi-v7a/libNativeFaceRecognition.so" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../Vision/app/src/main/AndroidManifest.xml" afterPath="$PROJECT_DIR$/../../Vision/app/src/main/AndroidManifest.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../Vision/app/src/main/java/aios/core/vision/activity/CameraPreviewActivity.java" afterPath="$PROJECT_DIR$/../../Vision/app/src/main/java/aios/core/vision/activity/CameraPreviewActivity.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../Vision/app/src/main/java/aios/core/vision/camera/CameraService.java" afterPath="$PROJECT_DIR$/../../Vision/app/src/main/java/aios/core/vision/camera/CameraService.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../Vision/app/src/main/java/aios/core/vision/facedetection/FaceDetectionCVService.java" afterPath="$PROJECT_DIR$/../../Vision/app/src/main/java/aios/core/vision/facedetection/FaceDetectionCVService.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../Vision/app/src/main/java/aios/core/vision/facerecognition/FaceRecognitionService.java" afterPath="$PROJECT_DIR$/../../Vision/app/src/main/java/aios/core/vision/facerecognition/FaceRecognitionService.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../Vision/app/src/main/java/aios/core/vision/facetracking/FaceTrackingService.java" afterPath="$PROJECT_DIR$/../../Vision/app/src/main/java/aios/core/vision/facetracking/FaceTrackingService.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../Vision/app/src/main/java/aios/core/vision/facerecognition/facepp/FaceppAPI.java" afterPath="$PROJECT_DIR$/../../Vision/app/src/main/java/aios/core/vision/facerecognition/facepp/FaceppAPI.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../Vision/app/src/main/java/aios/core/vision/facerecognition/facepp/FaceppAsyncResponse.java" afterPath="$PROJECT_DIR$/../../Vision/app/src/main/java/aios/core/vision/facerecognition/facepp/FaceppAsyncResponse.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../Vision/app/src/main/java/aios/core/vision/utility/Notification.java" afterPath="$PROJECT_DIR$/../../Vision/app/src/main/java/aios/core/vision/utility/Notification.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../Vision/app/src/main/java/aios/core/vision/StartVisionService.java" afterPath="$PROJECT_DIR$/../../Vision/app/src/main/java/aios/core/vision/StartVisionService.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../Vision/app/src/main/java/aios/core/vision/utils/VisionConfig.java" afterPath="$PROJECT_DIR$/../../Vision/app/src/main/java/aios/core/vision/utils/VisionConfig.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../Vision/app/src/main/res/layout/activity_start_vision_service.xml" afterPath="$PROJECT_DIR$/../../Vision/app/src/main/res/layout/activity_start_vision_service.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../Vision/app/src/main/jni/aios_core_vision_facerecognition_NativeFaceRecognition.cpp" afterPath="$PROJECT_DIR$/../../Vision/app/src/main/jni/aios_core_vision_facerecognition_NativeFaceRecognition.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../FacialPointDetection/FernRegressor.cpp" afterPath="$PROJECT_DIR$/../../FacialPointDetection/FernRegressor.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../FacialPointDetection/NormalRegressor.cpp" afterPath="$PROJECT_DIR$/../../FacialPointDetection/NormalRegressor.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../FacialPointDetection/ShapeAlignment.cpp" afterPath="$PROJECT_DIR$/../../FacialPointDetection/ShapeAlignment.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../FacialPointDetection/config.txt" afterPath="$PROJECT_DIR$/../../FacialPointDetection/config.txt" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../FacialPointDetection/main.cpp" afterPath="$PROJECT_DIR$/../../FacialPointDetection/main.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../FacialPointDetection/.idea/workspace.xml" afterPath="$PROJECT_DIR$/../../FacialPointDetection/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="1_ITSC2012result_to_annotations.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -107,7 +97,7 @@
       <file leaf-file-name="visualize.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/visualize.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="504">
+            <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="953">
               <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="10" />
               <folding>
                 <element signature="e#0#10#0" expanded="true" />
@@ -447,9 +437,10 @@
     <editor active="false" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.15633424" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.15633424" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
+      <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -459,7 +450,6 @@
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.45981687" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
@@ -491,6 +481,74 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/parseResult.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="543" max-vertical-offset="1800">
+          <caret line="43" column="0" selection-start-line="43" selection-start-column="0" selection-end-line="47" selection-end-column="57" />
+          <folding>
+            <element signature="e#0#9#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/annotations-size.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="108">
+          <caret line="0" column="5" selection-start-line="0" selection-start-column="5" selection-end-line="0" selection-end-column="5" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/annotations.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="286884" max-vertical-offset="286992">
+          <caret line="15938" column="103" selection-start-line="15938" selection-start-column="103" selection-end-line="15938" selection-end-column="103" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/listImage.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="54" max-vertical-offset="324">
+          <caret line="3" column="0" selection-start-line="3" selection-start-column="0" selection-end-line="8" selection-end-column="62" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/negatives.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="286884" max-vertical-offset="286992">
+          <caret line="15938" column="70" selection-start-line="15938" selection-start-column="70" selection-end-line="15938" selection-end-column="70" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="90" max-vertical-offset="198">
+          <caret line="5" column="45" selection-start-line="5" selection-start-column="45" selection-end-line="5" selection-end-column="45" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/visualize.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="504">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#10#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ITSC2012results.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="112986" max-vertical-offset="287010">
+          <caret line="6277" column="6" selection-start-line="6277" selection-start-column="0" selection-end-line="6277" selection-end-column="6" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/parseResult.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="543" max-vertical-offset="1800">

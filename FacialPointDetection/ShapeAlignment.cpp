@@ -114,10 +114,8 @@ void ShapeAlignment::Train(){
         while(index == i){
             index = rng.uniform(0, images.size() - 1);
         }
-        Mat_<double> initial = ProjectToBoxCoordinate(keypoints[index], boundingBoxes[index]);
-        Mat_<double> new_points = ProjectToImageCoordinate(initial, boundingBoxes[i] );
 
-        curShape.push_back( new_points );
+        curShape.push_back( ProjectToImageCoordinate(ProjectToBoxCoordinate(keypoints[index], boundingBoxes[index]), boundingBoxes[i] ) );
     }
     for(int i = 0 ; i < total_image_original; i++){
         for(int j = 0 ; j < 20 ; j ++){
@@ -125,12 +123,10 @@ void ShapeAlignment::Train(){
             // method 1: random
             int index = i;
             while(index == i){
-                index = rng.uniform(0, images.size() - 1);
+                index = rng.uniform(0, total_image_original - 1);
             }
-            Mat_<double> initial = ProjectToBoxCoordinate(keypoints[index], boundingBoxes[index]);
-            Mat_<double> new_points = ProjectToImageCoordinate(initial, boundingBoxes[i] );
 
-            curShape.push_back( new_points );
+            curShape.push_back( ProjectToImageCoordinate(ProjectToBoxCoordinate(keypoints[index], boundingBoxes[index]), boundingBoxes[i] ) );
 
             images.push_back(images[i].clone());
             keypoints.push_back(keypoints[i].clone());

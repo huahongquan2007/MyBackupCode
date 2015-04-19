@@ -86,6 +86,7 @@ vector<Mat_<double>> FernRegressor::Train(vector<Mat_<double>> regression_target
 
         double min, max;
         Mat_<double> pixelDiff = pixels.row(index_i) - pixels.row(index_j);
+
         pixelDiff = abs(pixelDiff);
         minMaxLoc(pixelDiff, &min, &max);
 
@@ -170,38 +171,41 @@ Mat_<double> FernRegressor::Test(Mat_<unsigned char> image, Rect_<int> bounding_
     // align with meanshape
     Mat_<double> rotationMatrix;
     double scale = 0.0;
-    similarity_transform(meanShape, curKeyPoints, rotationMatrix, scale);
-    transpose(rotationMatrix, rotationMatrix);
-
-    curKeyPoints = scale * curKeyPoints * rotationMatrix;
 
     similarity_transform(ProjectToBoxCoordinate(curShape, bounding_box), meanShape, rotationMatrix, scale);
     transpose(rotationMatrix, rotationMatrix);
 
     // find bin
-    int index = 0;
+    int index = 0, x, y;
+    Mat_<double> curLocation ( 1, 2 );
+    Mat_<double> curFernLocation ( 1, 2);
+    Mat_<double> curLocationImageCoor;
     for (int i = 0; i < feature_per_fern; i++) {
-
-        Mat_<double> curLocation ( 1, 2 );
         // Get Pixel 1
         int idx_landmark_1 = fernPairNearestLandmark[i].at<int>(0, 0);
-        curLocation.at<double>(0, 0) = fernPairLocation[i].at<double>(0, 0) + curKeyPoints.at<double>( idx_landmark_1, 0);
-        curLocation.at<double>(0, 1) = fernPairLocation[i].at<double>(0, 1) + curKeyPoints.at<double>( idx_landmark_1, 1);
 
-        curLocation = scale * curLocation * rotationMatrix;
+        curFernLocation = fernPairLocation[i].row(0);
+        curFernLocation = scale * curFernLocation * rotationMatrix;
+        curLocation.at<double>(0, 0) = curFernLocation.at<double>(0, 0) + curKeyPoints.at<double>( idx_landmark_1, 0);
+        curLocation.at<double>(0, 1) = curFernLocation.at<double>(0, 1) + curKeyPoints.at<double>( idx_landmark_1, 1);
 
-        Mat_<double> curLocationImageCoor = ProjectToImageCoordinate(curLocation, bounding_box);
-        int pixel_1 = (int) image.at<unsigned char>((int)curLocationImageCoor.at<double>(0,1),(int) curLocationImageCoor.at<double>(0, 0));
+        curLocationImageCoor = ProjectToImageCoordinate(curLocation, bounding_box);
+        x = max(0, min( (int)curLocationImageCoor.at<double>(0, 0) , image.cols-1));
+        y = max(0, min(  (int)curLocationImageCoor.at<double>(0, 1) , image.rows-1));
+        int pixel_1 = (int) image.at<unsigned char>(y, x);
 
         // Get Pixel 2
         int idx_landmark_2 = fernPairNearestLandmark[i].at<int>(0, 1);
-        curLocation.at<double>(0, 0) = fernPairLocation[i].at<double>(1, 0) + curKeyPoints.at<double>( idx_landmark_2, 0);
-        curLocation.at<double>(0, 1) = fernPairLocation[i].at<double>(1, 1) + curKeyPoints.at<double>( idx_landmark_2, 1);
 
-        curLocation = scale * curLocation * rotationMatrix;
+        curFernLocation = fernPairLocation[i].row(1);
+        curFernLocation = scale * curFernLocation * rotationMatrix;
+        curLocation.at<double>(0, 0) = curFernLocation.at<double>(0, 0) + curKeyPoints.at<double>( idx_landmark_2, 0);
+        curLocation.at<double>(0, 1) = curFernLocation.at<double>(0, 1) + curKeyPoints.at<double>( idx_landmark_2, 1);
 
         curLocationImageCoor = ProjectToImageCoordinate(curLocation, bounding_box);
-        int pixel_2 = (int) image.at<unsigned char>((int)curLocationImageCoor.at<double>(0,1), (int)curLocationImageCoor.at<double>(0, 0));
+        x = max(0, min( (int)curLocationImageCoor.at<double>(0, 0) , image.cols-1));
+        y = max(0, min( (int)curLocationImageCoor.at<double>(0, 1) , image.rows-1));
+        int pixel_2 = (int) image.at<unsigned char>(y, x);
 
         if(pixel_1 - pixel_2 >= fernThreshold[i]){
             index += pow(2.0, i);

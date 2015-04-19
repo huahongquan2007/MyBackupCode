@@ -61,12 +61,12 @@ int main() {
     int feature_per_fern = options.getNumOfFeaturePerFern();
     int num_of_random_pixel = options.getNumOfRandomPixel();
 
-    ShapeAlignment shapeAlignment(first_level, second_level, feature_per_fern, num_of_random_pixel);
-    shapeAlignment.addImages(images);
-    shapeAlignment.addBoundingBoxes(bounding_boxes);
-    shapeAlignment.addKeyPoints(keypoints);
-    shapeAlignment.Train();
-    shapeAlignment.Save(options.getModelPath());
+//    ShapeAlignment shapeAlignment(first_level, second_level, feature_per_fern, num_of_random_pixel);
+//    shapeAlignment.addImages(images);
+//    shapeAlignment.addBoundingBoxes(bounding_boxes);
+//    shapeAlignment.addKeyPoints(keypoints);
+//    shapeAlignment.Train();
+//    shapeAlignment.Save(options.getModelPath());
 
     // =========================================
     // Testing
@@ -101,7 +101,7 @@ int main() {
     shapeAlignmentTest.addBoundingBoxes(bounding_boxes);
     shapeAlignmentTest.Load(options.getModelPath());
 
-    int start_position = 100;
+    int start_position = 200;
     for(int i = start_position ; i < images_test.size() + start_position; i++){
 
         Mat_<double> prediction = shapeAlignmentTest.Test(images[i], bounding_boxes[i]);
