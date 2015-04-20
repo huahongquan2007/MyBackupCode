@@ -53,8 +53,6 @@ int main() {
 
     cout << "Start Training: numOfImages: " << images.size() << endl;
 
-//    visualizeImage(images.at(0), keypoints.at(0), num_of_landmark);
-
     // --------------- TRAIN FIRST LEVEL --------------
     int first_level = options.getNumOfFirstLevel();
     int second_level = options.getNumOfSecondLevel();

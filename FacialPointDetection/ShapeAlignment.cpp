@@ -146,6 +146,7 @@ void ShapeAlignment::Train(){
             curShape[j] = ProjectToBoxCoordinate(curShape[j], boundingBoxes[j]) + deltaShape[j];
             curShape[j] = ProjectToImageCoordinate(curShape[j], boundingBoxes[j]);
         }
+        visualizeImage(images[0], curShape[0], 1, false, "first_level");
     }
 }
 

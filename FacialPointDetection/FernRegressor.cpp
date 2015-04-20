@@ -97,7 +97,7 @@ vector<Mat_<double>> FernRegressor::Train(vector<Mat_<double>> regression_target
 //            }
 //        }
 
-        cout << "(" << i <<  "_max: " << max << ")";
+        if(isDebug) cout << "(" << i <<  "_max: " << max << ")";
         double threshold = rng.uniform( max * -0.2, max * 0.2 );
 
         Mat_<double> location(2, 2, CV_32F); // x1 y1 ; x2 y2
@@ -115,7 +115,7 @@ vector<Mat_<double>> FernRegressor::Train(vector<Mat_<double>> regression_target
         fernPairNearestLandmark.push_back(nearestLandmark);
     }
 
-    cout << endl;
+    if(isDebug) cout << endl;
 
     // cluster shape into bins
     vector< vector<int> > bins_index;

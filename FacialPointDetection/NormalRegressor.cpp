@@ -27,8 +27,7 @@ vector<Mat_<double>> NormalRegressor::Train(vector<Mat_<unsigned char>> images, 
 
     // Random P pixels
 
-
-    cout << meanShape.t() << endl;
+    if(isDebug) cout << meanShape.t() << endl;
     RNG rng;
     double rand_x , rand_y;
     for(int i = 0 ; i < num_of_random_pixels ; i ++){
@@ -64,31 +63,6 @@ vector<Mat_<double>> NormalRegressor::Train(vector<Mat_<unsigned char>> images, 
     Mat_<double> curLocation (num_of_random_pixels, 2);
 
     for(int i = 0 ; i < num_of_images ; i++){
-//        {
-//            Mat_<double> rotation;
-//            double scale;
-//            Mat_<double> temp = ProjectToBoxCoordinate(inputShape[i], boundingBoxes[i]);
-//            // my way: similarity_transform(meanShape, temp, rotation, scale);
-//            similarity_transform(temp, meanShape, rotation, scale);
-////            cout << "Version 1: " << endl;
-//            for (int j = 0; j < num_of_random_pixels; j++) {
-//                double project_x = rotation(0, 0) * shapeIndexLocation.at<double>(j, 0) +
-//                                   rotation(0, 1) * shapeIndexLocation.at<double>(j, 1);
-//                double project_y = rotation(1, 0) * shapeIndexLocation.at<double>(j, 0) +
-//                                   rotation(1, 1) * shapeIndexLocation.at<double>(j, 1);
-//                project_x = scale * project_x * boundingBoxes[i].width / 2.0;
-//                project_y = scale * project_y * boundingBoxes[i].height / 2.0;
-//                int index = shapeIndexNearestLandmark.at<int>(j, 0);
-//                int real_x = project_x + inputShape[i](index, 0);
-//                int real_y = project_y + inputShape[i](index, 1);
-//                real_x = std::max(0, std::min((int) real_x, images[i].cols - 1));
-//                real_y = std::max(0, std::min((int) real_y, images[i].rows - 1));
-//                shapeIndexPixels.at<int>(j, i) = (int) images[i].at<unsigned char>(real_y, real_x);
-////                cout << " ( " << real_x << ", " << real_y << " ) ";
-//            }
-////            cout << endl;
-//        }
-
         // project keypoints to box
         Mat_<double> curKeyPoints = ProjectToBoxCoordinate(inputShape[i], boundingBoxes[i]);
 
@@ -166,8 +140,8 @@ vector<Mat_<double>> NormalRegressor::Train(vector<Mat_<unsigned char>> images, 
             regression_target[j] -= deltaShape[j];
             regression_output[j] += deltaShape[j];
         }
-        cout << "------------------------------" << endl;
         if(isDebug){
+            cout << "------------------------------" << endl;
 
             Mat_<double> rotation;
             double scale = 0;
