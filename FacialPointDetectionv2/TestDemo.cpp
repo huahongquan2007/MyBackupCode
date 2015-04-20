@@ -53,7 +53,7 @@ int main(){
     }
     fin.close(); 
     
-    ShapeRegressor regressor;
+    ShapeAlignment regressor;
     regressor.Load("/home/robotbase/github/test/FaceAlignment/newFaceAlignment/model_500.txt");
     while(true){
         int index = 1;

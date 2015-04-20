@@ -112,9 +112,9 @@ class FernCascade{
         int second_level_num_;
 };
 
-class ShapeRegressor{
+class ShapeAlignment {
     public:
-        ShapeRegressor(); 
+        ShapeAlignment();
         void Train(const std::vector<cv::Mat_<uchar> >& images, 
                    const std::vector<cv::Mat_<double> >& ground_truth_shapes,
                    const std::vector<BoundingBox>& bounding_box,

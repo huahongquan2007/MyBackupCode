@@ -35,7 +35,7 @@ int main(){
     int candidate_pixel_num = 400;
     int fern_pixel_num = 5;
     int first_level_num = 10;
-    int second_level_num = 500;
+    int second_level_num = 50;
     int landmark_num = 29;
     int initial_number = 20;
     vector<Mat_<uchar> > images;
@@ -76,7 +76,7 @@ int main(){
 
     fin.close(); 
     
-    ShapeRegressor regressor;
+    ShapeAlignment regressor;
     regressor.Train(images,ground_truth_shapes,bounding_box,first_level_num,second_level_num,
                     candidate_pixel_num,fern_pixel_num,initial_number);
     regressor.Save("/home/robotbase/github/test/FaceAlignment/newFaceAlignment/model.txt");

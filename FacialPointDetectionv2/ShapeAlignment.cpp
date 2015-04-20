@@ -1,34 +1,8 @@
-/*
-Author: Bi Sai 
-Date: 2014/06/18
-This program is a reimplementation of algorithms in "Face Alignment by Explicit 
-Shape Regression" by Cao et al.
-If you find any bugs, please email me: soundsilencebisai-at-gmail-dot-com
-
-Copyright (c) 2014 Bi Sai 
-The MIT License (MIT)
-Permission is hereby granted, free of charge, to any person obtaining a copy of
-this software and associated documentation files (the "Software"), to deal in
-the Software without restriction, including without limitation the rights to
-use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
-the Software, and to permit persons to whom the Software is furnished to do so,
-subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*/
 #include "FaceAlignment.h"
 using namespace std;
 using namespace cv;
 
-ShapeRegressor::ShapeRegressor(){
+ShapeAlignment::ShapeAlignment(){
     first_level_num_ = 0;
 }
 
@@ -42,7 +16,7 @@ ShapeRegressor::ShapeRegressor(){
  * @param fern_pixel_num number of pixel pairs in a fern
  * @param initial_num number of initial shapes for each input image
  */
-void ShapeRegressor::Train(const vector<Mat_<uchar> >& images, 
+void ShapeAlignment::Train(const vector<Mat_<uchar> >& images,
                    const vector<Mat_<double> >& ground_truth_shapes,
                    const vector<BoundingBox>& bounding_box,
                    int first_level_num, int second_level_num,
@@ -59,26 +33,74 @@ void ShapeRegressor::Train(const vector<Mat_<uchar> >& images,
     vector<Mat_<double> > augmented_ground_truth_shapes;
     vector<Mat_<double> > current_shapes;
      
-    RNG random_generator(getTickCount());
-    for(int i = 0;i < images.size();i++){
-        for(int j = 0;j < initial_num;j++){
-            int index = 0;
-            do{
-                // index = (i+j+1) % (images.size()); 
-                index = random_generator.uniform(0, images.size());
-            }while(index == i);
+//    RNG random_generator(getTickCount());
+//    for(int i = 0;i < images.size();i++){
+//        for(int j = 0;j < initial_num;j++){
+//            int index = 0;
+//            do{
+//                // index = (i+j+1) % (images.size());
+//                index = random_generator.uniform(0, images.size());
+//            }while(index == i);
+//            augmented_images.push_back(images[i]);
+//            augmented_ground_truth_shapes.push_back(ground_truth_shapes[i]);
+//            augmented_bounding_box.push_back(bounding_box[i]);
+//            // 1. Select ground truth shapes of other images as initial shapes
+//            // 2. Project current shape to bounding box of ground truth shapes
+//            Mat_<double> temp = ground_truth_shapes[index];
+//            temp = ProjectShape(temp, bounding_box[index]);
+//            temp = ReProjectShape(temp, bounding_box[i]);
+//            current_shapes.push_back(temp);
+//        }
+//    }
+    // generate more image, keypoints, curShape & inputShape
+    // Use boundingBox to generate initialized locations for training data
+    RNG rng;
+
+    int total_image_original = images.size();
+
+    for(int i = 0 ; i < images.size(); i++){
+        // method 1: random
+        int index = i;
+        while(index == i){
+            index = rng.uniform(0, images.size() - 1);
+        }
+        augmented_images.push_back(images[i]);
+        augmented_ground_truth_shapes.push_back(ground_truth_shapes[i]);
+        augmented_bounding_box.push_back(bounding_box[i]);
+
+
+        // New
+        current_shapes.push_back( ReProjectShape(ProjectShape(ground_truth_shapes[index], bounding_box[index]), bounding_box[i] ) );
+        // Old
+//        curShape.push_back( ProjectToImageCoordinate(ProjectToBoxCoordinate(keypoints[index], boundingBoxes[index]), boundingBoxes[i] ) );
+    }
+    for(int i = 0 ; i < total_image_original; i++){
+        for(int j = 0 ; j < 19 ; j ++){
+
+            // method 1: random
+            int index = i;
+            while(index == i){
+                index = rng.uniform(0, total_image_original - 1);
+            }
+
+
+            // new
+            current_shapes.push_back( ReProjectShape(ProjectShape(ground_truth_shapes[index], bounding_box[index]), bounding_box[i] ) );
+            // old
+            //curShape.push_back( ProjectToImageCoordinate(ProjectToBoxCoordinate(keypoints[index], boundingBoxes[index]), boundingBoxes[i] ) );
+
+            // new
             augmented_images.push_back(images[i]);
             augmented_ground_truth_shapes.push_back(ground_truth_shapes[i]);
-            augmented_bounding_box.push_back(bounding_box[i]); 
-            // 1. Select ground truth shapes of other images as initial shapes
-            // 2. Project current shape to bounding box of ground truth shapes 
-            Mat_<double> temp = ground_truth_shapes[index];
-            temp = ProjectShape(temp, bounding_box[index]);
-            temp = ReProjectShape(temp, bounding_box[i]);
-            current_shapes.push_back(temp); 
-        } 
+            augmented_bounding_box.push_back(bounding_box[i]);
+            // old
+//            images.push_back(images[i].clone());
+//            keypoints.push_back(keypoints[i].clone());
+//            boundingBoxes.push_back(boundingBoxes[i]);
+        }
     }
-    
+
+
     // get mean shape from training shapes
     mean_shape_ = GetMeanShape(ground_truth_shapes,bounding_box); 
 
@@ -107,7 +129,7 @@ void ShapeRegressor::Train(const vector<Mat_<uchar> >& images,
 }
 
 
-void ShapeRegressor::Write(ofstream& fout){
+void ShapeAlignment::Write(ofstream& fout){
     fout<<first_level_num_<<endl;
     fout<<mean_shape_.rows<<endl;
     for(int i = 0;i < landmark_num_;i++){
@@ -131,7 +153,7 @@ void ShapeRegressor::Write(ofstream& fout){
     } 
 }
 
-void ShapeRegressor::Read(ifstream& fin){
+void ShapeAlignment::Read(ifstream& fin){
     fin>>first_level_num_;
     fin>>landmark_num_;
     mean_shape_ = Mat::zeros(landmark_num_,2,CV_64FC1);
@@ -163,7 +185,7 @@ void ShapeRegressor::Read(ifstream& fin){
 } 
 
 
-Mat_<double> ShapeRegressor::Predict(const Mat_<uchar>& image, const BoundingBox& bounding_box, int initial_num){
+Mat_<double> ShapeAlignment::Predict(const Mat_<uchar>& image, const BoundingBox& bounding_box, int initial_num){
     // generate multiple initializations
     Mat_<double> result = Mat::zeros(landmark_num_,2, CV_64FC1);
     RNG random_generator(getTickCount());
@@ -189,7 +211,7 @@ Mat_<double> ShapeRegressor::Predict(const Mat_<uchar>& image, const BoundingBox
     return 1.0 / initial_num * result;
 }
 
-void ShapeRegressor::Load(string path){
+void ShapeAlignment::Load(string path){
     cout<<"Loading model..."<<endl;
     ifstream fin;
     fin.open(path);
@@ -198,7 +220,7 @@ void ShapeRegressor::Load(string path){
     cout<<"Model loaded successfully..."<<endl;
 }
 
-void ShapeRegressor::Save(string path){
+void ShapeAlignment::Save(string path){
     cout<<"Saving model..."<<endl;
     ofstream fout;
     fout.open(path);
