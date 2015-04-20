@@ -17,10 +17,8 @@ vector<Mat_<double>> FernRegressor::Train(vector<Mat_<double>> regression_target
 
     Mat_<int> max_corr_index ( feature_per_fern, 2 );
 
-    RNG rng;
+    RNG rng(getTickCount());
     for (int i = 0; i < feature_per_fern; i++) {
-        if(isDebug) cout << "FERN: " << i << endl;
-
         // create a random direction to project target -> scalar
         Mat_<double> random_direction(num_of_landmark, 2);
         rng.fill(random_direction, RNG::UNIFORM, -1.1, 1.1);
@@ -84,13 +82,22 @@ vector<Mat_<double>> FernRegressor::Train(vector<Mat_<double>> regression_target
         max_corr_index.at<int>(i, 0) = index_i;
         max_corr_index.at<int>(i, 1) = index_j;
 
-        double min, max;
-        Mat_<double> pixelDiff = pixels.row(index_i) - pixels.row(index_j);
+        // double min, max;
+        // Mat_<double> pixelDiff = pixels.row(index_i).clone() - pixels.row(index_j).clone();
 
-        pixelDiff = abs(pixelDiff);
-        minMaxLoc(pixelDiff, &min, &max);
+        // pixelDiff = abs(pixelDiff);
+        // minMaxLoc(pixelDiff, &min, &max);
 
-        cout << "max: " << max << endl;
+        double max = -1;
+        for(int j = 0;j < pixels.rows ;j++){
+            // double temp = candidate_pixel_intensity[max_pixel_index_1][j] - candidate_pixel_intensity[max_pixel_index_2][j];
+            double temp = pixels.at<int>(index_i, j) - pixels.at<int>(index_j, j);
+            if(abs(temp) > max){
+                max = abs(temp);
+            }
+        }
+
+        cout << "(" << i <<  "_max: " << max << ")";
         double threshold = rng.uniform( max * -0.2, max * 0.2 );
 
         Mat_<double> location(2, 2, CV_32F); // x1 y1 ; x2 y2
@@ -107,6 +114,8 @@ vector<Mat_<double>> FernRegressor::Train(vector<Mat_<double>> regression_target
         fernPairLocation.push_back(location);
         fernPairNearestLandmark.push_back(nearestLandmark);
     }
+
+    cout << endl;
 
     // cluster shape into bins
     vector< vector<int> > bins_index;
@@ -129,6 +138,10 @@ vector<Mat_<double>> FernRegressor::Train(vector<Mat_<double>> regression_target
     regression_output.resize(bins_index.size()); // 2^F output
 
     // compute regression output
+    // compute output for each shape in training
+    vector<Mat_<double>> deltaShape;
+    deltaShape.resize(num_of_images);
+
     if(isDebug) cout << "BIN: ";
     for(int i = 0 ; i < bins_index.size() ; i++){
         int bin_size = bins_index[i].size();
@@ -145,20 +158,13 @@ vector<Mat_<double>> FernRegressor::Train(vector<Mat_<double>> regression_target
         }
 
         regression_output[i] = result;
-    }
-    if(isDebug) cout << endl;
 
-    // compute output for each shape in training
-    vector<Mat_<double>> deltaShape;
-    deltaShape.resize(num_of_images);
-
-    for(int i = 0 ; i < bins_index.size() ; i++) {
-        for (int j = 0; j < bins_index[i].size(); j++) {
+        for(int j = 0 ; j < bin_size; j++){
             int shape_idx = bins_index[i][j];
             deltaShape[shape_idx] = regression_output[i];
-
         }
     }
+    if(isDebug) cout << endl;
 
     return deltaShape;
 }
@@ -184,7 +190,7 @@ Mat_<double> FernRegressor::Test(Mat_<unsigned char> image, Rect_<int> bounding_
         // Get Pixel 1
         int idx_landmark_1 = fernPairNearestLandmark[i].at<int>(0, 0);
 
-        curFernLocation = fernPairLocation[i].row(0);
+        curFernLocation = fernPairLocation[i].row(0).clone();
         curFernLocation = scale * curFernLocation * rotationMatrix;
         curLocation.at<double>(0, 0) = curFernLocation.at<double>(0, 0) + curKeyPoints.at<double>( idx_landmark_1, 0);
         curLocation.at<double>(0, 1) = curFernLocation.at<double>(0, 1) + curKeyPoints.at<double>( idx_landmark_1, 1);
@@ -197,7 +203,7 @@ Mat_<double> FernRegressor::Test(Mat_<unsigned char> image, Rect_<int> bounding_
         // Get Pixel 2
         int idx_landmark_2 = fernPairNearestLandmark[i].at<int>(0, 1);
 
-        curFernLocation = fernPairLocation[i].row(1);
+        curFernLocation = fernPairLocation[i].row(1).clone();
         curFernLocation = scale * curFernLocation * rotationMatrix;
         curLocation.at<double>(0, 0) = curFernLocation.at<double>(0, 0) + curKeyPoints.at<double>( idx_landmark_2, 0);
         curLocation.at<double>(0, 1) = curFernLocation.at<double>(0, 1) + curKeyPoints.at<double>( idx_landmark_2, 1);

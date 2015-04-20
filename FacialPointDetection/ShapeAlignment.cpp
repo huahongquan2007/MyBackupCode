@@ -118,7 +118,7 @@ void ShapeAlignment::Train(){
         curShape.push_back( ProjectToImageCoordinate(ProjectToBoxCoordinate(keypoints[index], boundingBoxes[index]), boundingBoxes[i] ) );
     }
     for(int i = 0 ; i < total_image_original; i++){
-        for(int j = 0 ; j < 20 ; j ++){
+        for(int j = 0 ; j < 19 ; j ++){
 
             // method 1: random
             int index = i;
