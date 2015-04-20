@@ -1,7 +1,13 @@
-cmake_minimum_required(VERSION 3.1)
-project(FacialPointDetectionv2)
-
+cmake_minimum_required(VERSION 2.8)
+find_package( OpenCV REQUIRED )
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
-set(SOURCE_FILES main.cpp)
-add_executable(FacialPointDetectionv2 ${SOURCE_FILES})
+set(source ./FaceAlignment.h ./FernCascade.cpp ./Fern.cpp ./ShapeRegressor.cpp ./Utils.cpp ./TrainDemo.cpp)
+add_executable(TrainDemo.out ${source})
+target_link_libraries(TrainDemo.out ${OpenCV_LIBS})
+
+set(source ./FaceAlignment.h ./FernCascade.cpp ./Fern.cpp ./ShapeRegressor.cpp ./Utils.cpp ./TestDemo.cpp)
+add_executable(TestDemo.out ${source})
+target_link_libraries(TestDemo.out ${OpenCV_LIBS})
+
+
