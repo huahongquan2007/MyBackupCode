@@ -20,8 +20,8 @@ int main() {
 
     // =========================================
     // Read Configuration
-    Configuration options("/home/robotbase/github/MyBackupCode/FacialPointDetection/config.txt");
-//    Configuration options("/Users/quanhua92/workspace/MyBackupCode/FacialPointDetection/config.txt");
+//    Configuration options("/home/robotbase/github/MyBackupCode/FacialPointDetection/config.txt");
+    Configuration options("/Users/quanhua92/workspace/MyBackupCode/FacialPointDetection/config.txt");
     const int num_of_landmark = options.getNumOfLandmark();
 
     // =========================================
@@ -101,7 +101,7 @@ int main() {
     shapeAlignmentTest.addBoundingBoxes(bounding_boxes);
     shapeAlignmentTest.Load(options.getModelPath());
 
-    int start_position = 210;
+    int start_position = 10;
     for(int i = start_position ; i < images_test.size() + start_position; i++){
 
         Mat_<double> prediction = shapeAlignmentTest.Test(images[i], bounding_boxes[i]);

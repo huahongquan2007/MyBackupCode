@@ -1,31 +1,3 @@
-/*
-Author: Bi Sai 
-Date: 2014/06/18
-This program is a reimplementation of algorithms in "Face Alignment by Explicit 
-Shape Regression" by Cao et al.
-If you find any bugs, please email me: soundsilencebisai-at-gmail-dot-com
-
-Copyright (c) 2014 Bi Sai 
-The MIT License (MIT)
-Permission is hereby granted, free of charge, to any person obtaining a copy of
-this software and associated documentation files (the "Software"), to deal in
-the Software without restriction, including without limitation the rights to
-use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
-the Software, and to permit persons to whom the Software is furnished to do so,
-subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*/
-
-
 #ifndef FACE_ALIGNMENT_H
 #define FACE_ALIGNMENT_H
 
@@ -64,7 +36,7 @@ class BoundingBox{
 };
 
 
-class Fern{
+class FernRegressor {
     private:
         int fern_pixel_num_;
         int landmark_num_;
@@ -89,7 +61,7 @@ class Fern{
         void Write(std::ofstream& fout);
 };
 
-class FernCascade{
+class NormalRegressor {
     public:
         std::vector<cv::Mat_<double> > Train(const std::vector<cv::Mat_<uchar> >& images,
                                              const std::vector<cv::Mat_<double> >& current_shapes,
@@ -108,7 +80,7 @@ class FernCascade{
         void Read(std::ifstream& fin);
         void Write(std::ofstream& fout);
     private:
-        std::vector<Fern> ferns_;
+        std::vector<FernRegressor> ferns_;
         int second_level_num_;
 };
 
@@ -129,7 +101,7 @@ class ShapeAlignment {
     private:
         int first_level_num_;
         int landmark_num_;
-        std::vector<FernCascade> fern_cascades_;
+        std::vector<NormalRegressor> fern_cascades_;
         cv::Mat_<double> mean_shape_;
         std::vector<cv::Mat_<double> > training_shapes_;
         std::vector<BoundingBox> bounding_box_;

@@ -157,7 +157,8 @@ Mat_<double> ShapeAlignment::Test(Mat_<unsigned char> &image, Rect_<int> &boundi
     // initialize curShape
     RNG rng;
     int total_test = 20;
-    result.resize(total_test);
+
+    Mat_<double> resultShape = Mat::zeros(keypoints[0].size(), keypoints[0].type());
     for(int resultID = 0 ; resultID < total_test ; resultID++){
         Mat_<double> curShape;
 
@@ -166,40 +167,35 @@ Mat_<double> ShapeAlignment::Test(Mat_<unsigned char> &image, Rect_<int> &boundi
         Mat_<double> rand_shape = ProjectToBoxCoordinate(keypoints[index], boundingBoxes[index]);
         curShape = ProjectToImageCoordinate(rand_shape, bounding_box );
 
-        cout << "ShapeAlignment: Test" << endl;
-        Mat_<double> initial = curShape.clone();
-        visualizeImage(image, curShape, 1, false, "initialize");
+//        cout << "ShapeAlignment: Test" << endl;
+//        Mat_<double> initial = curShape.clone();
+//        visualizeImage(image, curShape, 1, false, "initialize");
 
         for(int i = 0 ; i < first_level_regressor ; i ++){
-            cout << "ShapeAlignment: Test first level " << i << endl;
+//            cout << "ShapeAlignment: Test first level " << i << endl;
 
             deltaShape = regressors[i].Test(image, bounding_box, curShape, meanShape);
             curShape += deltaShape;
         }
 
-        Mat tImg = image.clone();
-        for(int i = 0 ; i < initial.rows ; i++){
-            int x = (int) initial.at<double>(i, 0);
-            int y = (int) initial.at<double>(i, 1);
-            circle(tImg, Point(x, y), 1, Scalar(255, 0, 255), -1);
-        }
-        visualizeImage(tImg, curShape, 1, false, "test_result");
-
-        result[resultID] = curShape;
-        cout << "RESULT ID: " << resultID << endl;
-        cout << curShape.t() << endl;
+        resultShape += curShape;
+//        Mat tImg = image.clone();
+//        for(int i = 0 ; i < initial.rows ; i++){
+//            int x = (int) initial.at<double>(i, 0);
+//            int y = (int) initial.at<double>(i, 1);
+//            circle(tImg, Point(x, y), 1, Scalar(255, 0, 255), -1);
+//        }
+//        visualizeImage(tImg, curShape, 1, false, "test_result");
+//
+//        result[resultID] = curShape;
+//        cout << "RESULT ID: " << resultID << endl;
+//        cout << curShape.t() << endl;
     }
-    Mat_<double> curShape = Mat::zeros(keypoints[0].size(), keypoints[0].type());
-    for(int i = 0 ; i < result.size() ; i++){
-        curShape = curShape + result[i];
-        cout << "CURSHAPE:" << endl;
-        cout << curShape.t() << endl;
-        cout << "RESULT " << i << endl;
-        cout << result[i].t() << endl;
-    }
-    curShape = 1.0 / result.size() * curShape;
-    cout << curShape.t() << endl;
-    visualizeImage(image, curShape, 10, false, "final mean 10");
 
-    return curShape;
+
+    resultShape = 1.0 / total_test * resultShape;
+    cout << resultShape.t() << endl;
+    visualizeImage(image, resultShape, 10, false, "final mean 10");
+
+    return resultShape;
 }

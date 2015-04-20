@@ -82,20 +82,20 @@ vector<Mat_<double>> FernRegressor::Train(vector<Mat_<double>> regression_target
         max_corr_index.at<int>(i, 0) = index_i;
         max_corr_index.at<int>(i, 1) = index_j;
 
-        // double min, max;
-        // Mat_<double> pixelDiff = pixels.row(index_i).clone() - pixels.row(index_j).clone();
+         double min, max;
+         Mat_<double> pixelDiff = pixels.row(index_i).clone() - pixels.row(index_j).clone();
 
-        // pixelDiff = abs(pixelDiff);
-        // minMaxLoc(pixelDiff, &min, &max);
+         pixelDiff = abs(pixelDiff);
+         minMaxLoc(pixelDiff, &min, &max);
 
-        double max = -1;
-        for(int j = 0;j < pixels.rows ;j++){
-            // double temp = candidate_pixel_intensity[max_pixel_index_1][j] - candidate_pixel_intensity[max_pixel_index_2][j];
-            double temp = pixels.at<int>(index_i, j) - pixels.at<int>(index_j, j);
-            if(abs(temp) > max){
-                max = abs(temp);
-            }
-        }
+//        double max = -1;
+//        for(int j = 0;j < pixels.rows ;j++){
+//            // double temp = candidate_pixel_intensity[max_pixel_index_1][j] - candidate_pixel_intensity[max_pixel_index_2][j];
+//            double temp = pixels.at<int>(index_i, j) - pixels.at<int>(index_j, j);
+//            if(abs(temp) > max){
+//                max = abs(temp);
+//            }
+//        }
 
         cout << "(" << i <<  "_max: " << max << ")";
         double threshold = rng.uniform( max * -0.2, max * 0.2 );
