@@ -128,7 +128,7 @@ vector<Mat_<double>> NormalRegressor::Train(vector<Mat_<unsigned char>> images, 
 
     for(int i = 0 ; i < childRegressor.size(); i++){
 
-        if(isDebug) cout << "------------ BEGIN [" << i << "]-------------" << endl;
+        cout << "------------ BEGIN [" << i << "]-------------" << endl;
         if(isDebug) cout << "REGRESSION TARGET: " << endl;
         if(isDebug) cout << regression_target[visualIdx].t() << endl;
 
