@@ -2,6 +2,39 @@
 #include <opencv2/opencv.hpp>
 #include "iomanip"
 
+#include <vector>
+#include <fstream>
+using namespace std;
+
+void readBoundingBoxes(int const num_of_training, vector<Rect_<int>> &bounding_boxes, string &bounding_box_train_path) {
+    ifstream finBox( bounding_box_train_path , ios_base::in );
+    Rect_<int> rect;
+    for(int i = 0;i < num_of_training; i++){
+        finBox >> rect.x >> rect.y >> rect.width >> rect.height;
+        cout << rect << endl;
+        bounding_boxes.push_back(rect);
+    }
+    finBox.close();
+}
+
+void readKeypoints(int const num_of_training, int const num_of_landmark, vector<Mat_<double>> &keypoints, string &train_path) {
+    ifstream finKey( train_path , ios_base::in );
+    for(int i = 0;i < num_of_training; i++){
+        Mat_<double> temp(num_of_landmark,2);
+        double val;
+        for(int j = 0; j < num_of_landmark; j++){
+            finKey >> val;
+            temp.at<double>(j, 0) = val;
+        }
+        for(int j = 0; j < num_of_landmark; j++){
+            finKey >> val;
+            temp.at<double>(j, 1) = val;
+        }
+        keypoints.push_back(temp);
+    }
+    finKey.close();
+}
+
 void visualizeImage(Mat img, Mat_<double> keypoints, int delay, bool debug, string win_name){
     // --------------- DRAW A FACE + KEYPOINT --------
     namedWindow(win_name, WINDOW_NORMAL);

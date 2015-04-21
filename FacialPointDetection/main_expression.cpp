@@ -18,26 +18,12 @@ int main() {
     Configuration options("/home/robotbase/github/MyBackupCode/FacialPointDetection/config.txt");
 //    Configuration options("/Users/quanhua92/workspace/MyBackupCode/FacialPointDetection/config.txt");
     const int num_of_landmark = options.getNumOfLandmark();
-
-    // =========================================
-    // Training
+    int first_level = options.getNumOfFirstLevel();
+    int second_level = options.getNumOfSecondLevel();
+    int feature_per_fern = options.getNumOfFeaturePerFern();
     const int num_of_training = options.getNumOfTraining();
-    vector<Mat_<unsigned char>> images;
     vector<Mat_<double>> keypoints;
     vector<Rect_<int>> bounding_boxes;
-    const string train_data = options.getDatasetTrainPath();
-
-    // -------------- READ IMAGE ---------------
-    string img_path = "";
-    Mat img_data;
-    for(int i = 0; i < num_of_training; i++){
-        img_path = train_data + to_string(i+1) + ".jpg";
-
-        img_data = imread(img_path, CV_LOAD_IMAGE_GRAYSCALE);
-        images.push_back(img_data);
-        cout << "train_img: " << img_path << endl;
-    }
-
 
     // -------------- READ BOUNDING BOX ----------
     string bounding_box_train_path = options.getTrainBoundingBoxPath();
@@ -45,21 +31,6 @@ int main() {
     // -------------- READ KEYPOINTS -------------
     string train_path = options.getTrainKeypointsPath();
     readKeypoints(num_of_training, num_of_landmark, keypoints, train_path);
-
-    cout << "Start Training: numOfImages: " << images.size() << endl;
-
-    // --------------- TRAIN FIRST LEVEL --------------
-    int first_level = options.getNumOfFirstLevel();
-    int second_level = options.getNumOfSecondLevel();
-    int feature_per_fern = options.getNumOfFeaturePerFern();
-    int num_of_random_pixel = options.getNumOfRandomPixel();
-
-//    ShapeAlignment shapeAlignment(first_level, second_level, feature_per_fern, num_of_random_pixel);
-//    shapeAlignment.addImages(images);
-//    shapeAlignment.addBoundingBoxes(bounding_boxes);
-//    shapeAlignment.addKeyPoints(keypoints);
-//    shapeAlignment.Train();
-//    shapeAlignment.Save(options.getModelPath());
 
     // =========================================
     // Testing
@@ -94,11 +65,11 @@ int main() {
     shapeAlignmentTest.addBoundingBoxes(bounding_boxes);
     shapeAlignmentTest.Load(options.getModelPath());
 
-    int start_position = 100;
+    int start_position = 0;
     for(int i = start_position ; i < images_test.size() + start_position; i++){
 
-        Mat_<double> prediction = shapeAlignmentTest.Test(images[i], bounding_boxes[i]);
-        visualizeImageCompare(images[i], prediction, keypoints[i], 0);
+        Mat_<double> prediction = shapeAlignmentTest.Test(images_test[i], bounding_boxes_test[i]);
+        visualizeImageCompare(images_test[i], prediction, keypoints_test[i], 0);
 
         cout << "==============================" << endl;
         cout << "FINISH " << i << endl;
