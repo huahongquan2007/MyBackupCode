@@ -9,6 +9,7 @@ using namespace cv;
 using namespace std;
 
 #include "utility.h"
+#include "FacialExpression.h"
 
 int main() {
     cout << "Facial Point Detection Projects" << endl;
@@ -24,7 +25,7 @@ int main() {
     string train_path = "/home/robotbase/github/MyBackupCode/FacialExpression/result_keypoints.txt";
     readKeypoints(num_of_training, num_of_landmark, keypoints, train_path);
 
-    vector<string> expression_labels;
+    vector<EXPRESSION_CODE> labels;
 
     // READ DATASET
     cout << "Read Dataset" << endl;
@@ -37,36 +38,42 @@ int main() {
 
         string ex_code = str.substr(3, 2);
 
+        EXPRESSION_CODE cur_code;
         if(ex_code == "AN"){
-            ex_code = "Angry";
+            cur_code = Angry;
         } else if(ex_code == "DI"){
-            ex_code = "Disgusted";
+            cur_code = Disgusted;
         } else if(ex_code == "FE"){
-            ex_code = "Fear";
+            cur_code = Fear;
         } else if(ex_code == "HA"){
-            ex_code = "Happy";
+            cur_code = Happy;
         } else if(ex_code == "NE"){
-            ex_code = "Neural";
+            cur_code = Neural;
         } else if(ex_code == "SA"){
-            ex_code = "Sad";
+            cur_code = Sad;
         } else if(ex_code == "SU"){
-            ex_code = "Surprised";
+            cur_code = Surprised;
         }
 
-        expression_labels.push_back( ex_code );
+        labels.push_back( cur_code );
     }
 
     cout << "Read Images " << listImagePath.size() << endl;
 
-    for(int i = 0 ; i < listImagePath.size(); i++){
-        Mat_<unsigned char> img = imread("/home/robotbase/github/MyBackupCode/FacialPointDetection/Datasets/JAFFE/" + listImagePath[i] , CV_LOAD_IMAGE_GRAYSCALE);
-        equalizeHist( img, img );
+//    for(int i = 0 ; i < listImagePath.size(); i++){
+//        Mat_<unsigned char> img = imread("/home/robotbase/github/MyBackupCode/FacialPointDetection/Datasets/JAFFE/" + listImagePath[i] , CV_LOAD_IMAGE_GRAYSCALE);
+//        equalizeHist( img, img );
+//
+//        putText(img, EXPRESSION_NAME[labels[i]], Point(0, 50), FONT_HERSHEY_COMPLEX, 1.0, (255, 255, 255));
+//        putText(img, listImagePath[i], Point(0, 100), FONT_HERSHEY_COMPLEX, 1.0, (255, 255, 255));
+//        visualizeImage(img, keypoints[i], 0 , false, "result");
+//    }
 
-        putText(img, expression_labels[i], Point(0, 50), FONT_HERSHEY_COMPLEX, 1.0, (255, 255, 255));
-        putText(img, listImagePath[i], Point(0, 100), FONT_HERSHEY_COMPLEX, 1.0, (255, 255, 255));
-        visualizeImage(img, keypoints[i], 0 , false, "result");
-    }
 
+    cout << "Start training: " << keypoints.size() << " images." << endl;
+
+    FacialExpression facialExpression;
+    facialExpression.Train(labels, keypoints);
     waitKey(0);
     return 0;
 }
