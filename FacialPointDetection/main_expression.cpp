@@ -39,6 +39,7 @@ int main() {
     string train_path = options.getTrainKeypointsPath();
     readKeypoints(num_of_training, num_of_landmark, keypoints, train_path);
 
+
     // =========================================
     // Testing
 
@@ -54,21 +55,25 @@ int main() {
     vector<Mat_<unsigned char>> images_test;
     vector<Rect_<int>> bounding_boxes_test;
 
-
     for(int i = 0 ; i < listImagePath.size(); i++){
         Mat_<unsigned char> img = imread("/home/robotbase/github/MyBackupCode/FacialPointDetection/Datasets/JAFFE/" + listImagePath[i] , CV_LOAD_IMAGE_GRAYSCALE);
         equalizeHist( img, img );
 
         std::vector<Rect_<int>> faces;
         //-- Detect faces
-        face_cascade.detectMultiScale( img, faces, 1.1, 2, 0|CV_HAAR_SCALE_IMAGE, Size(30, 30) );
+        face_cascade.detectMultiScale( img, faces, 1.1, 2, CV_HAAR_FIND_BIGGEST_OBJECT, Size(60, 60) );
 
         if(faces.size() > 0){
             bounding_boxes_test.push_back(faces[0]);
         }
 
+        Mat testMat = img.clone();
+        for(int j = 0 ; j < faces.size(); j++){
+            rectangle(testMat, faces[j], (255,255,255), 2);
+        }
 
-
+        imshow("box", testMat);
+        waitKey(10);
         images_test.push_back(img);
     }
     //======================================
@@ -84,10 +89,43 @@ int main() {
     shapeAlignmentTest.addBoundingBoxes(bounding_boxes);
     shapeAlignmentTest.Load(options.getModelPath());
 
-    int start_position = 20;
+
+//    Mat cur_img = imread("/home/robotbase/Desktop/hinh2.jpg", CV_LOAD_IMAGE_COLOR);
+//
+//    Mat_<unsigned char> eqImg;
+//    cvtColor(cur_img, eqImg, CV_RGB2GRAY);
+//    equalizeHist( eqImg, eqImg );
+//    std::vector<Rect_<int>> faces;
+//    //-- Detect faces
+//    face_cascade.detectMultiScale( eqImg, faces, 1.1, 4, CV_HAAR_FIND_BIGGEST_OBJECT, Size(30, 30) );
+//
+//    cout << faces.size() << endl;
+//    if(faces.size() > 0){
+//        Mat_<double> result = shapeAlignmentTest.Test(eqImg, faces[0]);
+//        visualizeImage(cur_img, result, 0, false, "result", true);
+//        waitKey(0);
+//        waitKey(0);
+//        waitKey(0);
+//    }
+//    return 10;
+
+    // --------------- SAVE KEYPOINTS -------------
+    ofstream out("/home/robotbase/github/MyBackupCode/FacialPointDetection/save_result.txt", ofstream::out);
+
+    int start_position = 0;
     for(int i = start_position ; i < images_test.size() + start_position; i++){
 
         Mat_<double> prediction = shapeAlignmentTest.Test(images_test[i], bounding_boxes_test[i]);
+
+
+            for(int j = 0 ; j < prediction.rows; j++){
+                out << prediction.at<double>(j, 0) << " ";
+            }
+            for(int j = 0 ; j < keypoints[i].rows; j++){
+                out << prediction.at<double>(j, 1) << " ";
+            }
+            out << endl;
+
         visualizeImage(images_test[i], prediction, 10, false, "result");
 
         cout << "==============================" << endl;

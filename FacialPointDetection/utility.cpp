@@ -35,13 +35,19 @@ void readKeypoints(int const num_of_training, int const num_of_landmark, vector<
     finKey.close();
 }
 
-void visualizeImage(Mat img, Mat_<double> keypoints, int delay, bool debug, string win_name){
+void visualizeImage(Mat img, Mat_<double> keypoints, int delay, bool debug, string win_name, bool isColor){
     // --------------- DRAW A FACE + KEYPOINT --------
     namedWindow(win_name, WINDOW_NORMAL);
 
     Mat curImg;
 
-    cvtColor( img, curImg, CV_GRAY2BGR );
+    if(isColor){
+        curImg = img.clone();
+    }
+    else{
+        cvtColor( img, curImg, CV_GRAY2BGR );
+    }
+
 
     Mat_<double> curKey = keypoints;
 
