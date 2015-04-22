@@ -10,11 +10,12 @@ const std::string EXPRESSION_NAME[] = {"Angry", "Disgusted", "Fear", "Happy", "N
 
 class FacialExpression {
 private:
-
+    cv::SVM svm;
 public:
     void Train(std::vector<EXPRESSION_CODE> labels, std::vector<cv::Mat_<double>> keypoints);
     void Save(std::string destination);
     void Load(std::string destination);
+    int Test(cv::Mat_<double> keypoint);
 };
 
 #endif //FACIALEXPRESSION_FACIALEXPRESSION_H

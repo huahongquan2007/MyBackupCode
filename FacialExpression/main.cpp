@@ -25,6 +25,11 @@ int main() {
     string train_path = "/home/robotbase/github/MyBackupCode/FacialExpression/result_keypoints.txt";
     readKeypoints(num_of_training, num_of_landmark, keypoints, train_path);
 
+    for(int i = 0 ; i < keypoints.size() ; i++){
+        keypoints[i] = normalizeKeypoint(keypoints[i]);
+    }
+
+
     vector<EXPRESSION_CODE> labels;
 
     // READ DATASET
@@ -74,6 +79,72 @@ int main() {
 
     FacialExpression facialExpression;
     facialExpression.Train(labels, keypoints);
+
+
+    int num_of_testing = 100;
+    // -------------- READ IMAGE ---------------
+    vector<Mat_<unsigned char>> images;
+    string img_path = "";
+    Mat img_data;
+    float EXPECT_NEED = 500;
+    vector<float> scaleImage;
+    ifstream finBox( "/home/robotbase/github/MyBackupCode/FacialPointDetection/Datasets/IBUG/images.txt" , ios_base::in );
+    for(int i = 0;i < num_of_testing; i++){
+        string img_path;
+        finBox >> img_path;
+        img_data = imread(img_path, CV_LOAD_IMAGE_GRAYSCALE);
+
+        float scale = 1.0;
+
+        cout << img_data.size() << endl;
+        if(img_data.cols > EXPECT_NEED){
+            scale = EXPECT_NEED / img_data.cols;
+            cout << "New size: " << Size( (int) (scale * img_data.cols), (int)(scale * img_data.rows)) << endl;
+            cout << "Size: " << img_data.size() << " ";
+            resize(img_data, img_data, Size( (int) (scale * img_data.cols), (int)(scale * img_data.rows)) );
+            cout << img_data.size() << endl;
+        }
+
+
+        scaleImage.push_back(scale);
+
+        images.push_back(img_data);
+        cout << "train_img: " << img_path << endl;
+    }
+    finBox.close();
+
+    // READ TEST
+    string test_path = "/home/robotbase/github/MyBackupCode/FacialPointDetection/Datasets/IBUG/keypoints.txt";
+
+    vector<Mat_<double>> keypoints_test;
+    vector<Mat_<double>> keypoints_test_normalize;
+    readKeypoints(num_of_testing, num_of_landmark, keypoints_test, test_path);
+
+    // -------------- SCALE BOX , Keypoints ----------
+    for(int i = 0 ; i < num_of_testing ; i++){
+        keypoints_test[i] = scaleImage[i] * keypoints_test[i];
+    }
+    keypoints_test_normalize.resize(keypoints_test.size());
+    for(int i = 0 ; i < keypoints_test.size() ; i++){
+        keypoints_test_normalize[i] = normalizeKeypoint(keypoints_test[i]);
+    }
+
+    int result[] = {0, 0, 0, 0, 0, 0};
+    for(int i = 0 ; i < num_of_testing; i++){
+        int predict = facialExpression.Test(keypoints_test_normalize[i]);
+        cout << "Predict: " << predict << endl;
+        result[predict]++;
+
+        putText(images[i], EXPRESSION_NAME[predict], Point(0, 50), FONT_HERSHEY_COMPLEX, 1.0, (255, 255, 255));
+        visualizeImage(images[i], keypoints_test[i], 1000, false, "predict");
+    }
+
+    cout << "Result: " << endl;
+    for(int i = 0 ; i < 6 ; i++ ){
+        cout << result[i] << " ";
+    }
+    cout << endl;
+
     waitKey(0);
     return 0;
 }

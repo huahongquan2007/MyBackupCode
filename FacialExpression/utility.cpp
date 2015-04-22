@@ -52,3 +52,28 @@ void visualizeImage(Mat img, Mat_<double> keypoints, int delay, bool debug, stri
 
     waitKey(delay);
 }
+cv::Mat_<double> normalizeKeypoint(cv::Mat_<double> keypoint){
+
+    Mat_<double> normalize = keypoint.clone();
+
+    double mean_x = mean(keypoint.row(0))[0];
+    double mean_y = mean(keypoint.row(1))[0];
+
+    for(int i = 0 ; i < keypoint.rows; i++){
+        normalize.at<double>(i, 0) -= mean_x;
+        normalize.at<double>(i, 1) -= mean_y;
+    }
+
+    double min, max;
+    minMaxLoc(normalize.row(0), &min, &max);
+
+    max = (abs(min) > max) ? abs(min) : max;
+
+
+    for(int i = 0 ; i < keypoint.rows; i++){
+        normalize.at<double>(i, 0) /= max;
+        normalize.at<double>(i, 1) /= max;
+    }
+
+    return normalize;
+}
