@@ -220,3 +220,47 @@ void similarity_transform(const Mat_<double>& shape1, const Mat_<double>& shape2
     rotation.at<double>(1,0) = sin_theta;
     rotation.at<double>(1,1) = cos_theta;
 }
+
+void readFERDataset(){
+    // ===========================================
+    //              READ FER DATASET
+    // ===========================================
+    char line[4096];
+    ifstream input("/home/robotbase/github/MyBackupCode/FacialPointDetection/Datasets/FER/fer2013.csv", ifstream::in);
+
+//    input.getline(line, 4096);
+//    cout << line << endl;
+    string str, parsed;
+    getline(input, str);
+    while( getline(input, str) ){
+
+        stringstream input_stringstream(str);
+        cout << "New line: " << endl;
+
+        int count = 0;
+        while( getline( input_stringstream, parsed, ',' )){
+            if(count == 0){
+                cout << "CLASS: " << parsed << endl;
+            } else if(count == 1){
+                cout << "PIXEL: " << endl;
+                stringstream pixel_stream(parsed);
+                unsigned char pixel_data[2304];
+                for (int i = 0 ; i < 2304 ; i++){
+                    int pixel;
+                    pixel_stream >> pixel;
+                    pixel_data[i] = (unsigned char) pixel;
+                }
+                Mat image (48, 48, CV_8UC1, &pixel_data);
+                cout << image << endl;
+                namedWindow("Test", CV_WINDOW_NORMAL);
+                imshow("Test", image);
+                waitKey(0);
+
+            }
+            count ++;
+        }
+        cout << endl;
+
+    }
+    cout << endl;
+}

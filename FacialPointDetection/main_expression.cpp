@@ -1,5 +1,8 @@
 #include <iostream>
 #include <opencv2/opencv.hpp>
+#include "opencv2/objdetect/objdetect.hpp"
+#include "opencv2/highgui/highgui.hpp"
+#include "opencv2/imgproc/imgproc.hpp"
 
 using namespace cv;
 using namespace std;
@@ -8,14 +11,18 @@ using namespace std;
 #include "Configuration.h"
 #include "ShapeAlignment.h"
 
+String face_cascade_name = "/home/robotbase/github/MyBackupCode/FacialPointDetection/haarcascade_frontalface_alt.xml";
+CascadeClassifier face_cascade;
 
 int main() {
+    // Load face cascade
+    if( !face_cascade.load( face_cascade_name ) ){ printf("--(!)Error loading\n"); return -1; };
 
     cout << "Facial Point Detection Projects" << endl;
 
     // =========================================
     // Read Configuration
-    Configuration options("/home/robotbase/github/MyBackupCode/FacialPointDetection/config.txt");
+    Configuration options("/home/robotbase/github/MyBackupCode/FacialPointDetection/config_ibug.txt");
 //    Configuration options("/Users/quanhua92/workspace/MyBackupCode/FacialPointDetection/config.txt");
     const int num_of_landmark = options.getNumOfLandmark();
     int first_level = options.getNumOfFirstLevel();
@@ -34,29 +41,41 @@ int main() {
 
     // =========================================
     // Testing
-    cout << "Start Testing" << endl;
-    const int num_of_testing = options.getNumOfTesting();
-    vector<Mat_<unsigned char>> images_test;
-    vector<Mat_<double>> keypoints_test;
-    vector<Rect_<int>> bounding_boxes_test;
-    const string test_data = options.getDatasetTestPath();
 
-    // -------------- READ IMAGE ---------------
-    string img_path_test = "";
-    Mat img_data_test;
-    for(int i = 0; i < num_of_testing; i++){
-        img_path_test = test_data + to_string(i+1) + ".jpg";
+    // READ DATSET
+    ifstream input("/home/robotbase/github/MyBackupCode/FacialPointDetection/Datasets/listJAFFE.txt", ifstream::in);
 
-        img_data_test = imread(img_path_test, CV_LOAD_IMAGE_GRAYSCALE);
-        images_test.push_back(img_data_test);
-        cout << "test_img: " << img_path_test << endl;
+    string str;
+    vector<string> listImagePath;
+    while( getline(input, str) ){
+        listImagePath.push_back(str);
     }
-    // -------------- READ BOUNDING BOX ----------
-    string bounding_box_test_path = options.getTestBoundingBoxPath();
-    readBoundingBoxes(num_of_testing, bounding_boxes_test, bounding_box_test_path);
-    // -------------- READ KEYPOINTS -------------
-    string test_path = options.getTestKeypointsPath();
-    readKeypoints(num_of_testing, num_of_landmark, keypoints_test, test_path);
+
+    vector<Mat_<unsigned char>> images_test;
+    vector<Rect_<int>> bounding_boxes_test;
+
+
+    for(int i = 0 ; i < listImagePath.size(); i++){
+        Mat_<unsigned char> img = imread("/home/robotbase/github/MyBackupCode/FacialPointDetection/Datasets/JAFFE/" + listImagePath[i] , CV_LOAD_IMAGE_GRAYSCALE);
+        equalizeHist( img, img );
+
+        std::vector<Rect_<int>> faces;
+        //-- Detect faces
+        face_cascade.detectMultiScale( img, faces, 1.1, 2, 0|CV_HAAR_SCALE_IMAGE, Size(30, 30) );
+
+        if(faces.size() > 0){
+            bounding_boxes_test.push_back(faces[0]);
+        }
+
+
+
+        images_test.push_back(img);
+    }
+    //======================================
+
+
+    cout << "Start Testing" << endl;
+    const int num_of_testing = listImagePath.size();
 
     cout << "Start Testing: numOfImages: " << images_test.size() << endl;
 
@@ -65,11 +84,11 @@ int main() {
     shapeAlignmentTest.addBoundingBoxes(bounding_boxes);
     shapeAlignmentTest.Load(options.getModelPath());
 
-    int start_position = 0;
+    int start_position = 20;
     for(int i = start_position ; i < images_test.size() + start_position; i++){
 
         Mat_<double> prediction = shapeAlignmentTest.Test(images_test[i], bounding_boxes_test[i]);
-        visualizeImageCompare(images_test[i], prediction, keypoints_test[i], 0);
+        visualizeImage(images_test[i], prediction, 10, false, "result");
 
         cout << "==============================" << endl;
         cout << "FINISH " << i << endl;

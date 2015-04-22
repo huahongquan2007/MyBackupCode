@@ -18,9 +18,14 @@ add_executable(FacialPointDetectionTest ${SOURCE_FILES_TEST} utility.h utility.c
 
 target_link_libraries( FacialPointDetectionTest ${OpenCV_LIBS} )
 
+set(SOURCE_FILES_IBUG main_ibug.cpp)
 
-set(SOURCE_FILES main_expression.cpp)
+add_executable(FacialPointDetectionIbug ${SOURCE_FILES_IBUG} utility.h utility.cpp Configuration.cpp Configuration.h ShapeAlignment.cpp ShapeAlignment.h NormalRegressor.cpp NormalRegressor.h FernRegressor.cpp FernRegressor.h)
 
-add_executable(FacialPointDetectionExpression ${SOURCE_FILES} utility.h utility.cpp Configuration.cpp Configuration.h ShapeAlignment.cpp ShapeAlignment.h NormalRegressor.cpp NormalRegressor.h FernRegressor.cpp FernRegressor.h)
+target_link_libraries( FacialPointDetectionIbug ${OpenCV_LIBS} )
+
+set(SOURCE_FILES_EX main_expression.cpp)
+
+add_executable(FacialPointDetectionExpression ${SOURCE_FILES_EX} utility.h utility.cpp Configuration.cpp Configuration.h ShapeAlignment.cpp ShapeAlignment.h NormalRegressor.cpp NormalRegressor.h FernRegressor.cpp FernRegressor.h)
 
 target_link_libraries( FacialPointDetectionExpression ${OpenCV_LIBS} )

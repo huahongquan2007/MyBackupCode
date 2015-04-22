@@ -117,8 +117,10 @@ void ShapeAlignment::Train(){
 
         curShape.push_back( ProjectToImageCoordinate(ProjectToBoxCoordinate(keypoints[index], boundingBoxes[index]), boundingBoxes[i] ) );
     }
+    cout << "before augment images" << endl;
     for(int i = 0 ; i < total_image_original; i++){
-        for(int j = 0 ; j < 19 ; j ++){
+        cout << i << "/" << total_image_original << " " << images[i].size()<< endl;
+        for(int j = 0 ; j < 13 ; j ++){
 
             // method 1: random
             int index = i;
@@ -195,8 +197,9 @@ Mat_<double> ShapeAlignment::Test(Mat_<unsigned char> &image, Rect_<int> &boundi
 
 
     resultShape = 1.0 / total_test * resultShape;
-    cout << resultShape.t() << endl;
-    visualizeImage(image, resultShape, 10, false, "final mean 10");
+
+//    cout << resultShape.t() << endl;
+//    visualizeImage(image, resultShape, 10, false, "final mean 10");
 
     return resultShape;
 }
