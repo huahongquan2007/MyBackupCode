@@ -10,7 +10,8 @@ list_result = []
 cv2.namedWindow("img", cv2.WINDOW_NORMAL)
 total_size = len(result_lines)
 
-index = 7468
+index = 8649
+isBackward = False
 while index < total_size:
     print "Process index: " + str(index)
     words = result_lines[index].split('_')
@@ -28,13 +29,10 @@ while index < total_size:
         if cur < min:
             min = cur
 
-    print max
-    print min
-    print max - min
-    if max - min < 100:
+    if max - min < 100 and isBackward == False:
         print "Too small"
-        # index +=1
-        # continue
+        index +=1
+        continue
 
     for i in range(0, num_of_landmark):
         pos = (int(float(keypoints[i])), int(float(keypoints[i + num_of_landmark])))
@@ -44,6 +42,7 @@ while index < total_size:
 
     isPress = False
     isSave = False
+    isBackward = False
     while isPress == False:
         k = cv2.waitKey(0)
 
@@ -59,6 +58,7 @@ while index < total_size:
             isPress = True
             if len(list_result) > 0:
                 list_result.pop()
+            isBackward = True
             index -= 2
         elif k == 1048687:
             print 'Press o'

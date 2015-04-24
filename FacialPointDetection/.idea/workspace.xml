@@ -16,10 +16,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="71683ba7-1f36-4b08-8f07-4d6d1e76bc54" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/main_expression.cpp" afterPath="$PROJECT_DIR$/main_expression.cpp" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/save_result_kaggle_num_of_refine.txt" afterPath="$PROJECT_DIR$/save_result_kaggle_num_of_refine.txt" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/save_result_kaggle_refine.txt" afterPath="$PROJECT_DIR$/save_result_kaggle_refine.txt" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/save_result_refine.py" afterPath="$PROJECT_DIR$/save_result_refine.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="FacialPointDetection.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -63,10 +63,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="save_result_refine.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="save_result_refine.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/save_result_refine.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.565445" vertical-offset="0" max-vertical-offset="1494">
+            <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1494">
               <caret line="12" column="12" selection-start-line="12" selection-start-column="12" selection-end-line="12" selection-end-column="12" />
               <folding />
             </state>
@@ -98,6 +98,16 @@
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="108">
               <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="save_result_kaggle_refine.txt" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/save_result_kaggle_refine.txt">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.63372093" vertical-offset="143764" max-vertical-offset="144108">
+              <caret line="7999" column="0" selection-start-line="7999" selection-start-column="0" selection-end-line="7999" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -1053,22 +1063,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/save_result_kaggle_num_of_refine.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="108">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/save_result_kaggle_refine.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.63372093" vertical-offset="126718" max-vertical-offset="127062">
-          <caret line="7052" column="1078" selection-start-line="7052" selection-start-column="1078" selection-end-line="7052" selection-end-column="1078" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/main_test.cpp">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="0">
@@ -1079,8 +1073,24 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/save_result_refine.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.565445" vertical-offset="0" max-vertical-offset="1494">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1494">
           <caret line="12" column="12" selection-start-line="12" selection-start-column="12" selection-end-line="12" selection-end-column="12" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/save_result_kaggle_num_of_refine.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="108">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/save_result_kaggle_refine.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.63372093" vertical-offset="143764" max-vertical-offset="144108">
+          <caret line="7999" column="0" selection-start-line="7999" selection-start-column="0" selection-end-line="7999" selection-end-column="0" />
           <folding />
         </state>
       </provider>
