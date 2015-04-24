@@ -10,7 +10,7 @@ list_result = []
 cv2.namedWindow("img", cv2.WINDOW_NORMAL)
 total_size = len(result_lines)
 
-index = 4094
+index = 6048
 while index < total_size:
     print "Process index: " + str(index)
     words = result_lines[index].split('_')
