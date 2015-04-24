@@ -2,7 +2,7 @@ import cv2
 lines = [line for line in open('/home/robotbase/DataDrive/Dataset/Kaggle/list.txt')]
 result_lines = [line for line in open('./save_result_kaggle.txt')]
 result_refine = open('./save_result_kaggle_refine.txt', 'a')
-num_of_refine = open('./save_result_kaggle_num_of_refine.txt', 'w')
+num_of_refine = open('./save_result_kaggle_num_of_refine.txt', 'a')
 num_of_landmark = 68
 
 list_result = []
@@ -10,7 +10,7 @@ list_result = []
 cv2.namedWindow("img", cv2.WINDOW_NORMAL)
 total_size = len(result_lines)
 
-index = 6048
+index = 7468
 while index < total_size:
     print "Process index: " + str(index)
     words = result_lines[index].split('_')
@@ -19,6 +19,23 @@ while index < total_size:
     img = cv2.imread(img_path, cv2.CV_LOAD_IMAGE_COLOR)
 
     keypoints = words[2].split(' ')
+    max = 0
+    min = 1e10
+    for i in range(0, num_of_landmark):
+        cur = int(float(keypoints[i]))
+        if cur > max:
+            max = cur
+        if cur < min:
+            min = cur
+
+    print max
+    print min
+    print max - min
+    if max - min < 100:
+        print "Too small"
+        # index +=1
+        # continue
+
     for i in range(0, num_of_landmark):
         pos = (int(float(keypoints[i])), int(float(keypoints[i + num_of_landmark])))
         cv2.circle(img, pos, 3, (0, 255, 0), -1)

@@ -47,7 +47,7 @@ int main() {
 //    ifstream input("/home/robotbase/github/MyBackupCode/FacialPointDetection/Datasets/listJAFFE.txt", ifstream::in);
     ifstream input("/home/robotbase/DataDrive/Dataset/Kaggle/list.txt", ifstream::in);
     // --------------- SAVE KEYPOINTS -------------
-    ofstream out("/home/robotbase/github/MyBackupCode/FacialPointDetection/save_result_kaggle.txt", ofstream::out);
+    ofstream out("/home/robotbase/github/MyBackupCode/FacialPointDetection/`save_result_kaggle.txt", ofstream::out);
     string str;
     //vector<string> listImagePath;
     ShapeAlignment shapeAlignmentTest(first_level, second_level, feature_per_fern);
