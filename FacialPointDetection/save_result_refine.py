@@ -1,8 +1,8 @@
-import os
 import cv2
 lines = [line for line in open('/home/robotbase/DataDrive/Dataset/Kaggle/list.txt')]
 result_lines = [line for line in open('./save_result_kaggle.txt')]
 result_refine = open('./save_result_kaggle_refine.txt', 'a')
+num_of_refine = open('./save_result_kaggle_num_of_refine.txt', 'w')
 num_of_landmark = 68
 
 list_result = []
@@ -10,7 +10,7 @@ list_result = []
 cv2.namedWindow("img", cv2.WINDOW_NORMAL)
 total_size = len(result_lines)
 
-index = 2161
+index = 4094
 while index < total_size:
     print "Process index: " + str(index)
     words = result_lines[index].split('_')
@@ -48,6 +48,7 @@ while index < total_size:
             isPress = True
             isSave = True
             print 'Last position: ' + str(index)
+            num_of_refine.write('Last position: ' + str(index))
             print 'Start saving result to files'
             for result in list_result:
                 result_refine.write(result)
