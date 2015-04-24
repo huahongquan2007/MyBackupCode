@@ -57,7 +57,7 @@ void visualizeImage(Mat img, Mat_<double> keypoints, int delay, bool debug, stri
         int x = (int) curKey.at<double>(j, 0);
         int y = (int) curKey.at<double>(j, 1);
         if(debug) cout << "Point["<< j << "]( " << setw(7) << x << " , " << setw(7) << y << " )" << endl;
-        circle(curImg, Point(x, y), 1, Scalar(255, 0, 0), -1);
+        circle(curImg, Point(x, y), 3, Scalar(255, 0, 0), -1);
     }
 
     imshow(win_name, curImg);
