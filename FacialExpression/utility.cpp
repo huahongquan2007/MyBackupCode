@@ -69,10 +69,24 @@ cv::Mat_<double> normalizeKeypoint(cv::Mat_<double> keypoint){
 
     max = (abs(min) > max) ? abs(min) : max;
 
-
     for(int i = 0 ; i < keypoint.rows; i++){
-        normalize.at<double>(i, 0) /= max;
-        normalize.at<double>(i, 1) /= max;
+
+        bool chosen = true;
+//        if( i < 17 ) {
+//            chosen = false;
+//        }
+//        if( i > 27 && i < 37)
+//            chosen = false;
+
+        if(chosen){
+            normalize.at<double>(i, 0) /= max;
+            normalize.at<double>(i, 1) /= max;
+        }else{
+            normalize.at<double>(i, 0) = 0;
+            normalize.at<double>(i, 1) = 0;
+        }
+
+
     }
 
     return normalize;

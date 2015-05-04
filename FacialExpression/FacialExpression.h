@@ -5,8 +5,8 @@
 #include <vector>
 #include <opencv2/opencv.hpp>
 
-enum EXPRESSION_CODE { Angry = 0, Disgusted = 1, Fear = 2, Happy = 3, Neural = 4, Sad = 5, Surprised = 6};
-const std::string EXPRESSION_NAME[] = {"Angry", "Disgusted", "Fear", "Happy", "Neural", "Sad", "Surprised"};
+enum EXPRESSION_CODE { Angry = 0, Disgusted = 1, Fear = 2, Happy = 3, Sad = 4, Surprised = 5, Neural = 6};
+const std::string EXPRESSION_NAME[] = {"Angry", "Disgusted", "Fear", "Happy", "Sad", "Surprised", "Neural"};
 
 class FacialExpression {
 private:
