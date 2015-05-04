@@ -32,7 +32,7 @@ void FacialExpression::Train(std::vector<EXPRESSION_CODE> labels, std::vector<cv
 
     SVMParams params;
     params.svm_type    = SVM::C_SVC;
-    params.kernel_type = SVM::LINEAR;
+    params.kernel_type = SVM::SIGMOID;
     params.term_crit   = cvTermCriteria(CV_TERMCRIT_ITER, 100, 1e-6);
 
     svm.train_auto(trainingDataMat, labelMat, Mat(), Mat(), params);
@@ -48,6 +48,7 @@ void FacialExpression::Train(std::vector<EXPRESSION_CODE> labels, std::vector<cv
             count++;
     }
     cout << "RESULT: " << count << "/" << num_of_data << endl;
+    waitKey(0);
 }
 
 int FacialExpression::Test(cv::Mat_<double> keypoint){

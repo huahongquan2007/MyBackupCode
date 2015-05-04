@@ -16,63 +16,67 @@ int main() {
 
     // =========================================
     // Read Configuration
-    int num_of_training = 213;
+    int num_of_training = 8000;
     int num_of_landmark = 68;
 
     vector<Mat_<double>> keypoints;
 
     // -------------- READ KEYPOINTS -------------
-    string train_path = "/home/robotbase/github/MyBackupCode/FacialExpression/result_keypoints.txt";
+    string train_path = "/home/robotbase/github/MyBackupCode/FacialExpression/keypoint_output.txt";
     readKeypoints(num_of_training, num_of_landmark, keypoints, train_path);
 
     for(int i = 0 ; i < keypoints.size() ; i++){
         keypoints[i] = normalizeKeypoint(keypoints[i]);
     }
 
-
     vector<EXPRESSION_CODE> labels;
 
     // READ DATASET
     cout << "Read Dataset" << endl;
-    ifstream input("/home/robotbase/github/MyBackupCode/FacialExpression/Datasets/JAFFE/listJAFFE.txt", ifstream::in);
+    ifstream input("/home/robotbase/github/MyBackupCode/FacialExpression/emotion_output.txt", std::ifstream::in);
 
     string str;
-    vector<string> listImagePath;
-    while( getline(input, str) ){
-        listImagePath.push_back(str);
 
-        string ex_code = str.substr(3, 2);
+    while( getline(input, str) ){
+        string ex_code = str;
 
         EXPRESSION_CODE cur_code;
-        if(ex_code == "AN"){
+        if(ex_code == "0"){
             cur_code = Angry;
-        } else if(ex_code == "DI"){
+        } else if(ex_code == "1"){
             cur_code = Disgusted;
-        } else if(ex_code == "FE"){
+        } else if(ex_code == "2"){
             cur_code = Fear;
-        } else if(ex_code == "HA"){
+        } else if(ex_code == "3"){
             cur_code = Happy;
-        } else if(ex_code == "NE"){
-            cur_code = Neural;
-        } else if(ex_code == "SA"){
+        } else if(ex_code == "4"){
             cur_code = Sad;
-        } else if(ex_code == "SU"){
+        } else if(ex_code == "5"){
             cur_code = Surprised;
+        } else if(ex_code == "6"){
+            cur_code = Neural;
         }
+
 
         labels.push_back( cur_code );
     }
 
+    vector<string> listImagePath;
+    ifstream inputPath("/home/robotbase/github/MyBackupCode/FacialExpression/path_output.txt", ifstream::in);
+    while( getline(inputPath, str) ) {
+        listImagePath.push_back(str);
+    }
     cout << "Read Images " << listImagePath.size() << endl;
 
-//    for(int i = 0 ; i < listImagePath.size(); i++){
-//        Mat_<unsigned char> img = imread("/home/robotbase/github/MyBackupCode/FacialPointDetection/Datasets/JAFFE/" + listImagePath[i] , CV_LOAD_IMAGE_GRAYSCALE);
-//        equalizeHist( img, img );
-//
-//        putText(img, EXPRESSION_NAME[labels[i]], Point(0, 50), FONT_HERSHEY_COMPLEX, 1.0, (255, 255, 255));
-//        putText(img, listImagePath[i], Point(0, 100), FONT_HERSHEY_COMPLEX, 1.0, (255, 255, 255));
-//        visualizeImage(img, keypoints[i], 0 , false, "result");
-//    }
+    for(int i = 0 ; i < listImagePath.size(); i++){
+        Mat_<unsigned char> img = imread(listImagePath[i] , CV_LOAD_IMAGE_GRAYSCALE);
+        equalizeHist( img, img );
+
+        cout << listImagePath[i] << endl;
+        putText(img, EXPRESSION_NAME[labels[i]], Point(0, 50), FONT_HERSHEY_COMPLEX, 1.0, (255, 255, 255));
+        putText(img, listImagePath[i], Point(0, 100), FONT_HERSHEY_COMPLEX, 1.0, (255, 255, 255));
+        visualizeImage(img, keypoints[i], 0 , false, "result");
+    }
 
 
     cout << "Start training: " << keypoints.size() << " images." << endl;
