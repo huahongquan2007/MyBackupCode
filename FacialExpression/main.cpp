@@ -29,7 +29,7 @@ int main() {
         keypoints[i] = normalizeKeypoint(keypoints[i]);
     }
 
-    vector<EXPRESSION_CODE> labels;
+    vector<int> labels;
 
     // READ DATASET
     cout << "Read Dataset" << endl;
@@ -40,23 +40,23 @@ int main() {
     while( getline(input, str) ){
         string ex_code = str;
 
-        EXPRESSION_CODE cur_code;
-        if(ex_code == "0"){
-            cur_code = Angry;
-        } else if(ex_code == "1"){
-            cur_code = Disgusted;
-        } else if(ex_code == "2"){
-            cur_code = Fear;
-        } else if(ex_code == "3"){
-            cur_code = Happy;
-        } else if(ex_code == "4"){
-            cur_code = Sad;
-        } else if(ex_code == "5"){
-            cur_code = Surprised;
-        } else if(ex_code == "6"){
-            cur_code = Neural;
-        }
-
+        int cur_code = stoi(str);
+        // "Angry", "Disgusted", "Fear", "Happy", "Sad", "Surprised", "Neural"
+//        if(ex_code == "0"){
+//            cur_code = 0;
+//        } else if(ex_code == "1"){
+//            cur_code = 1;
+//        } else if(ex_code == "2"){
+//            cur_code = 2;
+//        } else if(ex_code == "3"){
+//            cur_code = 3;
+//        } else if(ex_code == "4"){
+//            cur_code = Sad;
+//        } else if(ex_code == "5"){
+//            cur_code = Surprised;
+//        } else if(ex_code == "6"){
+//            cur_code = Neural;
+//        }
 
         labels.push_back( cur_code );
     }

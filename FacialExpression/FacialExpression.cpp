@@ -1,19 +1,20 @@
 #include "FacialExpression.h"
 #include <iostream>
-#include <opencv2/ml/ml.hpp>
+
 
 using namespace std;
 using namespace cv;
 
-void FacialExpression::Train(std::vector<EXPRESSION_CODE> labels, std::vector<cv::Mat_<double>> keypoints){
+void FacialExpression::Train(std::vector<int> labels, std::vector<cv::Mat_<double>> keypoints){
     cout << "Train Facial Expression" << endl;
 
     int num_of_data = labels.size();
     int num_of_landmark = keypoints[0].rows;
-    Mat labelMat (num_of_data, 1 , CV_32FC1);
+    int num_of_class = 2;
+    Mat labelMat = Mat::zeros(num_of_data, num_of_class , CV_32FC1);
 
     for(int i = 0 ; i < num_of_data; i++){
-        labelMat.at<float>(i, 0) = (float) labels[i];
+        labelMat.at<float>(i, labels[i]) = (float) 1.0;
     }
     cout << labelMat.size() << endl;
 
@@ -50,14 +51,12 @@ void FacialExpression::Train(std::vector<EXPRESSION_CODE> labels, std::vector<cv
 //    }
 
     // ------------------------------- ANN ---------------------------
-    cv::Mat layers = cv::Mat(4, 1, CV_32SC1);
+    cv::Mat layers = cv::Mat(3, 1, CV_32SC1);
 
     layers.row(0) = cv::Scalar(136);
-    layers.row(1) = cv::Scalar(200);
-    layers.row(2) = cv::Scalar(150);
-    layers.row(3) = cv::Scalar(1);
+    layers.row(1) = cv::Scalar(500);
+    layers.row(2) = cv::Scalar(2);
 
-    CvANN_MLP mlp;
     CvANN_MLP_TrainParams params;
     CvTermCriteria criteria;
     criteria.max_iter = 100;
@@ -78,15 +77,22 @@ void FacialExpression::Train(std::vector<EXPRESSION_CODE> labels, std::vector<cv
 
     cout << "After train" << endl;
 
-    cv::Mat response(1, 1, CV_32FC1);
-
     int count = 0;
     for(int i = 0 ; i < num_of_data ; i++){
-        cv::Mat response(1, 1, CV_32FC1);
+        cv::Mat response(1, 2, CV_32FC1);
         mlp.predict(trainingDataMat.row(i), response);
-        int predict = response.at<float>(0,0);
+
+        float maxPredict = response.at<float>(0, 0);
+        int predict = 0;
+        for(int index = 1 ; index < num_of_class; index ++){
+            if( response.at<float>(0, index) > maxPredict){
+                predict = index;
+                maxPredict = response.at<float>(0, index);
+            }
+        }
+
         cout << "PREDICT: " << predict << " TRUTH : " << labels[i] << endl;
-//        if( predict == 1 && labels[i] == 3 || predict == 7 && labels[i] == 6)
+
         if(predict == labels [i])
             count++;
     }

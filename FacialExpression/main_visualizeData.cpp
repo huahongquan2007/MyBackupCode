@@ -23,7 +23,7 @@ int main() {
 
 
     // Read labels
-    vector<EXPRESSION_CODE> labels;
+    vector<int> labels;
 
     ifstream inputLabels("/home/robotbase/github/MyBackupCode/FacialExpression/emotion_output.txt", std::ifstream::in);
     // Read keypoints
@@ -49,33 +49,16 @@ int main() {
         // Read labels
         string ex_code;
         getline(inputLabels, ex_code);
-        EXPRESSION_CODE cur_code;
-        if(ex_code == "0"){
-            cur_code = Angry;
-        } else if(ex_code == "1"){
-            cur_code = Disgusted;
-        } else if(ex_code == "2"){
-            cur_code = Fear;
-        } else if(ex_code == "3"){
-            cur_code = Happy;
-        } else if(ex_code == "4"){
-            cur_code = Sad;
-        } else if(ex_code == "5"){
-            cur_code = Surprised;
-        } else if(ex_code == "6"){
-            cur_code = Neural;
-        }
+        int cur_code = stoi(ex_code);
 
         string img_path;
         getline(inputPath, img_path);
-
-        if(cur_code == Happy || cur_code == Neural){
-            if(cur_code == Happy)
-                labels.push_back( Angry );
+//        "Angry", "Disgusted", "Fear", "Happy", "Sad", "Surprised", "Neural"
+        if(cur_code == 3 || cur_code == 6){
+            if(cur_code == 3)
+                labels.push_back( 0 );
             else
-                labels.push_back( Disgusted );
-//        if(true){
-//          labels.push_back( cur_code );
+                labels.push_back( 1 );
             keypoints.push_back(temp);
             listImagePath.push_back(img_path);
         }
