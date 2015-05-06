@@ -11,7 +11,7 @@ void readBoundingBoxes(int const num_of_training, vector<Rect_<int>> &bounding_b
     Rect_<int> rect;
     for(int i = 0;i < num_of_training; i++){
         finBox >> rect.x >> rect.y >> rect.width >> rect.height;
-        cout << rect << endl;
+//        cout << rect << endl;
         bounding_boxes.push_back(rect);
     }
     finBox.close();

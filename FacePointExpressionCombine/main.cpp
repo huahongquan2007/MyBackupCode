@@ -14,27 +14,15 @@ int main() {
     cout << "Face Detection - Facial Landmarking - Face Expression!" << endl;
 
 
-    // Get Image
-    Mat img = imread("/home/robotbase/github/MyBackupCode/FacePointExpressionCombine/test.jpg", CV_LOAD_IMAGE_COLOR);
-    Mat result = img.clone();
-    // Detection
+    // ------------------------- LOAD MODEL ------------------------------
+
+    // DETECTION
     // --- Load detection ---
     String face_cascade_name = "/home/robotbase/github/MyBackupCode/FacialPointDetection/haarcascade_frontalface_alt.xml";
     CascadeClassifier face_cascade;
     if( !face_cascade.load( face_cascade_name ) ){ printf("--(!)Error loading\n"); return -1; };
 
-    // --- Detect faces ---
-    std::vector<Rect_<int>> faces;
-    face_cascade.detectMultiScale( img, faces, 1.1, 2, CV_HAAR_FIND_BIGGEST_OBJECT, Size(60, 60) );
-
-    if(faces.size() < 0){
-        cout << "No face detected";
-        return 0;
-    }
-    // plot face bounding box
-    rectangle(result, faces[0], (255,255,255), 2);
-
-    // Landmarking
+    // FACIAL LANDMARK
     // -------------- Read Configuration --------------
     Configuration options("/home/robotbase/github/MyBackupCode/FacialPointDetection/config_ibug.txt");
     const int num_of_training = options.getNumOfTraining();
@@ -58,27 +46,82 @@ int main() {
 
     cout << "Load shapeModel successfully" << endl;
 
-    Mat_<unsigned char> img_gray;
-    cvtColor(img, img_gray, COLOR_RGB2GRAY);
-    Mat_<double> prediction_keypoint = shapeAlignmentTest.Test(img_gray, faces[0]);
-
-
-    // Expression
-    // --- Load Model ---
+    // EXPRESSION
+    // -------------- Load Model ----------------
     FacialExpression facialExpression;
     facialExpression.Load("/home/robotbase/github/MyBackupCode/FacialExpression/expressionModel.txt");
 
-    Mat_<double> keypoint_norm = normalizeKeypoint(prediction_keypoint);
-    int predict = facialExpression.Test(keypoint_norm);
 
-    if(predict == 0){
-        predict = 3;
-    } else {
-        predict = 6;
+    cout << "START PROCESS IMAGE: " << endl;
+    VideoCapture cap(0);
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Get Image
+//    Mat img = imread("/home/robotbase/github/MyBackupCode/FacePointExpressionCombine/test.jpg", CV_LOAD_IMAGE_COLOR);
+    Mat img;
+    for(int i = 0 ; i < 10; i++){
+
+
+        bool bSuccess = cap.read(img); // read a new frame from video
+        if (!bSuccess) //if not success, break loop
+        {
+            cout << "Cannot read a frame from video file" << endl;
+            return -1;
+        }
+
+        // Detection
+
+        if (!cap.isOpened())  // if not success, exit program
+        {
+            cout  << "Cannot open the video file" << endl;
+            return -1;
+        }
+
+
+        // --- Detect faces ---
+        int64 t0 = cv::getTickCount();
+        std::vector<Rect_<int>> faces;
+        face_cascade.detectMultiScale( img, faces, 1.1, 2, CV_HAAR_FIND_BIGGEST_OBJECT, Size(60, 60) );
+
+        if(faces.size() < 0){
+            cout << "No face detected";
+            return 0;
+        }
+
+        int64 t1 = cv::getTickCount();
+        double secs = (t1-t0)/cv::getTickFrequency();
+        cout << "Detect Done: " << secs << endl;
+        // Landmarking
+
+        t0 = cv::getTickCount();
+
+        Mat_<unsigned char> img_gray;
+        cvtColor(img, img_gray, COLOR_RGB2GRAY);
+        Mat_<double> prediction_keypoint = shapeAlignmentTest.Test(img_gray, faces[0]);
+
+        t1 = cv::getTickCount();
+        secs = (t1-t0)/cv::getTickFrequency();
+        cout << "Landmark Done: " << secs << endl;
+        // Expression
+
+        t0 = cv::getTickCount();
+
+        Mat_<double> keypoint_norm = normalizeKeypoint(prediction_keypoint);
+        int predict = facialExpression.Test(keypoint_norm);
+
+        if(predict == 0){
+            predict = 3;
+        } else {
+            predict = 6;
+        }
+
+        t1 = cv::getTickCount();
+        secs = (t1-t0)/cv::getTickFrequency();
+        cout << "Expression Done: " << secs << endl;
+
+        // plot face bounding box
+        rectangle(img, faces[0], (255,255,255), 2);
+        putText(img, EXPRESSION_NAME[predict], Point(0, 50), FONT_HERSHEY_COMPLEX, 1.0, (255, 255, 255));
+        visualizeImage(img, prediction_keypoint, 10 , false, "result", true);
     }
-
-    putText(result, EXPRESSION_NAME[predict], Point(0, 50), FONT_HERSHEY_COMPLEX, 1.0, (255, 255, 255));
-    visualizeImage(result, prediction_keypoint, 0 , false, "result", true);
-    waitKey(0);
     return 0;
 }
