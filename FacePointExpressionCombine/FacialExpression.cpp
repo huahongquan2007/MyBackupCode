@@ -1,7 +1,4 @@
 #include "FacialExpression.h"
-#include <iostream>
-
-
 using namespace std;
 using namespace cv;
 
@@ -10,7 +7,7 @@ void FacialExpression::Train(std::vector<int> labels, std::vector<cv::Mat_<doubl
 
     int num_of_data = labels.size();
     int num_of_landmark = keypoints[0].rows;
-    int num_of_class = 2;
+    num_of_class = 2;
     Mat labelMat = Mat::zeros(num_of_data, num_of_class , CV_32FC1);
 
     for(int i = 0 ; i < num_of_data; i++){
@@ -112,7 +109,32 @@ int FacialExpression::Test(cv::Mat_<double> keypoint){
         testDataMat.at<float>(0, j + num_of_landmark) = (float) keypoint.at<double>(j, 1);
     }
 
-    int predict = svm.predict(testDataMat);
+//    int predict = svm.predict(testDataMat);
+    cv::Mat response(1, 2, CV_32FC1);
+    mlp.predict(testDataMat, response);
+
+    float maxPredict = response.at<float>(0, 0);
+    int predict = 0;
+    for(int index = 1 ; index < num_of_class; index ++){
+        if( response.at<float>(0, index) > maxPredict){
+            predict = index;
+            maxPredict = response.at<float>(0, index);
+        }
+    }
+
+    cout << "PREDICT: " << predict << endl;
 
     return predict;
+}
+
+void FacialExpression::Save(std::string destination){
+    cout << "Start Save" << endl;
+    mlp.save(destination.c_str(), "expressionModel");
+    cout << "Save successful" << endl;
+}
+void FacialExpression::Load(std::string destination){
+    cout << "Start Load expressionModel" << endl;
+    mlp.load(destination.c_str(), "expressionModel");
+    cout << "End Load expressionModel" << endl;
+    num_of_class = 2;
 }

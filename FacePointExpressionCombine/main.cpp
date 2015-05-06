@@ -71,6 +71,12 @@ int main() {
     Mat_<double> keypoint_norm = normalizeKeypoint(prediction_keypoint);
     int predict = facialExpression.Test(keypoint_norm);
 
+    if(predict == 0){
+        predict = 3;
+    } else {
+        predict = 6;
+    }
+
     putText(result, EXPRESSION_NAME[predict], Point(0, 50), FONT_HERSHEY_COMPLEX, 1.0, (255, 255, 255));
     visualizeImage(result, prediction_keypoint, 0 , false, "result", true);
     waitKey(0);

@@ -113,6 +113,8 @@ int main() {
     }
     finBox.close();
 
+    facialExpression.Save("/home/robotbase/github/MyBackupCode/FacialExpression/expressionModel.txt");
+
     // READ TEST
     string test_path = "/home/robotbase/github/MyBackupCode/FacialPointDetection/Datasets/IBUG/keypoints.txt";
 
