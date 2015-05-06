@@ -13,12 +13,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="bbe2fce7-2f94-433b-904e-3e9e24fb8873" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/FacialExpression.cpp" afterPath="$PROJECT_DIR$/FacialExpression.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/FacialExpression.h" afterPath="$PROJECT_DIR$/FacialExpression.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/main.cpp" afterPath="$PROJECT_DIR$/main.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/main_visualizeData.cpp" afterPath="$PROJECT_DIR$/main_visualizeData.cpp" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../MachineLearningOpencv/.idea/workspace.xml" afterPath="$PROJECT_DIR$/../MachineLearningOpencv/.idea/workspace.xml" />
     </list>
     <ignored path="FacialExpression.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -52,7 +47,7 @@
       <file leaf-file-name="FacialExpression.cpp" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/FacialExpression.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
+            <state vertical-scroll-proportion="1.0774194">
               <caret line="58" column="0" selection-start-line="58" selection-start-column="0" selection-end-line="58" selection-end-column="0" />
               <folding>
                 <element signature="e#0#29#0" expanded="true" />
@@ -693,7 +688,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/FacialExpression.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
+        <state vertical-scroll-proportion="1.0774194">
           <caret line="58" column="0" selection-start-line="58" selection-start-column="0" selection-end-line="58" selection-end-column="0" />
           <folding>
             <element signature="e#0#29#0" expanded="true" />

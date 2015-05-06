@@ -12,7 +12,7 @@ TEST_BOUNDINGBOX = boundingbox.txt
 TEST_KEYPOINTS = keypoints.txt
 TEST_NUM_OF_IMAGE = 213
 
-MODEL_PATH = shapeModel.txt
+MODEL_PATH = shapeModel_IBUG.txt
 
 NUM_OF_LANDMARK = 68
 NUM_OF_FIRST_LEVEL = 10
