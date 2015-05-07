@@ -23,7 +23,7 @@ int main() {
     // Training
     const int num_of_training = options.getNumOfTraining();
     vector<Mat_<unsigned char>> images;
-    vector<Mat_<double>> keypoints;
+    vector<Mat_<float>> keypoints;
     vector<Rect_<int>> bounding_boxes;
     const string train_data = options.getDatasetTrainPath();
 
@@ -66,7 +66,7 @@ int main() {
     cout << "Start Testing" << endl;
     const int num_of_testing = options.getNumOfTesting();
     vector<Mat_<unsigned char>> images_test;
-    vector<Mat_<double>> keypoints_test;
+    vector<Mat_<float>> keypoints_test;
     vector<Rect_<int>> bounding_boxes_test;
     const string test_data = options.getDatasetTestPath();
 
@@ -97,7 +97,7 @@ int main() {
     int start_position = 100;
     for(int i = start_position ; i < images_test.size() + start_position; i++){
 
-        Mat_<double> prediction = shapeAlignmentTest.Test(images[i], bounding_boxes[i]);
+        Mat_<float> prediction = shapeAlignmentTest.Test(images[i], bounding_boxes[i]);
         visualizeImageCompare(images[i], prediction, keypoints[i], 0);
 
         cout << "==============================" << endl;

@@ -23,7 +23,7 @@ int main() {
     int second_level = options.getNumOfSecondLevel();
     int feature_per_fern = options.getNumOfFeaturePerFern();
     const int num_of_training = options.getNumOfTraining();
-    vector<Mat_<double>> keypoints;
+    vector<Mat_<float>> keypoints;
 
     // -------------- READ KEYPOINTS -------------
     string train_path = "/home/robotbase/github/MyBackupCode/FacialPointDetection/save_result_1.txt";

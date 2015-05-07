@@ -17,25 +17,25 @@ void readBoundingBoxes(int const num_of_training, vector<Rect_<int>> &bounding_b
     finBox.close();
 }
 
-void readKeypoints(int const num_of_training, int const num_of_landmark, vector<Mat_<double>> &keypoints, string &train_path) {
+void readKeypoints(int const num_of_training, int const num_of_landmark, vector<Mat_<float>> &keypoints, string &train_path) {
     ifstream finKey( train_path , ios_base::in );
     for(int i = 0;i < num_of_training; i++){
-        Mat_<double> temp(num_of_landmark,2);
-        double val;
+        Mat_<float> temp(num_of_landmark,2);
+        float val;
         for(int j = 0; j < num_of_landmark; j++){
             finKey >> val;
-            temp.at<double>(j, 0) = val;
+            temp.at<float>(j, 0) = val;
         }
         for(int j = 0; j < num_of_landmark; j++){
             finKey >> val;
-            temp.at<double>(j, 1) = val;
+            temp.at<float>(j, 1) = val;
         }
         keypoints.push_back(temp);
     }
     finKey.close();
 }
 
-void visualizeImage(Mat img, Mat_<double> keypoints, int delay, bool debug, string win_name, bool isColor){
+void visualizeImage(Mat img, Mat_<float> keypoints, int delay, bool debug, string win_name, bool isColor){
     // --------------- DRAW A FACE + KEYPOINT --------
     namedWindow(win_name, WINDOW_NORMAL);
 
@@ -49,15 +49,15 @@ void visualizeImage(Mat img, Mat_<double> keypoints, int delay, bool debug, stri
     }
 
 
-    Mat_<double> curKey = keypoints;
+    Mat_<float> curKey = keypoints;
 
     if(debug) cout << endl;
 
     for(int j = 0 ; j < curKey.rows ; j++){
-        int x = (int) curKey.at<double>(j, 0);
-        int y = (int) curKey.at<double>(j, 1);
+        int x = (int) curKey.at<float>(j, 0);
+        int y = (int) curKey.at<float>(j, 1);
         if(debug) cout << "Point["<< j << "]( " << setw(7) << x << " , " << setw(7) << y << " )" << endl;
-        circle(curImg, Point(x, y), 3, Scalar(255, 0, 0), -1);
+        circle(curImg, Point(x, y), 1, Scalar(255, 0, 0), -1);
     }
 
     imshow(win_name, curImg);
@@ -65,7 +65,7 @@ void visualizeImage(Mat img, Mat_<double> keypoints, int delay, bool debug, stri
     waitKey(delay);
 }
 
-void visualizeImageCompare(Mat img, Mat_<double> keypoints, Mat_<double> keypoints2, int delay, bool debug){
+void visualizeImageCompare(Mat img, Mat_<float> keypoints, Mat_<float> keypoints2, int delay, bool debug){
     // --------------- DRAW A FACE + KEYPOINT --------
     namedWindow("ImageCompare", WINDOW_NORMAL);
 
@@ -73,15 +73,15 @@ void visualizeImageCompare(Mat img, Mat_<double> keypoints, Mat_<double> keypoin
 
     cvtColor( img, curImg, CV_GRAY2BGR );
 
-    Mat_<double> curKey = keypoints;
+    Mat_<float> curKey = keypoints;
 
     if(debug) cout << endl;
 
     for(int j = 0 ; j < curKey.rows ; j++){
-        int x = (int) curKey.at<double>(j, 0);
-        int y = (int) curKey.at<double>(j, 1);
+        int x = (int) curKey.at<float>(j, 0);
+        int y = (int) curKey.at<float>(j, 1);
         if(debug) cout << "Point["<< j << "]( " << setw(7) << x << " , " << setw(7) << y << " )" << endl;
-        circle(curImg, Point(x, y), 3, Scalar(255, 0, 0), -1);
+        circle(curImg, Point(x, y), 1, Scalar(255, 0, 0), -1);
     }
 
     curKey = keypoints2;
@@ -89,8 +89,8 @@ void visualizeImageCompare(Mat img, Mat_<double> keypoints, Mat_<double> keypoin
     if(debug) cout << endl;
 
     for(int j = 0 ; j < curKey.rows ; j++){
-        int x = (int) curKey.at<double>(j, 0);
-        int y = (int) curKey.at<double>(j, 1);
+        int x = (int) curKey.at<float>(j, 0);
+        int y = (int) curKey.at<float>(j, 1);
         if(debug) cout << "Point["<< j << "]( " << setw(7) << x << " , " << setw(7) << y << " )" << endl;
         circle(curImg, Point(x, y), 1, Scalar(0, 255, 0), -1);
     }
@@ -100,9 +100,9 @@ void visualizeImageCompare(Mat img, Mat_<double> keypoints, Mat_<double> keypoin
     waitKey(delay);
 }
 
-Mat_<double> GetMeanShape(vector<Mat_<double>> keypoints, vector<Rect_<int>> boxes) {
+Mat_<float> GetMeanShape(vector<Mat_<float>> keypoints, vector<Rect_<int>> boxes) {
     int numOfImages = keypoints.size();
-    Mat_<double> result = Mat::zeros(keypoints[0].size(), CV_32F);
+    Mat_<float> result = Mat::zeros(keypoints[0].size(), CV_32F);
 
     for(int i = 0 ; i < numOfImages; i++){
         result += ProjectToBoxCoordinate( keypoints[i] , boxes[i] );
@@ -115,11 +115,11 @@ Mat_<double> GetMeanShape(vector<Mat_<double>> keypoints, vector<Rect_<int>> box
     return result;
 }
 
-Point GetMeanPoint(Mat_<double> keypoints){
+Point GetMeanPoint(Mat_<float> keypoints){
     Point meanIndex;
     for(int j = 0 ; j < keypoints.rows ; j++){
-        meanIndex.x += keypoints.at<double>(j, 0);
-        meanIndex.y += keypoints.at<double>(j, 1);
+        meanIndex.x += keypoints.at<float>(j, 0);
+        meanIndex.y += keypoints.at<float>(j, 1);
     }
     meanIndex.x = meanIndex.x / keypoints.rows;
     meanIndex.y = meanIndex.y / keypoints.rows;
@@ -127,71 +127,78 @@ Point GetMeanPoint(Mat_<double> keypoints){
     return meanIndex;
 }
 
-Mat_<double> ProjectToBoxCoordinate( Mat_<double> points, Rect_<int> box ){
-    Mat_<double> result = Mat::zeros(points.size(), CV_32F);
+Mat_<float> ProjectToBoxCoordinate( Mat_<float> points, Rect_<int> box ){
+    Mat_<float> result = Mat::zeros(points.size(), CV_32F);
 
-    double half_w = box.width / 2.0;    double half_h = box.height / 2.0;
-    double center_x = box.x + half_w;   double center_y = box.y + half_h;
+    float half_w = box.width / 2.0;    float half_h = box.height / 2.0;
+    float center_x = box.x + half_w;   float center_y = box.y + half_h;
 
     for(int i = 0 ; i < points.size().height ; i ++){
-        result.at<double>(i, 0) = ( points.at<double>(i, 0) - center_x )/ half_w;
-        result.at<double>(i, 1) = ( points.at<double>(i, 1) - center_y )/ half_h;
+        result.at<float>(i, 0) = ( points.at<float>(i, 0) - center_x )/ half_w;
+        result.at<float>(i, 1) = ( points.at<float>(i, 1) - center_y )/ half_h;
     }
 
     return result;
 }
 
-Mat_<double> ProjectToImageCoordinate( Mat_<double> points, Rect_<int> box , bool translationToBox){
-    Mat_<double> result = Mat::zeros(points.size(), CV_32F);
+Mat_<float> ProjectToImageCoordinate( Mat_<float> points, Rect_<int> box , bool translationToBox){
+    Mat_<float> result = Mat::zeros(points.size(), CV_32F);
 
-    double half_w = box.width / 2.0;    double half_h = box.height / 2.0;
-    double center_x = box.x + half_w;   double center_y = box.y + half_h;
+    float half_w = box.width / 2.0;    float half_h = box.height / 2.0;
+    float center_x = box.x + half_w;   float center_y = box.y + half_h;
 
     for(int i = 0 ; i < points.size().height ; i ++){
 
-        result.at<double>(i, 0) = (translationToBox) ? ( points.at<double>(i, 0) * half_w ) + center_x : ( points.at<double>(i, 0) * half_w );
+        result.at<float>(i, 0) = (translationToBox) ? ( points.at<float>(i, 0) * half_w ) + center_x : ( points.at<float>(i, 0) * half_w );
 
-        result.at<double>(i, 1) = (translationToBox) ? ( points.at<double>(i, 1) * half_h ) + center_y : ( points.at<double>(i, 1) * half_h );
+        result.at<float>(i, 1) = (translationToBox) ? ( points.at<float>(i, 1) * half_h ) + center_y : ( points.at<float>(i, 1) * half_h );
     }
 
     return result;
 }
 
-double calculate_covariance(const Mat_<double> x, const Mat_<double> y) {
+float calculate_covariance(const Mat_<float> x, const Mat_<float> y) {
 //    cout << "------------------------" << endl;
 //    cout << "X: " << x << endl;
 //    cout << "Y: " << y << endl;
 //    cout << "MeanX: " << mean(x)[0] << endl;
 //    cout << "MeanY: " << mean(y)[0] << endl;
-
-    Mat_<double> x1 = x - mean(x)[0];
-    Mat_<double> y1 = y - mean(y)[0];
-
+    Mat_<float> x1 = x - mean(x)[0];
+    Mat_<float> y1 = y - mean(y)[0];
     return mean( x1.mul(y1) )[0];
 }
 
-void similarity_transform(const Mat_<double>& shape1, const Mat_<double>& shape2, Mat_<double>& rotation, double& scale){
+void similarity_transform(const Mat_<float>& shape1, const Mat_<float>& shape2, Mat_<float>& rotation, float& scale){
     rotation = Mat::zeros(2,2,CV_64FC1);
     scale = 0;
 
     // center the data
-    double center_x_1 = 0;
-    double center_y_1 = 0;
-    double center_x_2 = 0;
-    double center_y_2 = 0;
+    float center_x_1 = 0;
+    float center_y_1 = 0;
+    float center_x_2 = 0;
+    float center_y_2 = 0;
     for(int i = 0;i < shape1.rows;i++){
-        center_x_1 += shape1.at<double>(i,0);
-        center_y_1 += shape1.at<double>(i,1);
-        center_x_2 += shape2.at<double>(i,0);
-        center_y_2 += shape2.at<double>(i,1);
+        center_x_1 += shape1.at<float>(i,0);
+        center_y_1 += shape1.at<float>(i,1);
+        center_x_2 += shape2.at<float>(i,0);
+        center_y_2 += shape2.at<float>(i,1);
     }
+
     center_x_1 /= shape1.rows;
     center_y_1 /= shape1.rows;
     center_x_2 /= shape2.rows;
     center_y_2 /= shape2.rows;
 
-    Mat_<double> temp1 = shape1.clone();
-    Mat_<double> temp2 = shape2.clone();
+    Mat_<double> temp1 = Mat::zeros(shape1.size(), shape1.type());
+    Mat_<double> temp2 = Mat::zeros(shape2.size(), shape1.type());
+    for(int i = 0;i < shape1.rows;i++){
+        temp1.at<double>(i, 0) = (double) shape1.at<float>(i, 0);
+        temp1.at<double>(i, 1) = (double) shape1.at<float>(i, 1);
+        temp2.at<double>(i, 0) = (double) shape2.at<float>(i, 0);
+        temp2.at<double>(i, 1) = (double) shape2.at<float>(i, 1);
+    }
+
+
     for(int i = 0;i < shape1.rows;i++){
         temp1.at<double>(i,0) -= center_x_1;
         temp1.at<double>(i,1) -= center_y_1;
@@ -205,26 +212,33 @@ void similarity_transform(const Mat_<double>& shape1, const Mat_<double>& shape2
     calcCovarMatrix(temp1,covariance1,mean1,CV_COVAR_COLS);
     calcCovarMatrix(temp2,covariance2,mean2,CV_COVAR_COLS);
 
-    double s1 = sqrt(norm(covariance1));
-    double s2 = sqrt(norm(covariance2));
+
+    float s1 = sqrt(norm(covariance1));
+    float s2 = sqrt(norm(covariance2));
     scale = s1 / s2;
     temp1 = 1.0 / s1 * temp1;
     temp2 = 1.0 / s2 * temp2;
 
-    double num = 0;
-    double den = 0;
+    float num = 0;
+    float den = 0;
     for(int i = 0;i < shape1.rows;i++){
         num = num + temp1.at<double>(i,1) * temp2.at<double>(i,0) - temp1.at<double>(i,0) * temp2.at<double>(i,1);
         den = den + temp1.at<double>(i,0) * temp2.at<double>(i,0) + temp1.at<double>(i,1) * temp2.at<double>(i,1);
     }
 
-    double norm = sqrt(num*num + den*den);
-    double sin_theta = num / norm;
-    double cos_theta = den / norm;
-    rotation.at<double>(0,0) = cos_theta;
-    rotation.at<double>(0,1) = -sin_theta;
-    rotation.at<double>(1,0) = sin_theta;
-    rotation.at<double>(1,1) = cos_theta;
+    float norm = sqrt(num*num + den*den);
+    float sin_theta = num / norm;
+    float cos_theta = den / norm;
+    rotation.at<float>(0,0) = cos_theta;
+    rotation.at<float>(0,1) = -sin_theta;
+    rotation.at<float>(1,0) = sin_theta;
+    rotation.at<float>(1,1) = cos_theta;
+
+    if( std::isnan(rotation.at<float>(0, 0)) ){
+        waitKey(0);
+    }
+
+
 }
 
 void readFERDataset(){
@@ -269,4 +283,25 @@ void readFERDataset(){
 
     }
     cout << endl;
+}
+
+float heuristicMult(float a, float b){
+    // Test float vs int
+    int64 max = 100000;
+//    int64 t0 = getTickCount();
+//    float c = a * b;
+//    cout << "Result float: " << c << endl;
+//    int64 t1 = getTickCount();
+//    cout << "Time compute float: " << (t1 - t0) / getTickFrequency() << endl;
+
+//    int64 t2 = getTickCount();
+
+    int64 a1 = static_cast<int64>(a * max);
+    int64 b1 = static_cast<int64>(b * max);
+    int64 d = a1 * b1;
+    float c1 = 1.0 * d / max / max;
+//    cout << "Result int: " << c1 << endl;
+//    int64 t3 = getTickCount();
+//    cout << "Time compute int:: " << (t3 - t2) / getTickFrequency()  << endl;
+    return c1;
 }

@@ -29,7 +29,7 @@ int main() {
     int second_level = options.getNumOfSecondLevel();
     int feature_per_fern = options.getNumOfFeaturePerFern();
     const int num_of_training = options.getNumOfTraining();
-    vector<Mat_<double>> keypoints;
+    vector<Mat_<float>> keypoints;
     vector<Rect_<int>> bounding_boxes;
 
     // -------------- READ BOUNDING BOX ----------
@@ -66,14 +66,14 @@ int main() {
         face_cascade.detectMultiScale( img, faces, 1.1, 2, CV_HAAR_FIND_BIGGEST_OBJECT, Size(60, 60) );
 
         for(int j = 0 ; j < faces.size() ; j++){
-            Mat_<double> prediction = shapeAlignmentTest.Test(img, faces[0]);
+            Mat_<float> prediction = shapeAlignmentTest.Test(img, faces[0]);
 
             out << count << "_" << j << "_";
             for(int j = 0 ; j < prediction.rows; j++){
-                out << prediction.at<double>(j, 0) << " ";
+                out << prediction.at<float>(j, 0) << " ";
             }
             for(int j = 0 ; j < prediction.rows; j++){
-                out << prediction.at<double>(j, 1) << " ";
+                out << prediction.at<float>(j, 1) << " ";
             }
             out << endl;
             visualizeImage(img, prediction, 10, false, "result");
@@ -123,7 +123,7 @@ int main() {
 //
 //    cout << faces.size() << endl;
 //    if(faces.size() > 0){
-//        Mat_<double> result = shapeAlignmentTest.Test(eqImg, faces[0]);
+//        Mat_<float> result = shapeAlignmentTest.Test(eqImg, faces[0]);
 //        Mat test;
 //        resize(cur_img, test, Size(), 5.0, 5.0);
 //        result = 5.0 * result;
@@ -141,14 +141,14 @@ int main() {
 //    int start_position = 0;
 //    for(int i = start_position ; i < images_test.size() + start_position; i++){
 //
-//        Mat_<double> prediction = shapeAlignmentTest.Test(images_test[i], bounding_boxes_test[i]);
+//        Mat_<float> prediction = shapeAlignmentTest.Test(images_test[i], bounding_boxes_test[i]);
 //
 //
 //            for(int j = 0 ; j < prediction.rows; j++){
-//                out << prediction.at<double>(j, 0) << " ";
+//                out << prediction.at<float>(j, 0) << " ";
 //            }
 //            for(int j = 0 ; j < keypoints[i].rows; j++){
-//                out << prediction.at<double>(j, 1) << " ";
+//                out << prediction.at<float>(j, 1) << " ";
 //            }
 //            out << endl;
 //

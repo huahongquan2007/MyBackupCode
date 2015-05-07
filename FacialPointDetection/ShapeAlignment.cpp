@@ -23,7 +23,7 @@ void ShapeAlignment::addImages(vector<Mat_<unsigned char>> imgVector) {
     ShapeAlignment::images = imgVector;
 }
 
-void ShapeAlignment::addKeyPoints(vector<Mat_<double>> keypointsVector) {
+void ShapeAlignment::addKeyPoints(vector<Mat_<float>> keypointsVector) {
     keypoints = keypointsVector;
 }
 
@@ -99,8 +99,8 @@ void ShapeAlignment::Load(string destination) {
 void ShapeAlignment::Train(){
     cout << "TRAIN SHAPE MODEL" << endl;
 
-    vector<Mat_<double>> curShape;
-    vector<Mat_<double>> deltaShape;
+    vector<Mat_<float>> curShape;
+    vector<Mat_<float>> deltaShape;
 
     // generate more image, keypoints, curShape & inputShape
     // Use boundingBox to generate initialized locations for training data
@@ -143,7 +143,6 @@ void ShapeAlignment::Train(){
         cout << "FIRST LEVEL " << i << endl;
 
         deltaShape = regressors[i].Train(images, keypoints, meanShape, boundingBoxes, curShape);
-
         for(int j = 0 ; j < curShape.size() ; j++){
             curShape[j] = ProjectToBoxCoordinate(curShape[j], boundingBoxes[j]) + deltaShape[j];
             curShape[j] = ProjectToImageCoordinate(curShape[j], boundingBoxes[j]);
@@ -152,26 +151,26 @@ void ShapeAlignment::Train(){
     }
 }
 
-Mat_<double> ShapeAlignment::Test(Mat_<unsigned char> &image, Rect_<int> &bounding_box) {
+Mat_<float> ShapeAlignment::Test(Mat_<unsigned char> &image, Rect_<int> &bounding_box) {
 
-    Mat_<double> deltaShape;
-    vector<Mat_<double>> result;
+    Mat_<float> deltaShape;
+    vector<Mat_<float>> result;
 
     // initialize curShape
     RNG rng;
-    int total_test = 20;
+    int total_test = 5;
 
-    Mat_<double> resultShape = Mat::zeros(keypoints[0].size(), keypoints[0].type());
+    Mat_<float> resultShape = Mat::zeros(keypoints[0].size(), keypoints[0].type());
     for(int resultID = 0 ; resultID < total_test ; resultID++){
-        Mat_<double> curShape;
+        Mat_<float> curShape;
 
         // method 1: random
         int index = rng.uniform(0, keypoints.size() - 1);
-        Mat_<double> rand_shape = ProjectToBoxCoordinate(keypoints[index], boundingBoxes[index]);
+        Mat_<float> rand_shape = ProjectToBoxCoordinate(keypoints[index], boundingBoxes[index]);
         curShape = ProjectToImageCoordinate(rand_shape, bounding_box );
 
 //        cout << "ShapeAlignment: Test" << endl;
-//        Mat_<double> initial = curShape.clone();
+//        Mat_<float> initial = curShape.clone();
 //        visualizeImage(image, curShape, 1, false, "initialize");
 
         for(int i = 0 ; i < first_level_regressor ; i ++){
@@ -184,8 +183,8 @@ Mat_<double> ShapeAlignment::Test(Mat_<unsigned char> &image, Rect_<int> &boundi
         resultShape += curShape;
 //        Mat tImg = image.clone();
 //        for(int i = 0 ; i < initial.rows ; i++){
-//            int x = (int) initial.at<double>(i, 0);
-//            int y = (int) initial.at<double>(i, 1);
+//            int x = (int) initial.at<float>(i, 0);
+//            int y = (int) initial.at<float>(i, 1);
 //            circle(tImg, Point(x, y), 1, Scalar(255, 0, 255), -1);
 //        }
 //        visualizeImage(tImg, curShape, 1, false, "test_result");

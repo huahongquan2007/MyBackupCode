@@ -30,7 +30,7 @@ int main() {
     const int first_level = options.getNumOfFirstLevel();
     const int second_level = options.getNumOfSecondLevel();
     const int feature_per_fern = options.getNumOfFeaturePerFern();
-    vector<Mat_<double>> keypoints;
+    vector<Mat_<float>> keypoints;
     vector<Rect_<int>> bounding_boxes;
     // -------------- READ BOUNDING BOX ----------
     string bounding_box_train_path = options.getTrainBoundingBoxPath();
@@ -58,8 +58,9 @@ int main() {
     // Get Image
 //    Mat img = imread("/home/robotbase/github/MyBackupCode/FacePointExpressionCombine/test.jpg", CV_LOAD_IMAGE_COLOR);
     Mat img;
-    for(int i = 0 ; i < 10; i++){
+    for(int i = 0 ; i < 1000; i++){
 
+        int64 tStart = cv::getTickCount();
 
         bool bSuccess = cap.read(img); // read a new frame from video
         if (!bSuccess) //if not success, break loop
@@ -75,7 +76,6 @@ int main() {
             cout  << "Cannot open the video file" << endl;
             return -1;
         }
-
 
         // --- Detect faces ---
         int64 t0 = cv::getTickCount();
@@ -118,10 +118,23 @@ int main() {
         secs = (t1-t0)/cv::getTickFrequency();
         cout << "Expression Done: " << secs << endl;
 
+
+        int64 tEnd = cv::getTickCount();
+        double totalSecs = (tStart-tEnd)/cv::getTickFrequency();
+        cout << "Process Done: " << totalSecs << endl;
+        cout << "==================" << endl;
+
+
         // plot face bounding box
         rectangle(img, faces[0], (255,255,255), 2);
         putText(img, EXPRESSION_NAME[predict], Point(0, 50), FONT_HERSHEY_COMPLEX, 1.0, (255, 255, 255));
-        visualizeImage(img, prediction_keypoint, 10 , false, "result", true);
+        visualizeImage(img, prediction_keypoint, 5 , false, "result", true);
+
+        int c = waitKey(10);
+        cout << c << endl;
+        if( c == 1048689 ) { break; } // key: q
+
     }
+    cap.release();
     return 0;
 }

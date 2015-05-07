@@ -9,7 +9,7 @@ using namespace std;
 #include "Configuration.h"
 
 void readBoundingBoxes(int const num_of_training, vector<Rect_<int>> &bounding_boxes, string &bounding_box_train_path);
-void readKeypoints(int const num_of_training, int const num_of_landmark, vector<Mat_<double>> &keypoints, string &train_path);
+void readKeypoints(int const num_of_training, int const num_of_landmark, vector<Mat_<float>> &keypoints, string &train_path);
 
 int main(){
     cout << "TEST" << endl;
@@ -20,7 +20,7 @@ int main(){
     const int num_of_landmark = options.getNumOfLandmark();
     const int num_of_training = options.getNumOfTraining();
     vector<Mat> images;
-    vector<Mat_<double>> keypoints;
+    vector<Mat_<float>> keypoints;
     vector<Rect_<int>> bounding_boxes;
     const string train_data = options.getDatasetTrainPath();
 
@@ -52,7 +52,7 @@ int main(){
     string bounding_box_train_path = options.getTrainBoundingBoxPath();
     readBoundingBoxes(num_of_training, bounding_boxes, bounding_box_train_path);
 
-    Mat_<double> key1, key2;
+    Mat_<float> key1, key2;
 //
     int img_1 = 0;
     key1 = keypoints[ img_1 ];
@@ -60,16 +60,16 @@ int main(){
     key1 = ProjectToBoxCoordinate(keypoints[img_1], bounding_boxes[img_1]);
     key2 = ProjectToBoxCoordinate(keypoints[img_2], bounding_boxes[img_2]);
 
-    Mat_<double> rotation;
-    double scale = 0;
+    Mat_<float> rotation;
+    float scale = 0;
     similarity_transform(key1, key2, rotation, scale);
 
     cout << "ROTATION : " << rotation << endl;
     cout << "SCALE: " << scale << endl;
-    Mat_<double> curKey = key1;
+    Mat_<float> curKey = key1;
     for(int j = 0 ; j < curKey.rows ; j++){
-        int x = (int) ( curKey.at<double>(j, 0) * 100 ) + 250;
-        int y = (int) ( curKey.at<double>(j, 1) * 100 ) + 250;
+        int x = (int) ( curKey.at<float>(j, 0) * 100 ) + 250;
+        int y = (int) ( curKey.at<float>(j, 1) * 100 ) + 250;
 
         circle(curImg, Point(x, y), 2, Scalar(255, 0, 0), -1);
         circle(prevImg, Point(x, y), 2, Scalar(255, 0, 0), -1);
@@ -77,32 +77,32 @@ int main(){
 
     curKey = key2;
     transpose(rotation, rotation);
-    Mat_<double> rotateKey = scale * curKey * rotation;
+    Mat_<float> rotateKey = scale * curKey * rotation;
 
     similarity_transform(key2, key1, rotation, scale);
     transpose(rotation, rotation);
-    Mat_<double> reconstructKey = scale * rotateKey * rotation;
+    Mat_<float> reconstructKey = scale * rotateKey * rotation;
     for(int j = 0 ; j < curKey.rows ; j++){
-        int x = (int) ( curKey.at<double>(j, 0) * 100 ) + 250;
-        int y = (int) ( curKey.at<double>(j, 1) * 100 ) + 250;
+        int x = (int) ( curKey.at<float>(j, 0) * 100 ) + 250;
+        int y = (int) ( curKey.at<float>(j, 1) * 100 ) + 250;
 
         circle(prevImg, Point(x, y), 2, Scalar(0, 255, 0), -1);
         circle(curImg, Point(x, y), 2, Scalar(0, 255, 0), -1);
 
-        x = (int) ( rotateKey.at<double>(j, 0) * 100 ) + 250;
-        y = (int) ( rotateKey.at<double>(j, 1) * 100 ) + 250;
+        x = (int) ( rotateKey.at<float>(j, 0) * 100 ) + 250;
+        y = (int) ( rotateKey.at<float>(j, 1) * 100 ) + 250;
 
         circle(curImg, Point(x, y), 3, Scalar(0, 0, 255), -1);
 
-        x = (int) ( reconstructKey.at<double>(j, 0) * 100 ) + 250;
-        y = (int) ( reconstructKey.at<double>(j, 1) * 100 ) + 250;
+        x = (int) ( reconstructKey.at<float>(j, 0) * 100 ) + 250;
+        y = (int) ( reconstructKey.at<float>(j, 1) * 100 ) + 250;
 
         circle(curImg, Point(x, y), 3, Scalar(0, 255, 255), -1);
 
 //        pos = rotation.t() * pos / scale;
 //
-//        x = pos.at<double>(0, 0);
-//        y = pos.at<double>(1, 0);
+//        x = pos.at<float>(0, 0);
+//        y = pos.at<float>(1, 0);
 //
 //        cout << x << " " << y << endl;
 //        circle(curImg, Point(x, y), 2, Scalar(0, 0, 255), -1);
@@ -128,18 +128,18 @@ void readBoundingBoxes(int const num_of_training, vector<Rect_<int>> &bounding_b
     finBox.close();
 }
 
-void readKeypoints(int const num_of_training, int const num_of_landmark, vector<Mat_<double>> &keypoints, string &train_path) {
+void readKeypoints(int const num_of_training, int const num_of_landmark, vector<Mat_<float>> &keypoints, string &train_path) {
     ifstream finKey( train_path , ios_base::in );
     for(int i = 0;i < num_of_training; i++){
-        Mat_<double> temp(num_of_landmark,2);
-        double val;
+        Mat_<float> temp(num_of_landmark,2);
+        float val;
         for(int j = 0; j < num_of_landmark; j++){
             finKey >> val;
-            temp.at<double>(j, 0) = val;
+            temp.at<float>(j, 0) = val;
         }
         for(int j = 0; j < num_of_landmark; j++){
             finKey >> val;
-            temp.at<double>(j, 1) = val;
+            temp.at<float>(j, 1) = val;
         }
         keypoints.push_back(temp);
     }
