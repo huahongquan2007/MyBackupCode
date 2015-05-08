@@ -51,12 +51,12 @@ void FacialExpression::Train(std::vector<int> labels, std::vector<cv::Mat_<doubl
     cv::Mat layers = cv::Mat(3, 1, CV_32SC1);
 
     layers.row(0) = cv::Scalar(136);
-    layers.row(1) = cv::Scalar(500);
-    layers.row(2) = cv::Scalar(2);
+    layers.row(1) = cv::Scalar(100);
+    layers.row(2) = cv::Scalar(num_of_class);
 
     CvANN_MLP_TrainParams params;
     CvTermCriteria criteria;
-    criteria.max_iter = 100;
+    criteria.max_iter = 1000;
     criteria.epsilon = 0.00001f;
     criteria.type = CV_TERMCRIT_ITER | CV_TERMCRIT_EPS;
     params.train_method = CvANN_MLP_TrainParams::BACKPROP;
@@ -122,7 +122,7 @@ int FacialExpression::Test(cv::Mat_<double> keypoint){
         }
     }
 
-    cout << "PREDICT: " << predict << endl;
+//    cout << "PREDICT: " << predict << endl;
 
     return predict;
 }

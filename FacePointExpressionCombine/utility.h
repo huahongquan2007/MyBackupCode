@@ -11,8 +11,9 @@ void visualizeImage(Mat img, Mat_<float> keypoints, int delay = 0, bool debug=fa
 void visualizeImageCompare(Mat img, Mat_<float> keypoints, Mat_<float> keypoints2, int delay = 0, bool debug=false);
 Mat_<float> GetMeanShape(vector<Mat_<float>> keypoints, vector<Rect_<int>> boxes);
 Point GetMeanPoint(Mat_<float> keypoints);
-Mat_<float> ProjectToBoxCoordinate( Mat_<float> points, Rect_<int> box );
-Mat_<float> ProjectToImageCoordinate( Mat_<float> points, Rect_<int> box , bool translationToBox = true );
+Mat_<float> ProjectToBoxCoordinate( const Mat_<float>& points, const Rect_<int>& box );
+Mat_<float> ProjectToImageCoordinate( const Mat_<float>& points, const Rect_<int>& box , bool translationToBox = true );
+
 float calculate_covariance(const Mat_<float> x, const Mat_<float> y);
 void similarity_transform(const Mat_<float>& destination, const Mat_<float>& alignInput, Mat_<float>& rotation,float& scale);
 void readKeypoints(int const num_of_training, int const num_of_landmark, vector<Mat_<float>> &keypoints, string &train_path);

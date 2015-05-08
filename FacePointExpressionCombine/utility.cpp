@@ -127,7 +127,7 @@ Point GetMeanPoint(Mat_<float> keypoints){
     return meanIndex;
 }
 
-Mat_<float> ProjectToBoxCoordinate( Mat_<float> points, Rect_<int> box ){
+Mat_<float> ProjectToBoxCoordinate( const Mat_<float> &points, const Rect_<int> &box ){
     Mat_<float> result = Mat::zeros(points.size(), CV_32F);
 
     float half_w = box.width / 2.0;    float half_h = box.height / 2.0;
@@ -141,16 +141,15 @@ Mat_<float> ProjectToBoxCoordinate( Mat_<float> points, Rect_<int> box ){
     return result;
 }
 
-Mat_<float> ProjectToImageCoordinate( Mat_<float> points, Rect_<int> box , bool translationToBox){
+Mat_<float> ProjectToImageCoordinate( const Mat_<float> &points, const Rect_<int> &box , bool translationToBox){
+
     Mat_<float> result = Mat::zeros(points.size(), CV_32F);
 
     float half_w = box.width / 2.0;    float half_h = box.height / 2.0;
     float center_x = box.x + half_w;   float center_y = box.y + half_h;
 
     for(int i = 0 ; i < points.size().height ; i ++){
-
         result.at<float>(i, 0) = (translationToBox) ? ( points.at<float>(i, 0) * half_w ) + center_x : ( points.at<float>(i, 0) * half_w );
-
         result.at<float>(i, 1) = (translationToBox) ? ( points.at<float>(i, 1) * half_h ) + center_y : ( points.at<float>(i, 1) * half_h );
     }
 

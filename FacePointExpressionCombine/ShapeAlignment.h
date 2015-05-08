@@ -31,7 +31,7 @@ public:
     void Save(string destination);
     void Load(string destination);
 
-    Mat_<float> Test(Mat_<unsigned char> &image, Rect_<int> &bounding_box);
+    Mat_<float> Test(const Mat_<unsigned char>& image, const Rect_<int> &bounding_box);
 };
 
 

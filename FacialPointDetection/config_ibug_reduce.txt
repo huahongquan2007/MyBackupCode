@@ -1,0 +1,21 @@
+ROOT = /home/robotbase/github/MyBackupCode/FacialPointDetection/
+ROOT_M = /Users/quanhua92/workspace/MyBackupCode/FacialPointDetection/
+DATASET = Datasets/IBUG/
+
+DATASET_TRAIN = /
+TRAIN_BOUNDINGBOX = boundingbox.txt
+TRAIN_KEYPOINTS = keypoints_reduce.txt
+TRAIN_NUM_OF_IMAGE = 2900
+
+DATASET_TEST = /
+TEST_BOUNDINGBOX = boundingbox.txt
+TEST_KEYPOINTS = keypoints.txt
+TEST_NUM_OF_IMAGE = 213
+
+MODEL_PATH = shapeModel.txt
+
+NUM_OF_LANDMARK = 19
+NUM_OF_FIRST_LEVEL = 10
+NUM_OF_SECOND_LEVEL = 100
+NUM_OF_FEATURE_PER_FERN = 5
+NUM_OF_RANDOM_PIXEL = 400

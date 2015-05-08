@@ -67,9 +67,9 @@ int main() {
     inputLabels.close();
     inputKeypoints.close();
 
-//    for(int i = 0 ; i < keypoints.size() ; i++){
-//        keypoints[i] = normalizeKeypoint(keypoints[i]);
-//    }
+    for(int i = 0 ; i < keypoints.size() ; i++){
+        keypoints[i] = normalizeKeypoint(keypoints[i]);
+    }
 
 //    for(int i = 0 ; i < listImagePath.size(); i++){
 //        Mat_<unsigned char> img = imread(listImagePath[i] , CV_LOAD_IMAGE_GRAYSCALE);
@@ -131,15 +131,25 @@ int main() {
         keypoints_test_normalize[i] = normalizeKeypoint(keypoints_test[i]);
     }
 
+    cout << "Done training. Wait 10s and test" << endl;
+
+    waitKey(10000);
+    cout << "Predict: " ;
     int result[] = {0, 0, 0, 0, 0, 0};
     for(int i = 0 ; i < num_of_testing; i++){
         int predict = facialExpression.Test(keypoints_test_normalize[i]);
-        cout << "Predict: " << predict << endl;
+        cout << " " << predict;
         result[predict]++;
+
+        if(predict == 0)
+            predict = 3;
+        else
+            predict = 6;
 
         putText(images[i], EXPRESSION_NAME[predict], Point(0, 50), FONT_HERSHEY_COMPLEX, 1.0, (255, 255, 255));
         visualizeImage(images[i], keypoints_test[i], 1000, false, "predict");
     }
+    cout << endl;
 
     cout << "Result: " << endl;
     for(int i = 0 ; i < 6 ; i++ ){

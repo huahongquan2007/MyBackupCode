@@ -162,7 +162,7 @@ vector<Mat_<float>> NormalRegressor::Train(vector<Mat_<unsigned char>> images, v
     return regression_output;
 }
 
-Mat_<float> NormalRegressor::Test(Mat_<unsigned char> image, Rect_<int> bounding_box, Mat_<float> curShape, Mat_<float> meanShape){
+Mat_<float> NormalRegressor::Test(const Mat_<unsigned char> &image, const Rect_<int> &bounding_box, const Mat_<float> &curShape, const Mat_<float> &meanShape){
     Mat_<float> regression_output = Mat::zeros(curShape.size(), curShape.type());
     Mat_<float> deltaShape;
     Mat_<float> inputShape = curShape.clone();

@@ -151,15 +151,14 @@ void ShapeAlignment::Train(){
     }
 }
 
-Mat_<float> ShapeAlignment::Test(Mat_<unsigned char> &image, Rect_<int> &bounding_box) {
-
+Mat_<float> ShapeAlignment::Test(const Mat_<unsigned char>&image, const Rect_<int>& bounding_box){
+    cout << "begin of test" << endl;
     Mat_<float> deltaShape;
     vector<Mat_<float>> result;
 
     // initialize curShape
     RNG rng;
     int total_test = 5;
-
     Mat_<float> resultShape = Mat::zeros(keypoints[0].size(), keypoints[0].type());
     for(int resultID = 0 ; resultID < total_test ; resultID++){
         Mat_<float> curShape;
@@ -169,12 +168,7 @@ Mat_<float> ShapeAlignment::Test(Mat_<unsigned char> &image, Rect_<int> &boundin
         Mat_<float> rand_shape = ProjectToBoxCoordinate(keypoints[index], boundingBoxes[index]);
         curShape = ProjectToImageCoordinate(rand_shape, bounding_box );
 
-//        cout << "ShapeAlignment: Test" << endl;
-//        Mat_<float> initial = curShape.clone();
-//        visualizeImage(image, curShape, 1, false, "initialize");
-
         for(int i = 0 ; i < first_level_regressor ; i ++){
-//            cout << "ShapeAlignment: Test first level " << i << endl;
 
             deltaShape = regressors[i].Test(image, bounding_box, curShape, meanShape);
             curShape += deltaShape;

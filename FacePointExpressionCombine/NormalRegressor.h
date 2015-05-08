@@ -18,7 +18,7 @@ private:
 public:
     NormalRegressor(int, int, int );
     vector<Mat_<float>> Train(vector<Mat_<unsigned char>> images, vector<Mat_<float>> keypoints, Mat_<float> meanShape, vector<Rect_<int>> boundingBoxes, vector<Mat_<float>> inputShape, bool isDebug = true);
-    Mat_<float> Test(Mat_<unsigned char> image, Rect_<int> bounding_box, Mat_<float> curShape, Mat_<float> meanShape);
+    Mat_<float> Test(const Mat_<unsigned char> &image, const Rect_<int> &bounding_box, const Mat_<float> &curShape, const Mat_<float> &meanShape);
 
     void Save(FileStorage &out);
     void Load(FileNode in);

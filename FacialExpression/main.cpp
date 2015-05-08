@@ -134,15 +134,16 @@ int main() {
     }
 
     int result[] = {0, 0, 0, 0, 0, 0};
+    cout << "Predict: " ;
     for(int i = 0 ; i < num_of_testing; i++){
         int predict = facialExpression.Test(keypoints_test_normalize[i]);
-        cout << "Predict: " << predict << endl;
+        cout << predict;
         result[predict]++;
 
         putText(images[i], EXPRESSION_NAME[predict], Point(0, 50), FONT_HERSHEY_COMPLEX, 1.0, (255, 255, 255));
         visualizeImage(images[i], keypoints_test[i], 1000, false, "predict");
     }
-
+    cout << endl;
     cout << "Result: " << endl;
     for(int i = 0 ; i < 6 ; i++ ){
         cout << result[i] << " ";
