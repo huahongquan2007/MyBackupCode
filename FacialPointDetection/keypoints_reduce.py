@@ -1,7 +1,7 @@
 import cv2
 
 lines = [line for line in open('Datasets/IBUG/keypoints.txt')]
-paths = [line for line in open('Datasets/IBUG/images.txt')]
+# paths = [line for line in open('Datasets/IBUG/images.txt')]
 keypoints_refine = open('Datasets/IBUG/keypoints_reduce.txt', 'w')
 
 for index in range(0, len(lines)):
