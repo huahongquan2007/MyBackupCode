@@ -232,12 +232,6 @@ void similarity_transform(const Mat_<float>& shape1, const Mat_<float>& shape2, 
     rotation.at<float>(0,1) = -sin_theta;
     rotation.at<float>(1,0) = sin_theta;
     rotation.at<float>(1,1) = cos_theta;
-
-    if( std::isnan(rotation.at<float>(0, 0)) ){
-        waitKey(0);
-    }
-
-
 }
 
 void readFERDataset(){

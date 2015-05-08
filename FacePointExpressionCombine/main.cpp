@@ -39,6 +39,8 @@ int main() {
     string train_path = options.getTrainKeypointsPath();
     readKeypoints(num_of_training, num_of_landmark, keypoints, train_path);
 
+    Mat_<float> meanShape = GetMeanShape(keypoints, bounding_boxes);
+
     ShapeAlignment shapeAlignmentTest(first_level, second_level, feature_per_fern);
     shapeAlignmentTest.addKeyPoints(keypoints);
     shapeAlignmentTest.addBoundingBoxes(bounding_boxes);
@@ -99,11 +101,82 @@ int main() {
 
         cout << "Landmark before: " << secs << endl;
 
-        Mat_<double> prediction_keypoint = shapeAlignmentTest.Test(img_gray, faces[0]);
+        Mat_<float> prediction_keypoint = shapeAlignmentTest.Test(img_gray, faces[0]);
 
         t1 = cv::getTickCount();
         secs = (t1-t0)/cv::getTickFrequency();
         cout << "Landmark Done: " << secs << endl;
+
+        // Extract & align face
+        // 1. Get mean shape (done above)
+
+        // 2. align current with mean -> get rotation & scale
+
+        Point meanPoint = GetMeanPoint(prediction_keypoint);
+
+        Mat_<float> rotation;
+        float scale;
+
+        similarity_transform(meanShape, prediction_keypoint, rotation, scale);
+//        transpose(rotation, rotation);
+
+        Point2f src_center(img.cols/2.0F, img.rows/2.0F);
+        float angle = atan(rotation.at<float>(1,0) / rotation.at<float>(0,0));
+        cout << angle << " " << -angle * 180 / M_PI << endl;
+        Mat M = getRotationMatrix2D(src_center, -angle * 180 / M_PI, 1.0);
+        Mat rotatedImg;
+        Mat_<float> rotatedPoint = prediction_keypoint;
+        for(int j = 0 ; j < prediction_keypoint.rows; j++){
+            rotatedPoint.at<float>(j, 0) = M.at<double>(0,0)*prediction_keypoint.at<float>(j, 0) + M.at<double>(0,1)*prediction_keypoint.at<float>(j, 1) + M.at<double>(0,2);
+            rotatedPoint.at<float>(j, 1) = M.at<double>(1,0)*prediction_keypoint.at<float>(j, 0) + M.at<double>(1,1)*prediction_keypoint.at<float>(j, 1) + M.at<double>(1,2);
+        }
+        warpAffine(img, rotatedImg, M, img.size(), INTER_CUBIC);
+
+        double minX, minY;
+        double maxX, maxY;
+        Point minLoc;
+        Point maxLoc;
+        minMaxLoc( rotatedPoint.col(0), &minX, &maxX, &minLoc, &maxLoc );
+        minMaxLoc( rotatedPoint.col(1), &minY, &maxY, &minLoc, &maxLoc );
+
+        int padding = (maxX - minX) / 10;
+        if(minX - padding > 0) minX -= padding;
+        if(maxX + padding < img.cols) maxX += padding;
+        if(minY - padding > 0) minY -= padding;
+        if(maxY + padding < img.rows) maxY += padding;
+
+        Mat cropped = rotatedImg.colRange(minX, maxX).rowRange(minY, maxY);
+        float imgScale = 255.0f / cropped.rows;
+        Mat_<float> croppedPoint = rotatedPoint.clone();
+        for(int j = 0 ; j < croppedPoint.rows; j++){
+            croppedPoint.at<float>(j, 0) = (croppedPoint.at<float>(j, 0) - minX) * imgScale;
+            croppedPoint.at<float>(j, 1) = (croppedPoint.at<float>(j, 1) - minY) * imgScale;
+        }
+        resize(cropped, cropped, Size(), imgScale, imgScale);
+
+        visualizeImage(rotatedImg, rotatedPoint, 10, false,  "rotate", true);
+        visualizeImage(cropped, croppedPoint, 10, false,  "Cropped", true);
+
+//        Mat_<float> boxPos ( 2, 2, CV_32FC1);
+//        boxPos.at<float>(0, 0) = faces[0].x - meanPoint.x;
+//        boxPos.at<float>(0, 1) = faces[0].y - meanPoint.y;
+//        boxPos.at<float>(1, 0) = faces[0].x + faces[0].width - meanPoint.x;
+//        boxPos.at<float>(1, 1) = faces[0].y - meanPoint.y;
+//
+//        Mat_<float> boxPosRotated = boxPos * rotation;
+//        boxPosRotated.at<float>(0, 0) += meanPoint.x;
+//        boxPosRotated.at<float>(0, 1) += meanPoint.y;
+//        boxPosRotated.at<float>(1, 0) += meanPoint.x;
+//        boxPosRotated.at<float>(1, 1) += meanPoint.y;
+//
+//        Rect rotateBox;
+//        rotateBox.x = (int) boxPosRotated.at<float>(0, 0);
+//
+//        cout << boxPos << endl;
+//        line(img, Point(boxPosRotated.at<float>(0, 0), boxPosRotated.at<float>(0, 1)), Point(boxPosRotated.at<float>(1, 0), boxPosRotated.at<float>(1, 1)), Scalar(255, 255 , 0), 10);
+        // 3. apply rotation to bounding box
+
+
         // Expression
 //        t0 = cv::getTickCount();
 //

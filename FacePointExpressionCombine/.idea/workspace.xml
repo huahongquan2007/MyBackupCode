@@ -12,23 +12,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8420d642-fa54-4816-b8e8-874dead41332" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../FacialPointDetection/config_ibug_reduce.txt" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../FacialPointDetection/keypoints_reduce.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../FacialExpression/FacialExpression.cpp" afterPath="$PROJECT_DIR$/../FacialExpression/FacialExpression.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/NormalRegressor.cpp" afterPath="$PROJECT_DIR$/NormalRegressor.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/NormalRegressor.h" afterPath="$PROJECT_DIR$/NormalRegressor.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ShapeAlignment.cpp" afterPath="$PROJECT_DIR$/ShapeAlignment.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ShapeAlignment.h" afterPath="$PROJECT_DIR$/ShapeAlignment.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../FacialExpression/expressionModel.txt" afterPath="$PROJECT_DIR$/../FacialExpression/expressionModel.txt" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/main.cpp" afterPath="$PROJECT_DIR$/main.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../FacialExpression/main.cpp" afterPath="$PROJECT_DIR$/../FacialExpression/main.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../FacialPointDetection/main_ibug.cpp" afterPath="$PROJECT_DIR$/../FacialPointDetection/main_ibug.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../FacialExpression/main_visualizeData.cpp" afterPath="$PROJECT_DIR$/../FacialExpression/main_visualizeData.cpp" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/utility.cpp" afterPath="$PROJECT_DIR$/utility.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/utility.h" afterPath="$PROJECT_DIR$/utility.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../FacialExpression/.idea/workspace.xml" afterPath="$PROJECT_DIR$/../FacialExpression/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../FacialPointDetection/.idea/workspace.xml" afterPath="$PROJECT_DIR$/../FacialPointDetection/.idea/workspace.xml" />
     </list>
     <ignored path="FacePointExpressionCombine.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -49,11 +34,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="main.cpp" pinned="false" current-in-tab="false">
+      <file leaf-file-name="main.cpp" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/main.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="78" column="0" selection-start-line="78" selection-start-column="0" selection-end-line="78" selection-end-column="0" />
+            <state vertical-scroll-proportion="0.84210527">
+              <caret line="158" column="0" selection-start-line="158" selection-start-column="0" selection-end-line="158" selection-end-column="0" />
               <folding>
                 <element signature="e#0#19#0" expanded="true" />
               </folding>
@@ -61,12 +46,14 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="FacialExpression.h" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/FacialExpression.h">
+      <file leaf-file-name="operations.hpp" pinned="false" current-in-tab="false">
+        <entry file="file:///usr/local/include/opencv2/core/operations.hpp">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="15" column="20" selection-start-line="15" selection-start-column="8" selection-end-line="15" selection-end-column="20" />
-              <folding />
+              <caret line="1900" column="0" selection-start-line="1900" selection-start-column="0" selection-end-line="1900" selection-end-column="0" />
+              <folding>
+                <element signature="e#62477#62491#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -85,7 +72,7 @@
         <entry file="file://$PROJECT_DIR$/ShapeAlignment.h">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="31" column="34" selection-start-line="31" selection-start-column="34" selection-end-line="31" selection-end-column="34" />
+              <caret line="33" column="14" selection-start-line="33" selection-start-column="9" selection-end-line="33" selection-end-column="14" />
               <folding />
             </state>
           </provider>
@@ -95,7 +82,7 @@
         <entry file="file://$PROJECT_DIR$/utility.cpp">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="129" column="81" selection-start-line="129" selection-start-column="81" selection-end-line="129" selection-end-column="81" />
+              <caret line="230" column="39" selection-start-line="230" selection-start-column="30" selection-end-line="230" selection-end-column="39" />
               <folding>
                 <element signature="e#0#20#0" expanded="true" />
               </folding>
@@ -127,7 +114,7 @@
         <entry file="file://$PROJECT_DIR$/NormalRegressor.cpp">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="89" column="0" selection-start-line="89" selection-start-column="0" selection-end-line="89" selection-end-column="0" />
+              <caret line="120" column="63" selection-start-line="118" selection-start-column="8" selection-end-line="120" selection-end-column="63" />
               <folding>
                 <element signature="e#0#28#0" expanded="true" />
               </folding>
@@ -135,10 +122,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ShapeAlignment.cpp" pinned="false" current-in-tab="true">
+      <file leaf-file-name="ShapeAlignment.cpp" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/ShapeAlignment.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.5897921">
+            <state vertical-scroll-proportion="0.0">
               <caret line="159" column="0" selection-start-line="159" selection-start-column="0" selection-end-line="159" selection-end-column="0" />
               <folding>
                 <element signature="e#0#29#0" expanded="true" />
@@ -167,14 +154,14 @@
       <list>
         <option value="$PROJECT_DIR$/CMakeLists.txt" />
         <option value="$PROJECT_DIR$/FacialExpression.cpp" />
-        <option value="$PROJECT_DIR$/main.cpp" />
         <option value="$PROJECT_DIR$/FernRegressor.cpp" />
         <option value="$PROJECT_DIR$/utility.h" />
-        <option value="$PROJECT_DIR$/utility.cpp" />
         <option value="$PROJECT_DIR$/ShapeAlignment.h" />
         <option value="$PROJECT_DIR$/NormalRegressor.h" />
         <option value="$PROJECT_DIR$/NormalRegressor.cpp" />
         <option value="$PROJECT_DIR$/ShapeAlignment.cpp" />
+        <option value="$PROJECT_DIR$/utility.cpp" />
+        <option value="$PROJECT_DIR$/main.cpp" />
       </list>
     </option>
   </component>
@@ -292,8 +279,9 @@
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32916668" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="CMake" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32916668" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="9" side_tool="true" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.41770834" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.375" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
@@ -303,7 +291,6 @@
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
@@ -311,8 +298,15 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="XDebuggerManager">
-    <breakpoint-manager />
-    <watches-manager />
+    <breakpoint-manager>
+      <option name="time" value="1" />
+    </breakpoint-manager>
+    <watches-manager>
+      <configuration name="CMakeRunConfiguration">
+        <watch expression="rotation.at&lt;float&gt;(0,0)" language="ObjectiveC" />
+        <watch expression="angle" language="ObjectiveC" />
+      </configuration>
+    </watches-manager>
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/FacialExpression.h">
@@ -676,56 +670,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file:///usr/local/include/opencv2/core/operations.hpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.33333334">
-          <caret line="1900" column="0" selection-start-line="1900" selection-start-column="0" selection-end-line="1900" selection-end-column="0" />
-          <folding>
-            <element signature="e#62477#62491#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/main.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="78" column="0" selection-start-line="78" selection-start-column="0" selection-end-line="78" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#19#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/FernRegressor.cpp">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="190" column="0" selection-start-line="190" selection-start-column="0" selection-end-line="190" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/utility.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="14" column="82" selection-start-line="14" selection-start-column="82" selection-end-line="14" selection-end-column="82" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/utility.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="129" column="81" selection-start-line="129" selection-start-column="81" selection-end-line="129" selection-end-column="81" />
-          <folding>
-            <element signature="e#0#20#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/ShapeAlignment.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="31" column="34" selection-start-line="31" selection-start-column="34" selection-end-line="31" selection-end-column="34" />
           <folding />
         </state>
       </provider>
@@ -738,22 +686,68 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/ShapeAlignment.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="159" column="0" selection-start-line="159" selection-start-column="0" selection-end-line="159" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#29#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ShapeAlignment.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="33" column="14" selection-start-line="33" selection-start-column="9" selection-end-line="33" selection-end-column="14" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/utility.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="14" column="82" selection-start-line="14" selection-start-column="82" selection-end-line="14" selection-end-column="82" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/NormalRegressor.cpp">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="89" column="0" selection-start-line="89" selection-start-column="0" selection-end-line="89" selection-end-column="0" />
+          <caret line="120" column="63" selection-start-line="118" selection-start-column="8" selection-end-line="120" selection-end-column="63" />
           <folding>
             <element signature="e#0#28#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ShapeAlignment.cpp">
+    <entry file="file:///usr/local/include/opencv2/core/operations.hpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.5897921">
-          <caret line="159" column="0" selection-start-line="159" selection-start-column="0" selection-end-line="159" selection-end-column="0" />
+        <state vertical-scroll-proportion="0.0">
+          <caret line="1900" column="0" selection-start-line="1900" selection-start-column="0" selection-end-line="1900" selection-end-column="0" />
           <folding>
-            <element signature="e#0#29#0" expanded="true" />
+            <element signature="e#62477#62491#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/utility.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="230" column="39" selection-start-line="230" selection-start-column="30" selection-end-line="230" selection-end-column="39" />
+          <folding>
+            <element signature="e#0#20#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/main.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.84210527">
+          <caret line="158" column="0" selection-start-line="158" selection-start-column="0" selection-end-line="158" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#19#0" expanded="true" />
           </folding>
         </state>
       </provider>
