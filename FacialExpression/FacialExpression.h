@@ -15,10 +15,10 @@ private:
     CvANN_MLP mlp;
     int num_of_class;
 public:
-    void Train(std::vector<int> labels, std::vector<cv::Mat_<double>> keypoints);
+    void Train(std::vector<int> labels, std::vector<cv::Mat_<float>> keypoints);
     void Save(std::string destination);
     void Load(std::string destination);
-    int Test(cv::Mat_<double> keypoint);
+    int Test(cv::Mat_<float> keypoint);
 };
 
 #endif //FACIALEXPRESSION_FACIALEXPRESSION_H

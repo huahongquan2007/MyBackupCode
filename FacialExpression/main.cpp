@@ -19,7 +19,7 @@ int main() {
     int num_of_training = 8000;
     int num_of_landmark = 68;
 
-    vector<Mat_<double>> keypoints;
+    vector<Mat_<float>> keypoints;
 
     // -------------- READ KEYPOINTS -------------
     string train_path = "/home/robotbase/github/MyBackupCode/FacialExpression/keypoint_output.txt";
@@ -120,8 +120,8 @@ int main() {
     // READ TEST
     string test_path = "/home/robotbase/github/MyBackupCode/FacialPointDetection/Datasets/IBUG/keypoints.txt";
 
-    vector<Mat_<double>> keypoints_test;
-    vector<Mat_<double>> keypoints_test_normalize;
+    vector<Mat_<float>> keypoints_test;
+    vector<Mat_<float>> keypoints_test_normalize;
     readKeypoints(num_of_testing, num_of_landmark, keypoints_test, test_path);
 
     // -------------- SCALE BOX , Keypoints ----------

@@ -2,7 +2,7 @@
 using namespace std;
 using namespace cv;
 
-void FacialExpression::Train(std::vector<int> labels, std::vector<cv::Mat_<double>> keypoints){
+void FacialExpression::Train(std::vector<int> labels, std::vector<cv::Mat_<float>> keypoints){
     cout << "Train Facial Expression" << endl;
 
     int num_of_data = labels.size();
@@ -19,10 +19,10 @@ void FacialExpression::Train(std::vector<int> labels, std::vector<cv::Mat_<doubl
 
     for(int i = 0 ; i < num_of_data; i++){
         for(int j = 0 ; j < num_of_landmark; j ++){
-            trainingDataMat.at<float>(i, j) = (float) keypoints[i].at<double>(j, 0);
+            trainingDataMat.at<float>(i, j) = (float) keypoints[i].at<float>(j, 0);
         }
         for(int j = 0 ; j < num_of_landmark; j ++){
-            trainingDataMat.at<float>(i, j + num_of_landmark) = (float) keypoints[i].at<double>(j, 1);
+            trainingDataMat.at<float>(i, j + num_of_landmark) = (float) keypoints[i].at<float>(j, 1);
         }
     }
     cout << trainingDataMat.size() << endl;
@@ -98,15 +98,15 @@ void FacialExpression::Train(std::vector<int> labels, std::vector<cv::Mat_<doubl
     waitKey(0);
 }
 
-int FacialExpression::Test(cv::Mat_<double> keypoint){
+int FacialExpression::Test(cv::Mat_<float> keypoint){
     int num_of_landmark = keypoint.rows;
     Mat testDataMat(1, num_of_landmark * 2, CV_32FC1);
 
     for(int j = 0 ; j < num_of_landmark; j ++){
-        testDataMat.at<float>(0, j) = (float) keypoint.at<double>(j, 0);
+        testDataMat.at<float>(0, j) = (float) keypoint.at<float>(j, 0);
     }
     for(int j = 0 ; j < num_of_landmark; j ++){
-        testDataMat.at<float>(0, j + num_of_landmark) = (float) keypoint.at<double>(j, 1);
+        testDataMat.at<float>(0, j + num_of_landmark) = (float) keypoint.at<float>(j, 1);
     }
 
 //    int predict = svm.predict(testDataMat);

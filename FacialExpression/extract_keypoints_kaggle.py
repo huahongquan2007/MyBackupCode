@@ -1,5 +1,5 @@
 lines = [line for line in open('/home/robotbase/DataDrive/Dataset/Kaggle/list.txt')]
-result_lines = [line for line in open('./save_result_kaggle_refine.txt')]
+result_lines = [line for line in open('./save_result_kaggle_reduce.txt')]
 
 emotion_output = open('./emotion_output.txt', 'w')
 keypoint_output = open('./keypoint_output.txt', 'w')
