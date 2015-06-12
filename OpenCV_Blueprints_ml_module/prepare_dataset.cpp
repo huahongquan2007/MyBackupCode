@@ -11,14 +11,14 @@ using namespace std;
 
 vector<string> listFile(string folder);
 Mat extractFeature(Mat image, string feature_type);
-void processJAFFE(string input, string output);
-void processKAGGLE(string input, string output);
+void processJAFFE(string input, string output, string feature_name);
+void processKAGGLE(string input, string output, string feature_name);
 int main(int argc, char* argv[]) {
     cout << "============= PREPARE DATASET =============" << endl;
 
-    if(argc != 7){
+    if(argc != 9){
         cout << "Usage: " << endl;
-        cout << argv[0] << " -dataset <dataset_name> -src <input> -dest <output_folder>" << endl;
+        cout << argv[0] << " -dataset <dataset_name> -feature <feature_name> -src <input> -dest <output_folder>" << endl;
         return 1;
     }
 
@@ -27,6 +27,7 @@ int main(int argc, char* argv[]) {
     // ********************
 
     string dataset_name;
+    string feature_name;
     string input;
     string output_folder;
     int i;
@@ -36,7 +37,10 @@ int main(int argc, char* argv[]) {
             if(i + 1 >= argc) return -1;
             dataset_name = argv[i + 1];
         }
-
+        if( strcmp(argv[i], "-feature") == 0 ){
+            if(i + 1 >= argc) return -1;
+            feature_name = argv[i + 1];
+        }
         if( strcmp(argv[i], "-src") == 0 ){
             if(i + 1 >= argc) return -1;
             input = argv[i + 1];
@@ -52,38 +56,59 @@ int main(int argc, char* argv[]) {
     // JAFFE Dataset
     // ********************
     if(dataset_name == "jaffe"){
-        processJAFFE(input, output_folder);
+        processJAFFE(input, output_folder, feature_name);
     }
 
     // ********************
     // KAGGLE Dataset
     // ********************
     if(dataset_name == "kaggle"){
-        processKAGGLE(input, output_folder);
+        processKAGGLE(input, output_folder, feature_name);
     }
 
     return 0;
 }
 
-void processJAFFE(string input, string output){
+void processJAFFE(string input, string output, string feature_name){
+    string output_path = output + "/" + feature_name +"_features.yml";
+    FileStorage fs( output_path , FileStorage::WRITE);
+
     cout << "Process JAFFE: " << input << endl;
-
+    Mat img, feature;
     vector<string> imgPath = listFile(input);
+
+    fs << "num_of_image" << (int) imgPath.size();
     for(int i = 0 ; i < imgPath.size(); i++){
-        cout << imgPath[i] << " " << endl;
+        // load image
+        img = imread(imgPath[i], CV_LOAD_IMAGE_ANYCOLOR);
+
+        // extract feature
+        feature = extractFeature(img, "SIFT");
+
+        // save feature
+        fs << "image_feature_" + to_string(i) << feature;
+        fs << "image_path_" + to_string(i) << imgPath[i];
+
+        cout << i << "/" << imgPath.size() << endl;
     }
+    fs.release();
 
-    Mat img;
-    img = imread(imgPath[0], CV_LOAD_IMAGE_ANYCOLOR);
-    imshow("Test", img);
+    cout << "Features saved: " << output_path << endl;
 
-    extractFeature(img, "SIFT");
+    FileStorage in( output_path, FileStorage::READ);
+    int num_of_image = 0;
+    in["num_of_image"] >> num_of_image;
+    in["image_feature_0"] >> feature;
+    string path;
+    in["image_path_0"] >> path;
+    img = imread( path, CV_LOAD_IMAGE_ANYCOLOR);
+    imshow("test", img);
+    imshow("test_feature", feature);
+
     waitKey(0);
-
-    cout << "Output: " << output << endl;
 }
 
-void processKAGGLE(string input, string output){
+void processKAGGLE(string input, string output, string feature_name){
     cout << "Hello KAGGLE" << endl;
     cout << "Output: " << output << endl;
 }
@@ -108,7 +133,6 @@ vector<string> listFile(string folder){
     return imgPath;
 }
 Mat extractFeature(Mat image, string feature_type){
-    Mat feature;
     cv::SiftFeatureDetector detector;
     std::vector<cv::KeyPoint> keypoints;
     detector.detect(image, keypoints);
@@ -117,15 +141,5 @@ Mat extractFeature(Mat image, string feature_type){
     Mat descriptors;
     featureExtractor->compute(image, keypoints, descriptors);
 
-    Mat outputImage;
-    Scalar keypointColor = Scalar(255, 0, 0);     // Blue keypoints.
-    drawKeypoints(image, keypoints, outputImage, keypointColor, DrawMatchesFlags::DEFAULT);
-
-    imshow("Output", outputImage);
-
-    imshow("descriptor", descriptors);
-
-    waitKey(0);
-
-    return feature;
+    return descriptors;
 }
