@@ -78,6 +78,14 @@ void processJAFFE(string input, string output, string feature_name){
     vector<string> imgPath = listFile(input);
 
     fs << "num_of_image" << (int) imgPath.size();
+    fs << "num_of_label" << 7;
+    fs << "label_0" << "Angry";
+    fs << "label_1" << "Disgusted";
+    fs << "label_2" << "Fear";
+    fs << "label_3" << "Happy";
+    fs << "label_4" << "Neural";
+    fs << "label_5" << "Sad";
+    fs << "label_6" << "Surprised";
     for(int i = 0 ; i < imgPath.size(); i++){
         // load image
         img = imread(imgPath[i], CV_LOAD_IMAGE_ANYCOLOR);
@@ -86,10 +94,29 @@ void processJAFFE(string input, string output, string feature_name){
         feature = extractFeature(img, "SIFT");
 
         // extract label
-        // TODO: trich label tu trong filename
+        string fileName = imgPath[i].substr(input.length() + 1, imgPath[i].length());
+        string ex_code = fileName.substr(3, 2);
+
+        int label = -1;
+        if(ex_code == "AN"){
+            label = 0;
+        } else if(ex_code == "DI"){
+            label = 1;
+        } else if(ex_code == "FE"){
+            label = 2;
+        } else if(ex_code == "HA"){
+            label = 3;
+        } else if(ex_code == "NE"){
+            label = 4;
+        } else if(ex_code == "SA"){
+            label = 5;
+        } else if(ex_code == "SU"){
+            label = 6;
+        }
 
         // save feature & label
         fs << "image_feature_" + to_string(i) << feature;
+        fs << "image_label_" + to_string(i) << label;
         fs << "image_path_" + to_string(i) << imgPath[i];
 
         cout << i << "/" << imgPath.size() << endl;
