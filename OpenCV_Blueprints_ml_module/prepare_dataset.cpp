@@ -85,7 +85,10 @@ void processJAFFE(string input, string output, string feature_name){
         // extract feature
         feature = extractFeature(img, "SIFT");
 
-        // save feature
+        // extract label
+        // TODO: trich label tu trong filename
+
+        // save feature & label
         fs << "image_feature_" + to_string(i) << feature;
         fs << "image_path_" + to_string(i) << imgPath[i];
 
@@ -94,16 +97,6 @@ void processJAFFE(string input, string output, string feature_name){
     fs.release();
 
     cout << "Features saved: " << output_path << endl;
-
-    FileStorage in( output_path, FileStorage::READ);
-    int num_of_image = 0;
-    in["num_of_image"] >> num_of_image;
-    in["image_feature_0"] >> feature;
-    string path;
-    in["image_path_0"] >> path;
-    img = imread( path, CV_LOAD_IMAGE_ANYCOLOR);
-    imshow("test", img);
-    imshow("test_feature", feature);
 
     waitKey(0);
 }
@@ -123,7 +116,6 @@ vector<string> listFile(string folder){
                 std::string fname = entry->d_name;	// filename
                 std::string::size_type size = fname.find(".tiff");
                 if(size != std::string::npos){
-//                    cout << " FILE: " << folder + "/" + fname << endl;
                     imgPath.push_back(folder + "/" + fname);
                 }
             }
