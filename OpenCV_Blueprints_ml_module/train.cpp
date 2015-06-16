@@ -7,7 +7,7 @@
 using namespace cv;
 using namespace std;
 
-void mlp(Mat train_features, Mat train_labels, vector<string> train_paths, Mat test_features, Mat test_labels, vector<string> test_paths );
+void mlp(int num_of_label, Mat train_features, Mat train_labels, vector<string> train_paths, Mat test_features, Mat test_labels, vector<string> test_paths );
 int main(int argc, char* argv[]) {
     cout << "============= TRAIN =============" << endl;
 
@@ -50,11 +50,13 @@ int main(int argc, char* argv[]) {
 
     // READ YML FILES
     FileStorage in( input_file, FileStorage::READ);
-    int num_of_image = 0, num_of_train = 0, num_of_test = 0, feature_size = 0;
+    int num_of_image = 0, num_of_train = 0, num_of_test = 0, feature_size = 0, num_of_label;
     in["num_of_image"] >> num_of_image;
     in["num_of_train"] >> num_of_train;
     in["num_of_test"] >> num_of_test;
     in["feature_size"] >> feature_size;
+    in["num_of_label"] >> num_of_label;
+
     Mat feature;
     string path;
     int label;
@@ -89,7 +91,7 @@ int main(int argc, char* argv[]) {
 
     // START TRAINING
     if( algorithm_name == "mlp" ){
-        mlp(train_features, train_labels, train_paths, test_features, test_labels, test_paths);
+        mlp(num_of_label, train_features, train_labels, train_paths, test_features, test_labels, test_paths);
     }
 
 
@@ -102,25 +104,51 @@ float evaluate(cv::Mat& predicted, cv::Mat& actual) {
     int t = 0;
     int f = 0;
     for(int i = 0; i < actual.rows; i++) {
-        float p = predicted.at<float>(i,0);
-        float a = actual.at<float>(i,0);
-        if((p >= 0.0 && a >= 0.0) || (p <= 0.0 &&  a <= 0.0)) {
-            t++;
-        } else {
-            f++;
+
+        float max = -1000000000000.0f;
+        int cls = -1;
+
+        for(int j = 0 ; j < predicted.cols ; j++)
+        {
+            float value = predicted.at<float>(i, j);
+
+            if(value > max)
+            {
+                max = value;
+                cls = j;
+            }
         }
+
+        int truth = (int) actual.at<int>(i, 0);
+        if(cls ==  truth)
+            t++;
+        else
+            f++;
     }
     return (t * 1.0) / (t + f);
 }
-void mlp(Mat train_features, Mat train_labels, vector<string> train_paths, Mat test_features, Mat test_labels, vector<string> test_paths ){
+void mlp(int num_of_label, Mat train_features, Mat train_labels, vector<string> train_paths, Mat test_features, Mat test_labels, vector<string> test_paths ){
     cout << "Training MLP: trainset: " << train_features.size() << " testset: " << test_features.size() << endl;
+
+    Mat labels = Mat::zeros( train_labels.rows, num_of_label, CV_32FC1);
+    for(int i = 0 ; i < train_labels.rows; i ++){
+        int idx = train_labels.at<int>(i, 0);
+        labels.at<float>(i, idx) = 1.0f;
+    }
+
+    cout << "Labels: " << labels.t() << endl;
+
+    Mat labels_test = Mat::zeros( test_labels.rows, 1, CV_32SC1);
+    for(int i = 0 ; i < test_labels.rows; i ++){
+        labels_test.at<int>(i, 0) = test_labels.at<int>(i, 0);
+    }
 
     cv::Mat layers = cv::Mat(4, 1, CV_32SC1);
 
     layers.row(0) = cv::Scalar(train_features.cols);
     layers.row(1) = cv::Scalar(10);
     layers.row(2) = cv::Scalar(15);
-    layers.row(3) = cv::Scalar(1);
+    layers.row(3) = cv::Scalar(num_of_label);
 
     CvANN_MLP mlp;
     CvANN_MLP_TrainParams params;
@@ -136,19 +164,22 @@ void mlp(Mat train_features, Mat train_labels, vector<string> train_paths, Mat t
     mlp.create(layers);
 
     // train
-    mlp.train(train_features, train_labels, cv::Mat(), cv::Mat(), params);
+    mlp.train(train_features, labels, cv::Mat(), cv::Mat(), params);
 
-    cv::Mat response(1, 1, CV_32FC1);
-    cv::Mat predicted(test_labels.rows, 1, CV_32F);
+    cout << "Done train" << endl;
+
+    cv::Mat response(1, num_of_label, CV_32FC1);
+    cv::Mat predicted(test_labels.rows, num_of_label, CV_32F);
     for(int i = 0; i < test_features.rows; i++) {
-        cv::Mat response(1, 1, CV_32FC1);
         cv::Mat sample = test_features.row(i);
 
         mlp.predict(sample, response);
-        predicted.at<float>(i,0) = response.at<float>(0,0);
-
+        response.copyTo(predicted.row(i));
     }
 
-    cout << "Accuracy_{MLP} = " << evaluate(predicted, test_labels) << endl;
+    cout << "PREDICT: " << predicted << endl;
+    cout << "LABEL: " << labels_test.t() << endl;
+
+    cout << "Accuracy_{MLP} = " << evaluate(predicted, labels_test) << endl;
 
 }

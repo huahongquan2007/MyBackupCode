@@ -79,16 +79,9 @@ void processJAFFE(string input, string output, string feature_name){
     int num_of_test = 0;
     vector<string> imgPath = listFile(input);
 
-    fs << "num_of_image" << (int) imgPath.size();
-    fs << "num_of_label" << 7;
-    fs << "label_0" << "Angry";
-    fs << "label_1" << "Disgusted";
-    fs << "label_2" << "Fear";
-    fs << "label_3" << "Happy";
-    fs << "label_4" << "Neural";
-    fs << "label_5" << "Sad";
-    fs << "label_6" << "Surprised";
-    for(int i = 0 ; i < imgPath.size(); i++){
+    int num_of_image = imgPath.size();
+//    num_of_image = 50;
+    for(int i = 0 ; i < num_of_image; i++){
         // load image
         img = imread(imgPath[i], CV_LOAD_IMAGE_ANYCOLOR);
 
@@ -133,14 +126,22 @@ void processJAFFE(string input, string output, string feature_name){
         cout << i << "/" << imgPath.size() << endl;
     }
     int feature_size = feature.cols * feature.rows;
-    fs << "num_of_train" << (int) imgPath.size() - num_of_test;
+    fs << "num_of_image" << num_of_image;
+    fs << "num_of_label" << 7;
+    fs << "label_0" << "Angry";
+    fs << "label_1" << "Disgusted";
+    fs << "label_2" << "Fear";
+    fs << "label_3" << "Happy";
+    fs << "label_4" << "Neural";
+    fs << "label_5" << "Sad";
+    fs << "label_6" << "Surprised";
+    fs << "num_of_train" << num_of_image - num_of_test;
     fs << "num_of_test" << num_of_test;
     fs << "feature_size" << feature_size;
     fs.release();
 
     cout << "Features saved: " << output_path << endl;
 
-    waitKey(0);
 }
 
 void processKAGGLE(string input, string output, string feature_name){
