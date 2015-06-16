@@ -75,6 +75,8 @@ void processJAFFE(string input, string output, string feature_name){
 
     cout << "Process JAFFE: " << input << endl;
     Mat img, feature;
+    RNG rng;
+    int num_of_test = 0;
     vector<string> imgPath = listFile(input);
 
     fs << "num_of_image" << (int) imgPath.size();
@@ -119,8 +121,21 @@ void processJAFFE(string input, string output, string feature_name){
         fs << "image_label_" + to_string(i) << label;
         fs << "image_path_" + to_string(i) << imgPath[i];
 
+        // decide train or test
+        double c = rng.uniform(0., 1.);
+        bool isTrain = true;
+        if(c > 0.8){
+            isTrain = false;
+            num_of_test += 1;
+        }
+        fs << "image_is_train_" + to_string(i) << isTrain;
+
         cout << i << "/" << imgPath.size() << endl;
     }
+    int feature_size = feature.cols * feature.rows;
+    fs << "num_of_train" << (int) imgPath.size() - num_of_test;
+    fs << "num_of_test" << num_of_test;
+    fs << "feature_size" << feature_size;
     fs.release();
 
     cout << "Features saved: " << output_path << endl;
@@ -152,7 +167,7 @@ vector<string> listFile(string folder){
     return imgPath;
 }
 Mat extractFeature(Mat image, string feature_type){
-    cv::SiftFeatureDetector detector;
+    cv::DenseFeatureDetector detector;
     std::vector<cv::KeyPoint> keypoints;
     detector.detect(image, keypoints);
 
@@ -160,5 +175,5 @@ Mat extractFeature(Mat image, string feature_type){
     Mat descriptors;
     featureExtractor->compute(image, keypoints, descriptors);
 
-    return descriptors;
+    return descriptors.reshape(0, 1);
 }

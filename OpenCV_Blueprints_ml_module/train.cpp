@@ -2,10 +2,12 @@
 #include <vector>
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
+#include <opencv2/ml/ml.hpp>
+
 using namespace cv;
 using namespace std;
 
-void mlp(vector<Mat> features, vector<int> labels, vector<string> paths);
+void mlp(Mat train_features, Mat train_labels, vector<string> train_paths, Mat test_features, Mat test_labels, vector<string> test_paths );
 int main(int argc, char* argv[]) {
     cout << "============= TRAIN =============" << endl;
 
@@ -46,40 +48,107 @@ int main(int argc, char* argv[]) {
 
     cout << algorithm_name << " : " << input_file << " : " << output_folder <<  endl;
 
-
+    // READ YML FILES
     FileStorage in( input_file, FileStorage::READ);
-    int num_of_image = 0;
+    int num_of_image = 0, num_of_train = 0, num_of_test = 0, feature_size = 0;
     in["num_of_image"] >> num_of_image;
+    in["num_of_train"] >> num_of_train;
+    in["num_of_test"] >> num_of_test;
+    in["feature_size"] >> feature_size;
     Mat feature;
     string path;
     int label;
-    vector<Mat> features;
-    vector<int> labels;
-    vector<string> paths;
+    bool isTrain;
+    Mat train_features(num_of_train, feature_size, CV_32FC1);
+    Mat train_labels(num_of_train, 1, CV_32FC1);
+    vector<string> train_paths;
 
+    Mat test_features(num_of_test, feature_size, CV_32FC1);
+    Mat test_labels(num_of_test, 1, CV_32FC1);
+    vector<string> test_paths;
+
+    int train_idx = 0, test_idx = 0;
     for(int i = 0 ; i < num_of_image; i ++){
         in["image_feature_" + to_string(i)] >> feature;
         in["image_label_" + to_string(i)] >> label;
         in["image_path_" + to_string(i)] >> path;
+        in["image_is_train_" + to_string(i)] >> isTrain;
 
-        features.push_back(feature);
-        paths.push_back(path);
-        labels.push_back(label);
+        if(isTrain){
+            feature.copyTo(train_features.row(train_idx));
+            train_labels.at<int>(train_idx, 0) = label;
+            train_paths.push_back(path);
+            train_idx += 1;
+        }else{
+            feature.copyTo(test_features.row(test_idx));
+            test_labels.at<int>(test_idx, 0) = label;
+            test_paths.push_back(path);
+            test_idx += 1;
+        }
     }
 
+    // START TRAINING
     if( algorithm_name == "mlp" ){
-        mlp(features, labels, paths);
+        mlp(train_features, train_labels, train_paths, test_features, test_labels, test_paths);
     }
 
 
     waitKey(0);
     return 0;
 }
+// accuracy
+float evaluate(cv::Mat& predicted, cv::Mat& actual) {
+    assert(predicted.rows == actual.rows);
+    int t = 0;
+    int f = 0;
+    for(int i = 0; i < actual.rows; i++) {
+        float p = predicted.at<float>(i,0);
+        float a = actual.at<float>(i,0);
+        if((p >= 0.0 && a >= 0.0) || (p <= 0.0 &&  a <= 0.0)) {
+            t++;
+        } else {
+            f++;
+        }
+    }
+    return (t * 1.0) / (t + f);
+}
+void mlp(Mat train_features, Mat train_labels, vector<string> train_paths, Mat test_features, Mat test_labels, vector<string> test_paths ){
+    cout << "Training MLP: trainset: " << train_features.size() << " testset: " << test_features.size() << endl;
 
-void mlp(vector<Mat> features, vector<int> labels, vector<string> paths){
-    cout << "Training MLP" << endl;
-    imshow("features", features[100]);
-    imshow("img", imread(paths[100], CV_LOAD_IMAGE_ANYCOLOR));
-    cout << "Label: " << labels[100];
+    cv::Mat layers = cv::Mat(4, 1, CV_32SC1);
+
+    layers.row(0) = cv::Scalar(train_features.cols);
+    layers.row(1) = cv::Scalar(10);
+    layers.row(2) = cv::Scalar(15);
+    layers.row(3) = cv::Scalar(1);
+
+    CvANN_MLP mlp;
+    CvANN_MLP_TrainParams params;
+    CvTermCriteria criteria;
+    criteria.max_iter = 100;
+    criteria.epsilon = 0.00001f;
+    criteria.type = CV_TERMCRIT_ITER | CV_TERMCRIT_EPS;
+    params.train_method = CvANN_MLP_TrainParams::BACKPROP;
+    params.bp_dw_scale = 0.05f;
+    params.bp_moment_scale = 0.05f;
+    params.term_crit = criteria;
+
+    mlp.create(layers);
+
+    // train
+    mlp.train(train_features, train_labels, cv::Mat(), cv::Mat(), params);
+
+    cv::Mat response(1, 1, CV_32FC1);
+    cv::Mat predicted(test_labels.rows, 1, CV_32F);
+    for(int i = 0; i < test_features.rows; i++) {
+        cv::Mat response(1, 1, CV_32FC1);
+        cv::Mat sample = test_features.row(i);
+
+        mlp.predict(sample, response);
+        predicted.at<float>(i,0) = response.at<float>(0,0);
+
+    }
+
+    cout << "Accuracy_{MLP} = " << evaluate(predicted, test_labels) << endl;
 
 }
