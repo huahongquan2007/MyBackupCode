@@ -5,6 +5,7 @@
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/nonfree/features2d.hpp>
 using namespace cv;
 using namespace std;
@@ -80,10 +81,13 @@ void processJAFFE(string input, string output, string feature_name){
     vector<string> imgPath = listFile(input);
 
     int num_of_image = imgPath.size();
-//    num_of_image = 50;
+//    num_of_image = 10;
+
+    vector<Mat> features_vector;
+
     for(int i = 0 ; i < num_of_image; i++){
         // load image
-        img = imread(imgPath[i], CV_LOAD_IMAGE_ANYCOLOR);
+        img = imread(imgPath[i], CV_LOAD_IMAGE_COLOR);
 
         // extract feature
         feature = extractFeature(img, "SIFT");
@@ -110,7 +114,8 @@ void processJAFFE(string input, string output, string feature_name){
         }
 
         // save feature & label
-        fs << "image_feature_" + to_string(i) << feature;
+        features_vector.push_back(feature);
+//        fs << "image_feature_" + to_string(i) << feature;
         fs << "image_label_" + to_string(i) << label;
         fs << "image_path_" + to_string(i) << imgPath[i];
 
@@ -125,7 +130,77 @@ void processJAFFE(string input, string output, string feature_name){
 
         cout << i << "/" << imgPath.size() << endl;
     }
-    int feature_size = feature.cols * feature.rows;
+
+    // compute feature distribution over k bins
+    int num_of_feature = 0;
+    for(int i = 0 ; i < features_vector.size(); i++){
+        cout << features_vector[i].cols << " " << features_vector[i].rows << endl;
+        num_of_feature += features_vector[i].rows;
+    }
+    cout << "num_of_feature: " << num_of_feature << endl;
+
+    Mat featureData = Mat::zeros(num_of_feature, features_vector[0].cols, CV_32FC1);
+    int cur_idx = 0;
+    for(int i = 0 ; i < features_vector.size(); i++){
+        features_vector[i].copyTo(featureData.rowRange(cur_idx, cur_idx + features_vector[i].rows));
+        cur_idx += features_vector[i].rows;
+
+        cout << features_vector[i].at<float>(0,0) << " " << featureData.at<float>(cur_idx - features_vector[i].rows, 0) << endl;
+    }
+
+    // --- compute kmeans
+    Mat labels, centers;
+    kmeans(featureData, 1000, labels, TermCriteria( TermCriteria::EPS+TermCriteria::COUNT, 100, 1.0),
+           3, KMEANS_PP_CENTERS, centers);
+
+    // --- computer feature
+    cur_idx = 0;
+    for(int i = 0 ; i < features_vector.size(); i++){ // for each image
+        features_vector[i].copyTo(featureData.rowRange(cur_idx, cur_idx + features_vector[i].rows));
+
+        Mat feature = Mat::zeros(1, 1000, CV_32FC1);
+
+        for(int j = 0; j < features_vector[i].rows; j++){ // for each feature in cur image
+            int bin = labels.at<int>(cur_idx + j);
+            feature.at<float>(0, bin) += 1;
+        }
+        cout << "histogram feature: " << endl << feature << endl;
+        normalize(feature, feature, 0, 1, NORM_MINMAX, -1, Mat() );
+//        cout << "Feature_norm: " << endl;
+//        cout << feature << endl;
+        fs << "image_feature_" + to_string(i) << feature;
+
+        // Draw the histograms for B, G and R
+//        int hist_w = 512; int hist_h = 512;
+//        int bin_w = cvRound( (double) hist_w/1000);
+//
+//        Mat histImage( hist_h, hist_w, CV_8UC3, Scalar( 255, 255, 255) );
+
+        /// Draw for each channel
+//        normalize(feature, feature, 0, histImage.rows, NORM_MINMAX, -1, Mat() );
+//        cout << "Feature: " << endl;
+//        cout << feature << endl;
+//        for( int m = 1; m < feature.cols; m++ )
+//        {
+//            line( histImage, Point( bin_w*(m-1), hist_h - cvRound( feature.at<float>(m-1)) ) ,
+//                  Point( bin_w*(m), hist_h - cvRound( feature.at<float>(m)) ),
+//                  Scalar( 255, 0, 0), 2, 8, 0  );
+//        }
+//
+//        /// Display
+//        namedWindow("calcHist Demo", CV_WINDOW_AUTOSIZE );
+//        imshow("calcHist Demo", histImage );
+//
+//        waitKey(0);
+
+        cur_idx += features_vector[i].rows;
+    }
+
+    cout << "labels" << endl;
+    cout << labels.t() << endl;
+
+    // save result
+    int feature_size = 1000;
     fs << "num_of_image" << num_of_image;
     fs << "num_of_label" << 7;
     fs << "label_0" << "Angry";
@@ -138,6 +213,7 @@ void processJAFFE(string input, string output, string feature_name){
     fs << "num_of_train" << num_of_image - num_of_test;
     fs << "num_of_test" << num_of_test;
     fs << "feature_size" << feature_size;
+    fs << "centers" << centers;
     fs.release();
 
     cout << "Features saved: " << output_path << endl;
@@ -168,13 +244,16 @@ vector<string> listFile(string folder){
     return imgPath;
 }
 Mat extractFeature(Mat image, string feature_type){
-    cv::DenseFeatureDetector detector;
+    cv::SiftFeatureDetector detector;
     std::vector<cv::KeyPoint> keypoints;
     detector.detect(image, keypoints);
 
-    Ptr<DescriptorExtractor> featureExtractor = DescriptorExtractor::create("SIFT");
+//    Ptr<DescriptorExtractor> featureExtractor = DescriptorExtractor::create("SIFT");
+    Ptr<cv::DescriptorExtractor> oppDescExtractor= DescriptorExtractor::create("SIFT");
+    Ptr<OpponentColorDescriptorExtractor> featureExtractor(new OpponentColorDescriptorExtractor(oppDescExtractor));
     Mat descriptors;
+    cvtColor(image, image, CV_RGB2BGR);
     featureExtractor->compute(image, keypoints, descriptors);
 
-    return descriptors.reshape(0, 1);
+    return descriptors;
 }

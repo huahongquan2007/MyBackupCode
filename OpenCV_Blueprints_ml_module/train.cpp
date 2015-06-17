@@ -94,8 +94,6 @@ int main(int argc, char* argv[]) {
         mlp(num_of_label, train_features, train_labels, train_paths, test_features, test_labels, test_paths);
     }
 
-
-    waitKey(0);
     return 0;
 }
 // accuracy
@@ -146,14 +144,14 @@ void mlp(int num_of_label, Mat train_features, Mat train_labels, vector<string> 
     cv::Mat layers = cv::Mat(4, 1, CV_32SC1);
 
     layers.row(0) = cv::Scalar(train_features.cols);
-    layers.row(1) = cv::Scalar(10);
-    layers.row(2) = cv::Scalar(15);
+    layers.row(1) = cv::Scalar(15);
+    layers.row(2) = cv::Scalar(10);
     layers.row(3) = cv::Scalar(num_of_label);
 
     CvANN_MLP mlp;
     CvANN_MLP_TrainParams params;
     CvTermCriteria criteria;
-    criteria.max_iter = 100;
+    criteria.max_iter = 10000;
     criteria.epsilon = 0.00001f;
     criteria.type = CV_TERMCRIT_ITER | CV_TERMCRIT_EPS;
     params.train_method = CvANN_MLP_TrainParams::BACKPROP;
