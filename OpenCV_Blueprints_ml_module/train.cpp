@@ -144,8 +144,8 @@ void mlp(int num_of_label, Mat train_features, Mat train_labels, vector<string> 
     cv::Mat layers = cv::Mat(4, 1, CV_32SC1);
 
     layers.row(0) = cv::Scalar(train_features.cols);
-    layers.row(1) = cv::Scalar(39);
-    layers.row(2) = cv::Scalar(15);
+    layers.row(1) = cv::Scalar(10);
+    layers.row(2) = cv::Scalar(10);
     layers.row(3) = cv::Scalar(num_of_label);
 
     CvANN_MLP mlp;
