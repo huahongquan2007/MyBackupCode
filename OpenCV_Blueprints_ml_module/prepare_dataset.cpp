@@ -81,8 +81,8 @@ void processJAFFE(string input, string output, string feature_name){
     vector<string> imgPath = listFile(input);
 
     int num_of_image = imgPath.size();
-    int bin_size = 500;
-    num_of_image = 50;
+    int bin_size = 100;
+//    num_of_image = 50;
 
     vector<Mat> features_vector;
 
@@ -140,43 +140,23 @@ void processJAFFE(string input, string output, string feature_name){
     }
     cout << "num_of_feature: " << num_of_feature << endl;
 
-    Mat rawfeatureData = Mat::zeros(num_of_feature, features_vector[0].cols, CV_32FC1);
+    Mat rawFeatureData = Mat::zeros(num_of_feature, features_vector[0].cols, CV_32FC1);
     int cur_idx = 0;
     for(int i = 0 ; i < features_vector.size(); i++){
-        features_vector[i].copyTo(rawfeatureData.rowRange(cur_idx, cur_idx + features_vector[i].rows));
+        features_vector[i].copyTo(rawFeatureData.rowRange(cur_idx, cur_idx + features_vector[i].rows));
         cur_idx += features_vector[i].rows;
     }
 
-    // dimension reduction
-    // --- PCA
-
-
-    // perform PCA
-    PCA pca(rawfeatureData, cv::Mat(), CV_PCA_DATA_AS_ROW, 0.90);
-
-    Mat featureData = Mat::zeros(num_of_feature, pca.eigenvectors.rows, CV_32FC1);
-
-    for(int i = 0 ; i < num_of_feature; i++){
-        feature = pca.project(rawfeatureData.row(i));
-        feature.copyTo(featureData.row(i));
-//        cout << "pca_feature: " << endl;
-//        cout << feature << endl;
-    }
-
-    int feature_size = pca.eigenvectors.rows;
-    cout << "feature_size: " << feature_size << endl;
-
-    feature_size = bin_size;
-
     // --- compute kmeans
     Mat labels, centers;
-    kmeans(featureData, bin_size, labels, TermCriteria( TermCriteria::EPS+TermCriteria::COUNT, 100, 1.0),
+    kmeans(rawFeatureData, bin_size, labels, TermCriteria( TermCriteria::EPS+TermCriteria::COUNT, 100, 1.0),
            3, KMEANS_PP_CENTERS, centers);
 
     // --- computer feature
     cur_idx = 0;
     Mat featureDataOverBins = Mat::zeros(num_of_image, bin_size, CV_32FC1); //[num_of_image * bin_size]
     for(int i = 0 ; i < num_of_image; i++){ // for each image
+//        features_vector[i].copyTo(rawFeatureData.rowRange(cur_idx, cur_idx + features_vector[i].rows));
 
         Mat feature = Mat::zeros(1, bin_size, CV_32FC1);
         for(int j = 0; j < features_vector[i].rows; j++){ // for each feature in cur image
@@ -189,10 +169,22 @@ void processJAFFE(string input, string output, string feature_name){
 
         feature.copyTo(featureDataOverBins.row(i));
 
-        fs << "image_feature_" + to_string(i) << feature;
 
         cur_idx += features_vector[i].rows;
     }
+
+    // dimension reduction
+    // --- PCA
+    // perform PCA
+    PCA pca(featureDataOverBins, cv::Mat(), CV_PCA_DATA_AS_ROW, 0.90);
+    int feature_size = pca.eigenvectors.rows;
+    for(int i = 0 ; i < num_of_image; i++){
+        feature = pca.project(featureDataOverBins.row(i));
+        cout << "pca_feature: " << endl;
+        cout << feature << endl;
+        fs << "image_feature_" + to_string(i) << feature;
+    }
+    cout << "feature_size: " << feature_size << endl;
 
     // --- Project every feature to new space
     // --- update feature_size
