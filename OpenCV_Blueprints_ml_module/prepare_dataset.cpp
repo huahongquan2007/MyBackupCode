@@ -7,6 +7,7 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/nonfree/features2d.hpp>
+#include <opencv2/objdetect/objdetect.hpp>
 using namespace cv;
 using namespace std;
 
@@ -75,23 +76,43 @@ void processJAFFE(string input, string output, string feature_name){
     FileStorage fs( output_path , FileStorage::WRITE);
 
     cout << "Process JAFFE: " << input << endl;
-    Mat img, feature;
+    Mat img, img_gray, feature;
     RNG rng;
     int num_of_test = 0;
     vector<string> imgPath = listFile(input);
 
     int num_of_image = imgPath.size();
-    int bin_size = 100;
-//    num_of_image = 50;
+    int bin_size = 1000;
+//    num_of_image = 100;
 
     vector<Mat> features_vector;
+
+    CascadeClassifier face_cascade;
+    if( !face_cascade.load("haarcascade_frontalface_default.xml") ){ printf("--(!)Error loading face cascade\n"); return; };
+
 
     for(int i = 0 ; i < num_of_image; i++){
         // load image
         img = imread(imgPath[i], CV_LOAD_IMAGE_COLOR);
 
+        cvtColor(img, img_gray, CV_RGB2GRAY);
+        equalizeHist( img_gray, img_gray );
+        vector<Rect> faces;
+        face_cascade.detectMultiScale( img_gray, faces, 1.1, 3, CV_HAAR_FIND_BIGGEST_OBJECT, Size(30, 30) );
+
+        Rect maxRect; // 0 sized rect
+        for(int j = 0; j < faces.size(); j++)
+            if (faces[j].area() > maxRect.area())
+                maxRect = faces[j];
+
+        Mat faceROI = img( maxRect );
+        resize(faceROI, faceROI, Size(150, 150));
+//        imshow("image", img_gray);
+//        imshow("faces", faceROI);
+//        waitKey(0);
+
         // extract feature
-        feature = extractFeature(img, "SIFT");
+        feature = extractFeature(faceROI, "SIFT");
 
         // extract label
         string fileName = imgPath[i].substr(input.length() + 1, imgPath[i].length());
@@ -167,24 +188,28 @@ void processJAFFE(string input, string output, string feature_name){
         cout << "histogram feature: " << endl << feature << endl;
         normalize(feature, feature, 0, 1, NORM_MINMAX, -1, Mat() );
 
+
+        fs << "image_feature_" + to_string(i) << feature;
+
         feature.copyTo(featureDataOverBins.row(i));
 
 
         cur_idx += features_vector[i].rows;
     }
 
+    int feature_size = bin_size;
     // dimension reduction
     // --- PCA
     // perform PCA
-    PCA pca(featureDataOverBins, cv::Mat(), CV_PCA_DATA_AS_ROW, 0.90);
-    int feature_size = pca.eigenvectors.rows;
-    for(int i = 0 ; i < num_of_image; i++){
-        feature = pca.project(featureDataOverBins.row(i));
-        cout << "pca_feature: " << endl;
-        cout << feature << endl;
-        fs << "image_feature_" + to_string(i) << feature;
-    }
-    cout << "feature_size: " << feature_size << endl;
+//    PCA pca(featureDataOverBins, cv::Mat(), CV_PCA_DATA_AS_ROW, 0.90);
+//    int feature_size = pca.eigenvectors.rows;
+//    for(int i = 0 ; i < num_of_image; i++){
+//        feature = pca.project(featureDataOverBins.row(i));
+//        cout << "pca_feature: " << endl;
+//        cout << feature << endl;
+//        fs << "image_feature_" + to_string(i) << feature;
+//    }
+//    cout << "feature_size: " << feature_size << endl;
 
     // --- Project every feature to new space
     // --- update feature_size

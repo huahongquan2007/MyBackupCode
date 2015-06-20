@@ -3,6 +3,8 @@ project(OpenCV_Blueprints_ml_module)
 
 find_package( OpenCV REQUIRED )
 
+FILE(COPY "haarcascade_frontalface_default.xml" DESTINATION ${CMAKE_BINARY_DIR})
+
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 set(PREPARE_DATASET_FILES prepare_dataset.cpp dirent.h)
