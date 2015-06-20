@@ -266,11 +266,11 @@ Mat extractFeature(Mat image, string feature_type){
     std::vector<cv::KeyPoint> keypoints;
     detector.detect(image, keypoints);
 
-//    Ptr<DescriptorExtractor> featureExtractor = DescriptorExtractor::create("SIFT");
-    Ptr<cv::DescriptorExtractor> oppDescExtractor= DescriptorExtractor::create("SIFT");
-    Ptr<OpponentColorDescriptorExtractor> featureExtractor(new OpponentColorDescriptorExtractor(oppDescExtractor));
+    Ptr<DescriptorExtractor> featureExtractor = DescriptorExtractor::create("SIFT");
+//    Ptr<cv::DescriptorExtractor> oppDescExtractor= DescriptorExtractor::create("SIFT");
+//    Ptr<OpponentColorDescriptorExtractor> featureExtractor(new OpponentColorDescriptorExtractor(oppDescExtractor));
     Mat descriptors;
-    cvtColor(image, image, CV_RGB2BGR);
+//    cvtColor(image, image, CV_RGB2BGR);
     featureExtractor->compute(image, keypoints, descriptors);
 
     return descriptors;

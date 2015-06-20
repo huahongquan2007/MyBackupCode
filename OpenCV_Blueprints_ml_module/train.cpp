@@ -8,6 +8,7 @@ using namespace cv;
 using namespace std;
 
 void mlp(int num_of_label, Mat train_features, Mat train_labels, vector<string> train_paths, Mat test_features, Mat test_labels, vector<string> test_paths );
+void svm(int num_of_label, Mat train_features, Mat train_labels, vector<string> train_paths, Mat test_features, Mat test_labels, vector<string> test_paths );
 int main(int argc, char* argv[]) {
     cout << "============= TRAIN =============" << endl;
 
@@ -92,6 +93,8 @@ int main(int argc, char* argv[]) {
     // START TRAINING
     if( algorithm_name == "mlp" ){
         mlp(num_of_label, train_features, train_labels, train_paths, test_features, test_labels, test_paths);
+    } else if (algorithm_name == "svm"){
+        svm(num_of_label, train_features, train_labels, train_paths, test_features, test_labels, test_paths);
     }
 
     return 0;
@@ -180,4 +183,55 @@ void mlp(int num_of_label, Mat train_features, Mat train_labels, vector<string> 
 
     cout << "Accuracy_{MLP} = " << evaluate(predicted, labels_test) << endl;
 
+}
+
+void svm(int num_of_label, Mat train_features, Mat train_labels, vector<string> train_paths, Mat test_features, Mat test_labels, vector<string> test_paths ){
+    CvSVMParams param = CvSVMParams();
+
+    cout << "Training MLP: trainset: " << train_features.size() << " testset: " << test_features.size() << endl;
+
+    Mat labels = Mat::zeros( train_labels.rows, 1, CV_32FC1);
+    for(int i = 0 ; i < train_labels.rows; i ++){
+        labels.at<float>(i, 0) = train_labels.at<int>(i, 0);
+    }
+
+    cout << "Labels: " << labels.t() << endl;
+
+    Mat labels_test = Mat::zeros( test_labels.rows, 1, CV_32SC1);
+    for(int i = 0 ; i < test_labels.rows; i ++){
+        labels_test.at<int>(i, 0) = test_labels.at<int>(i, 0);
+    }
+
+
+    param.svm_type = CvSVM::C_SVC;
+    param.kernel_type = CvSVM::LINEAR; //CvSVM::RBF, CvSVM::LINEAR ...
+    param.degree = 0; // for poly
+    param.gamma = 20; // for poly/rbf/sigmoid
+    param.coef0 = 0; // for poly/sigmoid
+
+    param.C = 7; // for CV_SVM_C_SVC, CV_SVM_EPS_SVR and CV_SVM_NU_SVR
+    param.nu = 0.0; // for CV_SVM_NU_SVC, CV_SVM_ONE_CLASS, and CV_SVM_NU_SVR
+    param.p = 0.0; // for CV_SVM_EPS_SVR
+
+    param.class_weights = NULL; // for CV_SVM_C_SVC
+    param.term_crit.type = CV_TERMCRIT_ITER +CV_TERMCRIT_EPS;
+    param.term_crit.max_iter = 1000;
+    param.term_crit.epsilon = 1e-6;
+
+    // SVM training (use train auto for OpenCV>=2.0)
+    CvSVM svm(train_features, labels, cv::Mat(), cv::Mat(), param);
+
+    cv::Mat predicted = Mat::zeros(test_labels.rows, num_of_label, CV_32F);
+    for(int i = 0; i < test_features.rows; i++) {
+        cv::Mat sample = test_features.row(i);
+
+        float predict = svm.predict(sample);
+
+        predicted.at<float>(i, (int) predict) = 1.0f;
+    }
+
+    cout << "PREDICT: " << predicted << endl;
+    cout << "LABEL: " << labels_test.t() << endl;
+
+    cout << "Accuracy_{MLP} = " << evaluate(predicted, labels_test) << endl;
 }
