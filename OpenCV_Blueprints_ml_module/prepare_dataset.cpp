@@ -82,7 +82,7 @@ void processJAFFE(string input, string output, string feature_name){
     vector<string> imgPath = listFile(input);
 
     int num_of_image = imgPath.size();
-    int bin_size = 1000;
+    int bin_size = 200;
 //    num_of_image = 100;
 
     vector<Mat> features_vector;
@@ -262,16 +262,59 @@ vector<string> listFile(string folder){
     return imgPath;
 }
 Mat extractFeature(Mat image, string feature_type){
-    cv::SiftFeatureDetector detector;
-    std::vector<cv::KeyPoint> keypoints;
-    detector.detect(image, keypoints);
+//    cv::SiftFeatureDetector detector;
+//    std::vector<cv::KeyPoint> keypoints;
+//    detector.detect(image, keypoints);
+//    Ptr<DescriptorExtractor> featureExtractor = DescriptorExtractor::create("SIFT");
+//    Mat descriptors;
+//    featureExtractor->compute(image, keypoints, descriptors);
 
-    Ptr<DescriptorExtractor> featureExtractor = DescriptorExtractor::create("SIFT");
-//    Ptr<cv::DescriptorExtractor> oppDescExtractor= DescriptorExtractor::create("SIFT");
+//        cv::OrbFeatureDetector detector;
+//        std::vector<cv::KeyPoint> keypoints;
+//        detector.detect(image, keypoints);
+//        Ptr<DescriptorExtractor> featureExtractor = DescriptorExtractor::create("ORB");
+//        Mat descriptors;
+//        featureExtractor->compute(image, keypoints, descriptors);
+
+        cv::DenseFeatureDetector detector;
+        std::vector<cv::KeyPoint> keypoints;
+        detector.detect(image, keypoints);
+        Ptr<DescriptorExtractor> featureExtractor = DescriptorExtractor::create("ORB");
+        Mat descriptors;
+        featureExtractor->compute(image, keypoints, descriptors);
+
+//        cv::DenseFeatureDetector detector;
+//        std::vector<cv::KeyPoint> keypoints;
+//        detector.detect(image, keypoints);
+//        Ptr<DescriptorExtractor> featureExtractor = DescriptorExtractor::create("SURF");
+//        Mat descriptors;
+//        featureExtractor->compute(image, keypoints, descriptors);
+//    {
+//        cv::SurfFeatureDetector detector;
+//        std::vector<cv::KeyPoint> keypoints;
+//        detector.detect(image, keypoints);
+//        Ptr<DescriptorExtractor> featureExtractor = DescriptorExtractor::create("SURF");
+//        Mat descriptors;
+//        featureExtractor->compute(image, keypoints, descriptors);
+//    }
+//    {
+//        cv::SiftFeatureDetector detector;
+//        std::vector<cv::KeyPoint> keypoints;
+//        detector.detect(image, keypoints);
+//        Ptr<cv::DescriptorExtractor> oppDescExtractor= DescriptorExtractor::create("SIFT");
+//        Ptr<OpponentColorDescriptorExtractor> featureExtractor(new OpponentColorDescriptorExtractor(oppDescExtractor));
+//        Mat descriptors;
+//        cvtColor(image, image, CV_RGB2BGR);
+//        featureExtractor->compute(image, keypoints, descriptors);
+//    }
+//    cv::SurfFeatureDetector detector;
+//    std::vector<cv::KeyPoint> keypoints;
+//    detector.detect(image, keypoints);
+//    Ptr<cv::DescriptorExtractor> oppDescExtractor= DescriptorExtractor::create("SURF");
 //    Ptr<OpponentColorDescriptorExtractor> featureExtractor(new OpponentColorDescriptorExtractor(oppDescExtractor));
-    Mat descriptors;
+//    Mat descriptors;
 //    cvtColor(image, image, CV_RGB2BGR);
-    featureExtractor->compute(image, keypoints, descriptors);
+//    featureExtractor->compute(image, keypoints, descriptors);
 
     return descriptors;
 }
