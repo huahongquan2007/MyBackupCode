@@ -89,16 +89,17 @@ void processJAFFE(string input, string output) {
         vector<Rect> faces;
         face_cascade.detectMultiScale( img_gray, faces, 1.1, 3);
 
-        for(int i = 0 ; i < faces.size() ; i++){
+        for(int i = 0 ; i < 1 ; i++){
+//        for(int i = 0 ; i < faces.size() ; i++){
             int bbox[4] = { faces[i].x, faces[i].y, faces[i].x + faces[i].width, faces[i].y + faces[i].height };
             flandmark_detect(new IplImage(img_gray), bbox, model, points);
 
-            // draw landmarks
-            for(int j = 0 ; j < num_of_landmark; j++){
-                Point centerLeft = Point((int)points[2 * j], (int)points[2* j + 1]);
-                circle(img, centerLeft, 4, Scalar(255, 255, 255), -1);
-                circle(img, centerLeft, 2, Scalar(0, 0, 255), -1);
-            }
+//            // draw landmarks
+//            for(int j = 0 ; j < num_of_landmark; j++){
+//                Point centerLeft = Point((int)points[2 * j], (int)points[2* j + 1]);
+//                circle(img, centerLeft, 4, Scalar(255, 255, 255), -1);
+//                circle(img, centerLeft, 2, Scalar(0, 0, 255), -1);
+//            }
 
             // left eye
             Point centerLeft = Point( (int) (points[2 * 6] + points[2 * 2]) / 2, (int) (points[2 * 6 + 1] + points[2 * 2 + 1]) / 2 );
