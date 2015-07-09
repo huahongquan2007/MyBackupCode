@@ -244,37 +244,41 @@ void svm(int num_of_label, Mat train_features, Mat train_labels, vector<string> 
     cout << "Accuracy_{SVM} = " << evaluate(predicted, labels_test) << endl;
 }
 
-//void knn(int num_of_label, Mat train_features, Mat train_labels, vector<string> train_paths, Mat test_features, Mat test_labels, vector<string> test_paths, int K){
-//    cout << "Training KNN: trainset: " << train_features.size() << " testset: " << test_features.size() << endl;
-//
-//    Mat labels = Mat::zeros( train_labels.rows, 1, CV_32FC1);
-//    for(int i = 0 ; i < train_labels.rows; i ++){
-//        labels.at<float>(i, 0) = train_labels.at<int>(i, 0);
-//    }
-//
-//    cout << "Labels: " << labels.t() << endl;
-//
-//    Mat labels_test = Mat::zeros( test_labels.rows, 1, CV_32SC1);
-//    for(int i = 0 ; i < test_labels.rows; i ++){
-//        labels_test.at<int>(i, 0) = test_labels.at<int>(i, 0);
-//    }
-//
+void knn(int num_of_label, Mat train_features, Mat train_labels, vector<string> train_paths, Mat test_features, Mat test_labels, vector<string> test_paths, int K){
+    cout << "Training KNN: trainset: " << train_features.size() << " testset: " << test_features.size() << endl;
+
+    Mat labels = Mat::zeros( train_labels.rows, 1, CV_32FC1);
+    for(int i = 0 ; i < train_labels.rows; i ++){
+        labels.at<float>(i, 0) = train_labels.at<int>(i, 0);
+    }
+
+    cout << "Labels: " << labels.t() << endl;
+
+    Mat labels_test = Mat::zeros( test_labels.rows, 1, CV_32SC1);
+    for(int i = 0 ; i < test_labels.rows; i ++){
+        labels_test.at<int>(i, 0) = test_labels.at<int>(i, 0);
+    }
+
+    Ptr<ml::KNearest> knn = ml::KNearest::create();
+    Ptr<ml::TrainData> trainData = ml::TrainData::create(train_features, ml::SampleTypes::ROW_SAMPLE, labels);
+    knn->train(trainData);
 //    CvKNearest knn(train_features, labels, cv::Mat(), false, K);
-//
-//    cv::Mat predicted = Mat::zeros(test_labels.rows, num_of_label, CV_32F);
-//    for(int i = 0; i < test_features.rows; i++) {
-//        cv::Mat sample = test_features.row(i);
-//
-//        float predict = knn.find_nearest(sample, K);
-//
-//        predicted.at<float>(i, (int) predict) = 1.0f;
-//    }
-//
-//    cout << "PREDICT: " << predicted << endl;
-//    cout << "LABEL: " << labels_test.t() << endl;
-//
-//    cout << "Accuracy_{KNN} = " << evaluate(predicted, labels_test) << endl;
-//}
+
+    cv::Mat predicted = Mat::zeros(test_labels.rows, num_of_label, CV_32F);
+    for(int i = 0; i < test_features.rows; i++) {
+        cv::Mat sample = test_features.row(i);
+        Mat bestLabels;
+        knn->findNearest(sample, K, bestLabels);
+        cout << bestLabels << endl;
+//        cout << "DONE " << bestLabels.at<float>(0,0) << endl;
+        predicted.at<float>(i, bestLabels.at<float>(0,0)) = 1.0f;
+    }
+
+    cout << "PREDICT: " << predicted << endl;
+    cout << "LABEL: " << labels_test.t() << endl;
+
+    cout << "Accuracy_{KNN} = " << evaluate(predicted, labels_test) << endl;
+}
 //void bayes(int num_of_label, Mat train_features, Mat train_labels, vector<string> train_paths, Mat test_features, Mat test_labels, vector<string> test_paths){
 //    cout << "Training Bayes: trainset: " << train_features.size() << " testset: " << test_features.size() << endl;
 //
@@ -308,9 +312,6 @@ void svm(int num_of_label, Mat train_features, Mat train_labels, vector<string> 
 //    cout << "Accuracy_{Bayes} = " << evaluate(predicted, labels_test) << endl;
 //}
 
-void knn(int num_of_label, Mat train_features, Mat train_labels, vector<string> train_paths, Mat test_features, Mat test_labels, vector<string> test_paths, int K){
-
-}
 void bayes(int num_of_label, Mat train_features, Mat train_labels, vector<string> train_paths, Mat test_features, Mat test_labels, vector<string> test_paths){
 
 }
