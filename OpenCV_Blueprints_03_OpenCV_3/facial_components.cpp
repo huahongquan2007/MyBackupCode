@@ -121,10 +121,9 @@ void processJAFFE(string input, string output) {
             Mat mouth = img(Rect( centerMouth.x - widthMouth / 2, centerMouth.y - heightMouth / 2, widthMouth, heightMouth ));
 
             // face
-//            int widthFace = abs(points[2 * 6] - points[ 2 * 5])  * 2;
             int widthFace = (centerLeft.x + widthLeft) - (centerRight.x - widthRight);
-            int heightFace = widthFace;
-            Mat face = img(Rect( centerRight.x - widthRight  , centerRight.y - widthRight, widthFace, heightFace ));
+            int heightFace = widthFace * 1.2;
+            Mat face = img(Rect( centerRight.x - widthFace/4  , centerRight.y - heightFace/4, widthFace, heightFace ));
 
             imshow("img", img);
             imshow("img_gray", img_gray);

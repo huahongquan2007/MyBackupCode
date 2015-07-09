@@ -10,7 +10,7 @@
 using namespace std;
 using namespace cv;
 
-Mat extractFeature(Mat eyeLeft, Mat eyeRight, Mat mouth, string feature_type);
+Mat extractFeature(Mat face, string feature_name);
 Mat extractImageFeature(Mat img, string feature_type);
 void createDenseFeature(vector<KeyPoint> &keypoints, Mat image, float initFeatureScale=1.f, int featureScaleLevels=1,
                                     float featureScaleMul=0.1f,
@@ -69,7 +69,7 @@ int main(int argc, char* argv[]) {
 
     int num_of_image = 0;
     in["num_of_image"] >> num_of_image;
-//    num_of_image = 5;
+//    num_of_image = 50;
 
     cout << "num of image : " << num_of_image << endl;
     vector<Mat> features_vector;
@@ -85,13 +85,14 @@ int main(int argc, char* argv[]) {
         in["img_" + to_string(i) + "_face"] >> facePath;
 
         Mat face = imread(facePath, CV_LOAD_IMAGE_GRAYSCALE);
-        Mat result = extractImageFeature(face, feature_name);
+        resize(face, face, Size(80, 80));
+//        Mat result = extractImageFeature(face, feature_name);
 
 //        Mat eyeLeft = imread(eyeLeftPath, CV_LOAD_IMAGE_GRAYSCALE);
 //        Mat eyeRight = imread(eyeRightPath, CV_LOAD_IMAGE_GRAYSCALE);
 //        Mat mouth = imread(mouthPath, CV_LOAD_IMAGE_GRAYSCALE);
 //
-//        Mat result = extractFeature(eyeLeft, eyeRight, mouth, feature_name);
+        Mat result = extractFeature(face, feature_name);
 
         cout << "Feature size: " << result.rows << endl;
 
@@ -162,7 +163,7 @@ int main(int argc, char* argv[]) {
 
         cout << "histogram feature: " << endl << feature << " label: " << label << " " <<  path << endl;
 
-        fs << "image_feature_" + to_string(i) << feature;
+//        fs << "image_feature_" + to_string(i) << feature;
 
 
         fs << "image_label_" + to_string(i) << label;
@@ -183,29 +184,18 @@ int main(int argc, char* argv[]) {
 
 //    // --- PCA
 //    // perform PCA
-//    PCA pca(featureDataOverBins, cv::Mat(), CV_PCA_DATA_AS_ROW, 0.90);
-//    int feature_size = pca.eigenvectors.rows;
-//    Mat feature;
-//    for(int i = 0 ; i < num_of_image; i++){
-//        feature = pca.project(featureDataOverBins.row(i));
-//        cout << feature << endl;
-//        fs << "image_feature_" + to_string(i) << feature;
-//    }
-//    cout << "feature_size: " << feature_size << endl;
+    PCA pca(featureDataOverBins, cv::Mat(), CV_PCA_DATA_AS_ROW, 0.95);
+    int feature_size = pca.eigenvectors.rows;
+    Mat feature;
+    for(int i = 0 ; i < num_of_image; i++){
+        feature = pca.project(featureDataOverBins.row(i));
+        cout << feature << endl;
+        fs << "image_feature_" + to_string(i) << feature;
+    }
+    cout << "feature_size: " << feature_size << endl;
 
-//    // PCA + GABOR
-//    PCA pca(gaborFeatureDataOverBins, cv::Mat(), CV_PCA_DATA_AS_ROW, 0.90);
-//    int feature_size = pca.eigenvectors.rows;
-//    Mat feature;
-//    for(int i = 0 ; i < num_of_image; i++){
-//        feature = pca.project(gaborFeatureDataOverBins.row(i));
-//        cout << feature << endl;
-//        fs << "image_feature_" + to_string(i) << feature;
-//    }
-//    cout << "feature_size: " << feature_size << endl;
-
-//    bin_size = features_vector[0].cols;
-    int feature_size = bin_size;
+    // NO PCA
+//    int feature_size = bin_size;
     fs << "feature_size" << feature_size;
     // save result
 
@@ -220,31 +210,95 @@ int main(int argc, char* argv[]) {
     fs << "label_6" << "Surprised";
     fs << "num_of_train" << num_of_image - num_of_test;
     fs << "num_of_test" << num_of_test;
-
     fs << "centers" << centers;
 
 
     return 0;
 }
+Mat extractBrisk(Mat img){
+    Mat descriptors;
+    vector<KeyPoint> keypoints;
 
-Mat extractFeature(Mat eyeLeft, Mat eyeRight, Mat mouth, string feature_type){
-    // extract image features from each region
-    Mat eyeLeftFeature = extractImageFeature(eyeLeft, feature_type);
-    Mat eyeRightFeature = extractImageFeature(eyeRight, feature_type);
-    Mat mouthFeature = extractImageFeature(mouth , feature_type);
+    Ptr<DescriptorExtractor> brisk = BRISK::create();
+    brisk->detect(img, keypoints, Mat());
+    brisk->compute(img, keypoints, descriptors);
 
-    // create a result Mat to contain all features
-    int num_of_col = eyeLeftFeature.cols;
-    int num_of_row = eyeLeftFeature.rows + eyeRightFeature.rows + mouthFeature.rows;
-    Mat result = Mat::zeros(num_of_row, num_of_col, eyeLeftFeature.type());
-
-    // copy features into result Mat
-    if(eyeLeftFeature.rows > 0) eyeLeftFeature.copyTo(result.rowRange(0, eyeLeftFeature.rows));
-    if(eyeRightFeature.rows > 0) eyeRightFeature.copyTo(result.rowRange(eyeLeftFeature.rows, eyeLeftFeature.rows + eyeRightFeature.rows));
-    if(mouthFeature.rows > 0) mouthFeature.copyTo(result.rowRange(eyeLeftFeature.rows + eyeRightFeature.rows, result.rows));
-
-    return result;
+    return descriptors;
 }
+Mat extractKaze(Mat img){
+    Mat descriptors;
+    vector<KeyPoint> keypoints;
+
+    Ptr<DescriptorExtractor> kaze = KAZE::create();
+    kaze->detect(img, keypoints, Mat());
+    kaze->compute(img, keypoints, descriptors);
+
+    return descriptors;
+}
+Mat extractSift(Mat img){
+    Mat descriptors;
+    vector<KeyPoint> keypoints;
+
+    Ptr<Feature2D> sift = xfeatures2d::SIFT::create();
+    sift->detect(img, keypoints, Mat());
+    sift->compute(img, keypoints, descriptors);
+
+    return descriptors;
+}
+Mat extractDenseSift(Mat img){
+    Mat descriptors;
+    vector<KeyPoint> keypoints;
+
+    Ptr<Feature2D> sift = xfeatures2d::SIFT::create();
+    createDenseFeature(keypoints, img);
+    sift->compute(img, keypoints, descriptors);
+
+    return descriptors;
+}
+Mat extractDaisy(Mat img){
+    Mat descriptors;
+    vector<KeyPoint> keypoints;
+
+    Ptr<FeatureDetector> surf = xfeatures2d::SURF::create();
+    surf->detect(img, keypoints, Mat());
+    Ptr<DescriptorExtractor> daisy = xfeatures2d::DAISY::create();
+    daisy->compute(img, keypoints, descriptors);
+
+    return descriptors;
+}
+Mat extractFeature(Mat img, string feature_name){
+    Mat descriptors;
+    if(feature_name.compare("brisk") == 0){
+        descriptors = extractBrisk(img);
+    } else if(feature_name.compare("kaze") == 0){
+        descriptors = extractKaze(img);
+    } else if(feature_name.compare("sift") == 0){
+        descriptors = extractSift(img);
+    } else if(feature_name.compare("dense-sift") == 0){
+        descriptors = extractDenseSift(img);
+    } else if(feature_name.compare("daisy") == 0){
+        descriptors = extractDaisy(img);
+    }
+    return descriptors;
+}
+//Mat extractFeature(Mat eyeLeft, Mat eyeRight, Mat mouth, string feature_type){
+//    // extract image features from each region
+//    Mat eyeLeftFeature = extractImageFeature(eyeLeft, feature_type);
+//    Mat eyeRightFeature = extractImageFeature(eyeRight, feature_type);
+//    Mat mouthFeature = extractImageFeature(mouth , feature_type);
+//
+//    // create a result Mat to contain all features
+//    int num_of_col = eyeLeftFeature.cols;
+//    int num_of_row = eyeLeftFeature.rows + eyeRightFeature.rows + mouthFeature.rows;
+//    Mat result = Mat::zeros(num_of_row, num_of_col, eyeLeftFeature.type());
+//
+//    // copy features into result Mat
+//    if(eyeLeftFeature.rows > 0) eyeLeftFeature.copyTo(result.rowRange(0, eyeLeftFeature.rows));
+//    if(eyeRightFeature.rows > 0) eyeRightFeature.copyTo(result.rowRange(eyeLeftFeature.rows, eyeLeftFeature.rows + eyeRightFeature.rows));
+//    if(mouthFeature.rows > 0) mouthFeature.copyTo(result.rowRange(eyeLeftFeature.rows + eyeRightFeature.rows, result.rows));
+//
+//    return result;
+//}
 Mat extractImageFeature(Mat img, string feature_type){
 
     vector<KeyPoint> keypoints;
@@ -265,11 +319,11 @@ Mat extractImageFeature(Mat img, string feature_type){
         extractor->compute(img, keypoints, descriptors);
     }
     else if(feature_type.compare("dense-orb") == 0){
-        detector = ORB::create();
         createDenseFeature(keypoints, img);
-
         cout << "num of keypoints in elseif: " << keypoints.size() << endl;
-        detector->detectAndCompute(img, Mat(), keypoints, descriptors, true);
+        detector = xfeatures2d::SIFT::create();
+        equalizeHist(img, img);
+        detector->compute(img, keypoints, descriptors);
 //        detector->compute(img, keypoints, descriptors);
     }else if(feature_type.compare("sift") == 0){
         detector = xfeatures2d::SIFT::create();

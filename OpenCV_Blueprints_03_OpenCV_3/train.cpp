@@ -6,7 +6,6 @@
 #include <opencv2/highgui.hpp>
 #include <opencv2/ml/ml.hpp>
 using namespace cv;
-using namespace cv::ml;
 using namespace std;
 
 void mlp(int num_of_label, Mat train_features, Mat train_labels, vector<string> train_paths, Mat test_features, Mat test_labels, vector<string> test_paths );
@@ -137,58 +136,64 @@ float evaluate(cv::Mat& predicted, cv::Mat& actual) {
     }
     return (t * 1.0) / (t + f);
 }
-//void mlp(int num_of_label, Mat train_features, Mat train_labels, vector<string> train_paths, Mat test_features, Mat test_labels, vector<string> test_paths ){
-//    cout << "Training MLP: trainset: " << train_features.size() << " testset: " << test_features.size() << endl;
-//
-//    Mat labels = Mat::zeros( train_labels.rows, num_of_label, CV_32FC1);
-//    for(int i = 0 ; i < train_labels.rows; i ++){
-//        int idx = train_labels.at<int>(i, 0);
-//        labels.at<float>(i, idx) = 1.0f;
-//    }
-//
-//    cout << "Labels: " << labels.t() << endl;
-//
-//    Mat labels_test = Mat::zeros( test_labels.rows, 1, CV_32SC1);
-//    for(int i = 0 ; i < test_labels.rows; i ++){
-//        labels_test.at<int>(i, 0) = test_labels.at<int>(i, 0);
-//    }
-//
-//    cv::Mat layers = cv::Mat(4, 1, CV_32SC1);
-//
-//    layers.row(0) = cv::Scalar(train_features.cols);
-//    layers.row(1) = cv::Scalar(15);
-//    layers.row(2) = cv::Scalar(7);
-//    layers.row(3) = cv::Scalar(num_of_label);
-//
-//    CvANN_MLP mlp(layers);
-//
-//    CvANN_MLP_TrainParams params;
+void mlp(int num_of_label, Mat train_features, Mat train_labels, vector<string> train_paths, Mat test_features, Mat test_labels, vector<string> test_paths ){
+    cout << "Training MLP: trainset: " << train_features.size() << " testset: " << test_features.size() << endl;
+
+    Mat labels = Mat::zeros( train_labels.rows, num_of_label, CV_32FC1);
+    for(int i = 0 ; i < train_labels.rows; i ++){
+        int idx = train_labels.at<int>(i, 0);
+        labels.at<float>(i, idx) = 1.0f;
+    }
+
+    cout << "Labels: " << endl << labels.t() << endl;
+
+    Mat labels_test = Mat::zeros( test_labels.rows, 1, CV_32SC1);
+    for(int i = 0 ; i < test_labels.rows; i ++){
+        labels_test.at<int>(i, 0) = test_labels.at<int>(i, 0);
+    }
+
+    cv::Mat layers = cv::Mat(3, 1, CV_32S);
+
+    layers.row(0) = cv::Scalar(train_features.cols);
+    layers.row(1) = cv::Scalar(7);
+//    layers.row(2) = cv::Scalar(70);
+    layers.row(2) = cv::Scalar(num_of_label);
+
+    Ptr<ml::ANN_MLP> mlp = ml::ANN_MLP::create();
+    mlp->setLayerSizes(layers);
+//    mlp->setBackpropMomentumScale(0.1f);
+//    mlp->setBackpropWeightScale(0.05f);
+    mlp->setTrainMethod(ml::ANN_MLP::BACKPROP);
+    mlp->setActivationFunction(ml::ANN_MLP::SIGMOID_SYM, 0, 0);
+//    mlp->setTermCriteria(TermCriteria(TermCriteria::EPS+TermCriteria::COUNT, 1000, 0.00001f));
+
+//    ANN_MLP_TrainParams params;
 //    params.train_method = CvANN_MLP_TrainParams::BACKPROP;
 //    params.bp_dw_scale = 0.05f;
 //    params.bp_moment_scale = 0.1f;
 //    params.term_crit = TermCriteria( TermCriteria::EPS+TermCriteria::COUNT, 10000, 0.00001f);
-//
-//    // train
-//    mlp.train(train_features, labels, cv::Mat(), cv::Mat(), params);
-//
-//    cout << "Done train" << endl;
-//
-//    cv::Mat response(1, num_of_label, CV_32FC1);
-//    cv::Mat predicted(test_labels.rows, num_of_label, CV_32F);
-//    for(int i = 0; i < test_features.rows; i++) {
-//        cv::Mat sample = test_features.row(i);
-//
-//        mlp.predict(sample, response);
-//        response.copyTo(predicted.row(i));
-//    }
-//
-//    cout << "PREDICT: " << predicted << endl;
-//    cout << "LABEL: " << labels_test.t() << endl;
-//
-//    cout << "Accuracy_{MLP} = " << evaluate(predicted, labels_test) << endl;
-//
-//}
-//
+
+    // train
+    Ptr<ml::TrainData> trainData = ml::TrainData::create(train_features, ml::SampleTypes::ROW_SAMPLE, labels);
+    mlp->train(trainData);
+
+    cout << "Done train" << endl;
+
+    cv::Mat response(1, num_of_label, CV_32FC1);
+    cv::Mat predicted(test_labels.rows, num_of_label, CV_32FC1);
+    for(int i = 0; i < test_features.rows; i++) {
+        cv::Mat sample = test_features.row(i);
+        mlp->predict(sample, response);
+        response.copyTo(predicted.row(i));
+    }
+
+    cout << "PREDICT: " << predicted << endl;
+    cout << "LABEL: " << labels_test.t() << endl;
+
+    cout << "Accuracy_{MLP} = " << evaluate(predicted, labels_test) << endl;
+
+}
+
 void svm(int num_of_label, Mat train_features, Mat train_labels, vector<string> train_paths, Mat test_features, Mat test_labels, vector<string> test_paths ){
 
     cout << "Training SVM: trainset: " << train_features.size() << " testset: " << test_features.size() << endl;
@@ -202,7 +207,7 @@ void svm(int num_of_label, Mat train_features, Mat train_labels, vector<string> 
 
     Mat labels_test = Mat::zeros( test_labels.rows, 1, CV_32S);
     for(int i = 0 ; i < test_labels.rows; i ++){
-        labels_test.at<int>(i, 0) = test_labels.at<int>(i, 0);
+        labels_test.at<unsigned int>(i, 0) = test_labels.at<int>(i, 0);
     }
 
     cout << "TrainData. Type: " << train_features.type() << endl;
@@ -210,11 +215,11 @@ void svm(int num_of_label, Mat train_features, Mat train_labels, vector<string> 
     cout << "Label. Type: " << labels.type() << endl;
     cout << labels.t() << endl;
 
-    Ptr<SVM> svm = SVM::create();
-    svm->setType(SVM::C_SVC);
-    svm->setKernel(SVM::RBF);
-    Ptr<TrainData> trainData = TrainData::create(train_features, SampleTypes::ROW_SAMPLE, labels);
-    svm->trainAuto(trainData, 10);
+    Ptr<ml::SVM> svm = ml::SVM::create();
+//    svm->setType(SVM::C_SVC);
+//    svm->setKernel(SVM::RBF);
+    Ptr<ml::TrainData> trainData = ml::TrainData::create(train_features, ml::SampleTypes::ROW_SAMPLE, labels);
+    svm->trainAuto(trainData);
 
     cout << "Done Train" << endl;
 
@@ -298,9 +303,6 @@ void svm(int num_of_label, Mat train_features, Mat train_labels, vector<string> 
 //}
 
 void knn(int num_of_label, Mat train_features, Mat train_labels, vector<string> train_paths, Mat test_features, Mat test_labels, vector<string> test_paths, int K){
-
-}
-void mlp(int num_of_label, Mat train_features, Mat train_labels, vector<string> train_paths, Mat test_features, Mat test_labels, vector<string> test_paths ){
 
 }
 void bayes(int num_of_label, Mat train_features, Mat train_labels, vector<string> train_paths, Mat test_features, Mat test_labels, vector<string> test_paths){
