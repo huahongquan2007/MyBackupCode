@@ -247,9 +247,9 @@ void svm(int num_of_label, Mat train_features, Mat train_labels, vector<string> 
 void knn(int num_of_label, Mat train_features, Mat train_labels, vector<string> train_paths, Mat test_features, Mat test_labels, vector<string> test_paths, int K){
     cout << "Training KNN: trainset: " << train_features.size() << " testset: " << test_features.size() << endl;
 
-    Mat labels = Mat::zeros( train_labels.rows, 1, CV_32FC1);
+    Mat labels = Mat::zeros( train_labels.rows, 1, CV_32SC1);
     for(int i = 0 ; i < train_labels.rows; i ++){
-        labels.at<float>(i, 0) = train_labels.at<int>(i, 0);
+        labels.at<unsigned int>(i, 0) = train_labels.at<int>(i, 0);
     }
 
     cout << "Labels: " << labels.t() << endl;
@@ -279,39 +279,37 @@ void knn(int num_of_label, Mat train_features, Mat train_labels, vector<string> 
 
     cout << "Accuracy_{KNN} = " << evaluate(predicted, labels_test) << endl;
 }
-//void bayes(int num_of_label, Mat train_features, Mat train_labels, vector<string> train_paths, Mat test_features, Mat test_labels, vector<string> test_paths){
-//    cout << "Training Bayes: trainset: " << train_features.size() << " testset: " << test_features.size() << endl;
-//
-//    Mat labels = Mat::zeros( train_labels.rows, 1, CV_32FC1);
-//    for(int i = 0 ; i < train_labels.rows; i ++){
-//        labels.at<float>(i, 0) = train_labels.at<int>(i, 0);
-//    }
-//
-//    cout << "Labels: " << labels.t() << endl;
-//
-//    Mat labels_test = Mat::zeros( test_labels.rows, 1, CV_32SC1);
-//    for(int i = 0 ; i < test_labels.rows; i ++){
-//        labels_test.at<int>(i, 0) = test_labels.at<int>(i, 0);
-//    }
-//
-//    CvNormalBayesClassifier bayes(train_features, labels);
-//
-//    cout << "Start testing" << endl;
-//    cv::Mat predicted = Mat::zeros(test_labels.rows, num_of_label, CV_32F);
-//    for(int i = 0; i < test_features.rows; i++) {
-//        cv::Mat sample = test_features.row(i);
-//
-//        float predict = bayes.predict(sample);
-//
-//        predicted.at<float>(i, (int) predict) = 1.0f;
-//    }
-//
-//    cout << "PREDICT: " << predicted << endl;
-//    cout << "LABEL: " << labels_test.t() << endl;
-//
-//    cout << "Accuracy_{Bayes} = " << evaluate(predicted, labels_test) << endl;
-//}
-
 void bayes(int num_of_label, Mat train_features, Mat train_labels, vector<string> train_paths, Mat test_features, Mat test_labels, vector<string> test_paths){
+    cout << "Training Bayes: trainset: " << train_features.size() << " testset: " << test_features.size() << endl;
 
+    Mat labels = Mat::zeros( train_labels.rows, 1, CV_32S);
+    for(int i = 0 ; i < train_labels.rows; i ++){
+        labels.at<unsigned int>(i, 0) = train_labels.at<int>(i, 0);
+    }
+
+    cout << "Labels: " << labels.t() << endl;
+
+    Mat labels_test = Mat::zeros( test_labels.rows, 1, CV_32SC1);
+    for(int i = 0 ; i < test_labels.rows; i ++){
+        labels_test.at<int>(i, 0) = test_labels.at<int>(i, 0);
+    }
+
+//    CvNormalBayesClassifier bayes(train_features, labels);
+    Ptr<ml::NormalBayesClassifier> bayes = ml::NormalBayesClassifier::create();
+    Ptr<ml::TrainData> trainData = ml::TrainData::create(train_features, ml::SampleTypes::ROW_SAMPLE, labels);
+    bayes->train(trainData);
+    cout << "Start testing" << endl;
+    cv::Mat predicted = Mat::zeros(test_labels.rows, num_of_label, CV_32F);
+    for(int i = 0; i < test_features.rows; i++) {
+        cv::Mat sample = test_features.row(i);
+
+        Mat output, outputProb;
+        bayes->predictProb(sample, output, outputProb);
+        predicted.at<float>(i, output.at<unsigned int>(0, 0)) = 1.0f;
+    }
+
+    cout << "PREDICT: " << predicted << endl;
+    cout << "LABEL: " << labels_test.t() << endl;
+
+    cout << "Accuracy_{Bayes} = " << evaluate(predicted, labels_test) << endl;
 }
