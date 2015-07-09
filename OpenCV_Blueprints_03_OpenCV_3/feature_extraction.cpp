@@ -81,11 +81,17 @@ int main(int argc, char* argv[]) {
         in["img_" + to_string(i) + "_eyeRight"] >> eyeRightPath;
         in["img_" + to_string(i) + "_mouth"] >> mouthPath;
 
-        Mat eyeLeft = imread(eyeLeftPath, CV_LOAD_IMAGE_GRAYSCALE);
-        Mat eyeRight = imread(eyeRightPath, CV_LOAD_IMAGE_GRAYSCALE);
-        Mat mouth = imread(mouthPath, CV_LOAD_IMAGE_GRAYSCALE);
+        string facePath;
+        in["img_" + to_string(i) + "_face"] >> facePath;
 
-        Mat result = extractFeature(eyeLeft, eyeRight, mouth, feature_name);
+        Mat face = imread(facePath, CV_LOAD_IMAGE_GRAYSCALE);
+        Mat result = extractImageFeature(face, feature_name);
+
+//        Mat eyeLeft = imread(eyeLeftPath, CV_LOAD_IMAGE_GRAYSCALE);
+//        Mat eyeRight = imread(eyeRightPath, CV_LOAD_IMAGE_GRAYSCALE);
+//        Mat mouth = imread(mouthPath, CV_LOAD_IMAGE_GRAYSCALE);
+//
+//        Mat result = extractFeature(eyeLeft, eyeRight, mouth, feature_name);
 
         cout << "Feature size: " << result.rows << endl;
 
@@ -103,6 +109,7 @@ int main(int argc, char* argv[]) {
 
     Mat rawFeatureData = Mat::zeros(num_of_feature, features_vector[0].cols, CV_32FC1);
     int cur_idx = 0;
+
     for(int i = 0 ; i < features_vector.size(); i++){
         features_vector[i].copyTo(rawFeatureData.rowRange(cur_idx, cur_idx + features_vector[i].rows));
         cur_idx += features_vector[i].rows;
@@ -156,6 +163,8 @@ int main(int argc, char* argv[]) {
         cout << "histogram feature: " << endl << feature << " label: " << label << " " <<  path << endl;
 
         fs << "image_feature_" + to_string(i) << feature;
+
+
         fs << "image_label_" + to_string(i) << label;
 
         // decide train or test
@@ -184,6 +193,18 @@ int main(int argc, char* argv[]) {
 //    }
 //    cout << "feature_size: " << feature_size << endl;
 
+//    // PCA + GABOR
+//    PCA pca(gaborFeatureDataOverBins, cv::Mat(), CV_PCA_DATA_AS_ROW, 0.90);
+//    int feature_size = pca.eigenvectors.rows;
+//    Mat feature;
+//    for(int i = 0 ; i < num_of_image; i++){
+//        feature = pca.project(gaborFeatureDataOverBins.row(i));
+//        cout << feature << endl;
+//        fs << "image_feature_" + to_string(i) << feature;
+//    }
+//    cout << "feature_size: " << feature_size << endl;
+
+//    bin_size = features_vector[0].cols;
     int feature_size = bin_size;
     fs << "feature_size" << feature_size;
     // save result
@@ -232,12 +253,18 @@ Mat extractImageFeature(Mat img, string feature_type){
     Ptr<Feature2D> detector;
 
     // if / switch here
-    if(feature_type.compare("orb") == 0){
-        detector = FastFeatureDetector::create();
-        detector->detect(img, keypoints, Mat());
-        Ptr<DescriptorExtractor> extractor = ORB::create();
+    if(feature_type.compare("brisk") == 0){
+//        detector = FastFeatureDetector::create();
+//        detector->detect(img, keypoints, Mat());
+        Ptr<DescriptorExtractor> extractor = BRISK::create();
+        extractor->detect(img, keypoints, Mat());
         extractor->compute(img, keypoints, descriptors);
-    }else if(feature_type.compare("dense-orb") == 0){
+    }else if(feature_type.compare("kaze") == 0){
+        Ptr<DescriptorExtractor> extractor = KAZE::create();
+        extractor->detect(img, keypoints, Mat());
+        extractor->compute(img, keypoints, descriptors);
+    }
+    else if(feature_type.compare("dense-orb") == 0){
         detector = ORB::create();
         createDenseFeature(keypoints, img);
 
@@ -273,10 +300,29 @@ Mat extractImageFeature(Mat img, string feature_type){
         kernel = cv::getGaborKernel(cv::Size(kernel_size,kernel_size), sigma, theta, lambd, gamma, psi);
         cv::filter2D(img, img135, CV_32F, kernel);
 
-        descriptors = (img0 + img45 + img90 + img135) / 4;
+//        descriptors = (img0 + img45 + img90 + img135) / 4;
+        cout << "before descriptos" << endl;
+        int w = 40;
+        descriptors = Mat::zeros(4, w * w, img0.type());
+
+        resize(img0, img0, Size(w, w));
+        img0 = img0.reshape(0, 1);
+        img0.copyTo(descriptors.row(0));
+
+        resize(img45, img45, Size(w, w));
+        img45 = img45.reshape(0, 1);
+        img45.copyTo(descriptors.row(1));
+
+        resize(img90, img90, Size(w, w));
+        img90 = img90.reshape(0, 1);
+        img90.copyTo(descriptors.row(2));
+
+        resize(img135, img135, Size(w, w));
+        img135 = img135.reshape(0, 1);
+        img135.copyTo(descriptors.row(3));
 //        descriptors = img45;
 //        descriptors = img;
-        resize(descriptors, descriptors, Size(30, 30));
+
         cout << "feature descriptors: " << descriptors.size() << endl;
 
 //        Mat viz;
@@ -293,6 +339,8 @@ Mat extractImageFeature(Mat img, string feature_type){
 //        imshow("img90", viz);
 //
 //
+//        descriptors.convertTo(viz,CV_8U,1.0/255.0);     // move to proper[0..255] range to show it
+//        equalizeHist(viz, viz);
 //        imshow("img", img);
 //        imshow("d",viz);
 //        resize(kernel, kernel, Size(200, 200));

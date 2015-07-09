@@ -120,6 +120,12 @@ void processJAFFE(string input, string output) {
             Point centerMouth = Point( (int) (points[2 * 4] + points[2 * 3]) / 2, (int) (points[2 * 3 + 1] + points[2 * 4 + 1]) / 2 );
             Mat mouth = img(Rect( centerMouth.x - widthMouth / 2, centerMouth.y - heightMouth / 2, widthMouth, heightMouth ));
 
+            // face
+//            int widthFace = abs(points[2 * 6] - points[ 2 * 5])  * 2;
+            int widthFace = (centerLeft.x + widthLeft) - (centerRight.x - widthRight);
+            int heightFace = widthFace;
+            Mat face = img(Rect( centerRight.x - widthRight  , centerRight.y - widthRight, widthFace, heightFace ));
+
             imshow("img", img);
             imshow("img_gray", img_gray);
             imshow("mouth", mouth);
@@ -152,7 +158,7 @@ void processJAFFE(string input, string output) {
 
             curFileName = fileName;
             curFileName.replace(fileName.length() - 4, 4, "face.tiff");
-            Mat face = img(faces[i]);
+//            Mat face = img(faces[i]);
             resize(face, face, Size(FACE_IMG_WIDTH, FACE_IMG_HEIGHT));
             imwrite( output + "/" + curFileName, face);
             fs << "img_" + to_string(img_id) + "_face" << output + "/" + curFileName;
