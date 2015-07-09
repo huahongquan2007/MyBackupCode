@@ -184,7 +184,7 @@ int main(int argc, char* argv[]) {
 
 //    // --- PCA
 //    // perform PCA
-    PCA pca(featureDataOverBins, cv::Mat(), CV_PCA_DATA_AS_ROW, 0.95);
+    PCA pca(featureDataOverBins, cv::Mat(), CV_PCA_DATA_AS_ROW, 0.90);
     int feature_size = pca.eigenvectors.rows;
     Mat feature;
     for(int i = 0 ; i < num_of_image; i++){

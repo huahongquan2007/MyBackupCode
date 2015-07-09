@@ -147,16 +147,22 @@ void mlp(int num_of_label, Mat train_features, Mat train_labels, vector<string> 
 
     cout << "Labels: " << endl << labels.t() << endl;
 
-    Mat labels_test = Mat::zeros( test_labels.rows, 1, CV_32SC1);
+    Mat labels_test = Mat::zeros( test_labels.rows, 1, CV_32S);
     for(int i = 0 ; i < test_labels.rows; i ++){
-        labels_test.at<int>(i, 0) = test_labels.at<int>(i, 0);
+        labels_test.at<unsigned int>(i, 0) = test_labels.at<int>(i, 0);
     }
 
     cv::Mat layers = cv::Mat(3, 1, CV_32S);
 
     layers.row(0) = cv::Scalar(train_features.cols);
-    layers.row(1) = cv::Scalar(7);
-//    layers.row(2) = cv::Scalar(70);
+    layers.row(1) = cv::Scalar(20);
+    //23
+    // 25 63
+    // 20 11 -> 61
+    // 18 65
+    // 19 68
+    // 21 68
+    // 20 70
     layers.row(2) = cv::Scalar(num_of_label);
 
     Ptr<ml::ANN_MLP> mlp = ml::ANN_MLP::create();
@@ -165,7 +171,7 @@ void mlp(int num_of_label, Mat train_features, Mat train_labels, vector<string> 
 //    mlp->setBackpropWeightScale(0.05f);
     mlp->setTrainMethod(ml::ANN_MLP::BACKPROP);
     mlp->setActivationFunction(ml::ANN_MLP::SIGMOID_SYM, 0, 0);
-//    mlp->setTermCriteria(TermCriteria(TermCriteria::EPS+TermCriteria::COUNT, 1000, 0.00001f));
+    mlp->setTermCriteria(TermCriteria(TermCriteria::EPS+TermCriteria::COUNT, 100000, 0.00001f));
 
 //    ANN_MLP_TrainParams params;
 //    params.train_method = CvANN_MLP_TrainParams::BACKPROP;
