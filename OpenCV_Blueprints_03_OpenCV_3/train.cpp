@@ -305,6 +305,7 @@ void bayes(int num_of_label, Mat train_features, Mat train_labels, vector<string
 
         Mat output, outputProb;
         bayes->predictProb(sample, output, outputProb);
+
         predicted.at<float>(i, output.at<unsigned int>(0, 0)) = 1.0f;
     }
 

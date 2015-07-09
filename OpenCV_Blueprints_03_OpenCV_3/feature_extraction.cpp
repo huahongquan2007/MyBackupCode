@@ -189,7 +189,6 @@ int main(int argc, char* argv[]) {
     Mat feature;
     for(int i = 0 ; i < num_of_image; i++){
         feature = pca.project(featureDataOverBins.row(i));
-        cout << feature << endl;
         fs << "image_feature_" + to_string(i) << feature;
     }
     cout << "feature_size: " << feature_size << endl;
@@ -210,9 +209,12 @@ int main(int argc, char* argv[]) {
     fs << "label_6" << "Surprised";
     fs << "num_of_train" << num_of_image - num_of_test;
     fs << "num_of_test" << num_of_test;
+    fs << "pca_mean" << pca.mean;
+    fs << "pca_eigenvalues" << pca.eigenvalues;
+    fs << "pca_eigenvectors" << pca.eigenvectors;
     fs << "centers" << centers;
 
-
+    fs.release();
     return 0;
 }
 Mat extractBrisk(Mat img){
