@@ -20,3 +20,7 @@ target_link_libraries( facial_components flandmark_static ${OpenCV_LIBS} )
 set(FEATURE_EXTRACTION_FILES feature_extraction.cpp)
 add_executable(feature_extraction ${FEATURE_EXTRACTION_FILES})
 target_link_libraries( feature_extraction ${OpenCV_LIBS} )
+
+set(TRAIN_FILES train.cpp)
+add_executable(train ${TRAIN_FILES})
+target_link_libraries( train ${OpenCV_LIBS} )

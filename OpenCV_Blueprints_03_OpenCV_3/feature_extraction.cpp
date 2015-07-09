@@ -5,6 +5,7 @@
 #include <opencv2/features2d.hpp>
 #include "opencv2/xfeatures2d.hpp"
 #include <opencv2/imgproc.hpp>
+#include <vector>
 
 using namespace std;
 using namespace cv;
@@ -29,7 +30,7 @@ int main(int argc, char* argv[]) {
     // Get input parameters
     // ********************
 
-    string feature;
+    string feature_name;
     string input_folder;
     string output_folder;
 
@@ -37,7 +38,7 @@ int main(int argc, char* argv[]) {
     {
         if( strcmp(argv[i], "-feature") == 0 ){
             if(i + 1 >= argc) return -1;
-            feature = argv[i + 1];
+            feature_name = argv[i + 1];
         }
 
         if( strcmp(argv[i], "-src") == 0 ){
@@ -55,36 +56,153 @@ int main(int argc, char* argv[]) {
     // extract feature
     // *********************
 
-    cout << "feature: " << feature << endl;
+    cout << "feature: " << feature_name << endl;
     cout << "src: " << input_folder << endl;
     cout << "dest: " << output_folder << endl;
 
     // READ YML FILES
     string input_file = input_folder + "/list.yml";
     FileStorage in( input_file, FileStorage::READ);
+
+    string output_path = output_folder + "/" + feature_name +"_features.yml";
+    FileStorage fs( output_path , FileStorage::WRITE);
+
     int num_of_image = 0;
     in["num_of_image"] >> num_of_image;
-    num_of_image = 5;
+//    num_of_image = 5;
 
     cout << "num of image : " << num_of_image << endl;
+    vector<Mat> features_vector;
+
+    // extract image features from facial components
     for(int i = 0 ; i < num_of_image; i++){
         string eyeLeftPath, eyeRightPath, mouthPath;
         in["img_" + to_string(i) + "_eyeLeft"] >> eyeLeftPath;
         in["img_" + to_string(i) + "_eyeRight"] >> eyeRightPath;
         in["img_" + to_string(i) + "_mouth"] >> mouthPath;
-        cout << "---------" << endl;
-        cout << eyeLeftPath << endl;
-        cout << eyeRightPath << endl;
-        cout << mouthPath << endl;
 
         Mat eyeLeft = imread(eyeLeftPath, CV_LOAD_IMAGE_GRAYSCALE);
-        Mat eyeRight = imread(eyeLeftPath, CV_LOAD_IMAGE_GRAYSCALE);
+        Mat eyeRight = imread(eyeRightPath, CV_LOAD_IMAGE_GRAYSCALE);
         Mat mouth = imread(mouthPath, CV_LOAD_IMAGE_GRAYSCALE);
 
-        Mat result = extractFeature(eyeLeft, eyeRight, mouth, feature);
+        Mat result = extractFeature(eyeLeft, eyeRight, mouth, feature_name);
 
         cout << "Feature size: " << result.rows << endl;
+
+        features_vector.push_back(result);
     }
+
+    // --------------- clustering -----------------
+    // compute feature distribution over k bins
+    // create 1 featureData Mat with each feature as a row
+    int num_of_feature = 0;
+    for(int i = 0 ; i < features_vector.size(); i++){
+        num_of_feature += features_vector[i].rows;
+    }
+    cout << "num_of_feature: " << num_of_feature << endl;
+
+    Mat rawFeatureData = Mat::zeros(num_of_feature, features_vector[0].cols, CV_32FC1);
+    int cur_idx = 0;
+    for(int i = 0 ; i < features_vector.size(); i++){
+        features_vector[i].copyTo(rawFeatureData.rowRange(cur_idx, cur_idx + features_vector[i].rows));
+        cur_idx += features_vector[i].rows;
+    }
+
+    // --- compute kmeans
+    Mat labels, centers;
+    int bin_size = 1000;
+    kmeans(rawFeatureData, bin_size, labels, TermCriteria( TermCriteria::COUNT+TermCriteria::EPS, 100, 1.0),
+           3, KMEANS_PP_CENTERS, centers);
+
+    // compute final feature
+    cur_idx = 0;
+    int num_of_test = 0;
+    RNG rng;
+    Mat featureDataOverBins = Mat::zeros(num_of_image, bin_size, CV_32FC1); //[num_of_image * bin_size]
+    for(int i = 0 ; i < num_of_image; i++){ // for each image
+        Mat feature = Mat::zeros(1, bin_size, CV_32FC1);
+        int num_of_image_features = features_vector[i].rows;
+        for(int j = 0; j < num_of_image_features; j++){ // for each feature in cur image
+            int bin = labels.at<int>(cur_idx + j);
+            feature.at<float>(0, bin) += 1;
+        }
+
+        normalize( feature, feature );
+
+        string path;
+        in["img_" + to_string(i) + "_eyeLeft"] >> path;
+
+        // extract label
+        string fileName = path.substr(input_folder.length() + 1, path.length());
+        string ex_code = fileName.substr(3, 2);
+
+        int label = -1;
+        if(ex_code == "AN"){
+            label = 0;
+        } else if(ex_code == "DI"){
+            label = 1;
+        } else if(ex_code == "FE"){
+            label = 2;
+        } else if(ex_code == "HA"){
+            label = 3;
+        } else if(ex_code == "NE"){
+            label = 4;
+        } else if(ex_code == "SA"){
+            label = 5;
+        } else if(ex_code == "SU"){
+            label = 6;
+        }
+
+        cout << "histogram feature: " << endl << feature << " label: " << label << " " <<  path << endl;
+
+        fs << "image_feature_" + to_string(i) << feature;
+        fs << "image_label_" + to_string(i) << label;
+
+        // decide train or test
+        double c = rng.uniform(0., 1.);
+        bool isTrain = true;
+        if(c > 0.8){
+            isTrain = false;
+            num_of_test += 1;
+        }
+        fs << "image_is_train_" + to_string(i) << isTrain;
+
+        feature.copyTo(featureDataOverBins.row(i));
+
+        cur_idx += features_vector[i].rows;
+    }
+
+//    // --- PCA
+//    // perform PCA
+//    PCA pca(featureDataOverBins, cv::Mat(), CV_PCA_DATA_AS_ROW, 0.90);
+//    int feature_size = pca.eigenvectors.rows;
+//    Mat feature;
+//    for(int i = 0 ; i < num_of_image; i++){
+//        feature = pca.project(featureDataOverBins.row(i));
+//        cout << feature << endl;
+//        fs << "image_feature_" + to_string(i) << feature;
+//    }
+//    cout << "feature_size: " << feature_size << endl;
+
+    int feature_size = bin_size;
+    fs << "feature_size" << feature_size;
+    // save result
+
+    fs << "num_of_image" << num_of_image;
+    fs << "num_of_label" << 7;
+    fs << "label_0" << "Angry";
+    fs << "label_1" << "Disgusted";
+    fs << "label_2" << "Fear";
+    fs << "label_3" << "Happy";
+    fs << "label_4" << "Neural";
+    fs << "label_5" << "Sad";
+    fs << "label_6" << "Surprised";
+    fs << "num_of_train" << num_of_image - num_of_test;
+    fs << "num_of_test" << num_of_test;
+
+    fs << "centers" << centers;
+
+
     return 0;
 }
 
@@ -115,9 +233,10 @@ Mat extractImageFeature(Mat img, string feature_type){
 
     // if / switch here
     if(feature_type.compare("orb") == 0){
-        detector = ORB::create();
+        detector = FastFeatureDetector::create();
         detector->detect(img, keypoints, Mat());
-        detector->compute(img, keypoints, descriptors);
+        Ptr<DescriptorExtractor> extractor = ORB::create();
+        extractor->compute(img, keypoints, descriptors);
     }else if(feature_type.compare("dense-orb") == 0){
         detector = ORB::create();
         createDenseFeature(keypoints, img);
@@ -129,6 +248,58 @@ Mat extractImageFeature(Mat img, string feature_type){
         detector = xfeatures2d::SIFT::create();
         detector->detect(img, keypoints, Mat());
         detector->compute(img, keypoints, descriptors);
+    }else if(feature_type.compare("daisy") == 0){
+        Ptr<FeatureDetector> brisk = xfeatures2d::SURF::create();
+        brisk->detect(img, keypoints, Mat());
+        Ptr<DescriptorExtractor> daisy = xfeatures2d::DAISY::create();
+        daisy->compute(img, keypoints, descriptors);
+    }else if(feature_type.compare("gabor") == 0){
+        int kernel_size = 31;
+        double sigma = 1, theta = 0, lambd = 51, gamma = 0.03, psi = 0;
+
+        Mat img0 , img45, img90, img135;
+        cv::Mat kernel = cv::getGaborKernel(cv::Size(kernel_size,kernel_size), sigma, theta, lambd, gamma, psi);
+        cv::filter2D(img, img0, CV_32F, kernel);
+
+        theta = 45;
+        kernel = cv::getGaborKernel(cv::Size(kernel_size,kernel_size), sigma, theta, lambd, gamma, psi);
+        cv::filter2D(img, img45, CV_32F, kernel);
+
+        theta = 90;
+        kernel = cv::getGaborKernel(cv::Size(kernel_size,kernel_size), sigma, theta, lambd, gamma, psi);
+        cv::filter2D(img, img90, CV_32F, kernel);
+
+        theta = 135;
+        kernel = cv::getGaborKernel(cv::Size(kernel_size,kernel_size), sigma, theta, lambd, gamma, psi);
+        cv::filter2D(img, img135, CV_32F, kernel);
+
+        descriptors = (img0 + img45 + img90 + img135) / 4;
+//        descriptors = img45;
+//        descriptors = img;
+        resize(descriptors, descriptors, Size(30, 30));
+        cout << "feature descriptors: " << descriptors.size() << endl;
+
+//        Mat viz;
+//        img0.convertTo(viz,CV_8U,1.0/255.0);     // move to proper[0..255] range to show it
+//        equalizeHist(viz, viz);
+//        imshow("img0", viz);
+//
+//        img45.convertTo(viz,CV_8U,1.0/255.0);     // move to proper[0..255] range to show it
+//        equalizeHist(viz, viz);
+//        imshow("img45", viz);
+//
+//        img90.convertTo(viz,CV_8U,1.0/255.0);     // move to proper[0..255] range to show it
+//        equalizeHist(viz, viz);
+//        imshow("img90", viz);
+//
+//
+//        imshow("img", img);
+//        imshow("d",viz);
+//        resize(kernel, kernel, Size(200, 200));
+//        imshow("k",kernel);
+//
+//        waitKey(0);
+
     }
 
 //    cout << "feature_type: " << feature_type << endl;
