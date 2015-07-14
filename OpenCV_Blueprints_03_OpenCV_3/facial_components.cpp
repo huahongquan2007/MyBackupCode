@@ -67,10 +67,6 @@ void processJAFFE(string input, string output) {
     int FACE_IMG_WIDTH = 160;
     int FACE_IMG_HEIGHT = 160;
 
-    //  num_of_image = 100;
-    FileStorage fs( output + "/list.yml" , FileStorage::WRITE);
-    fs << "num_of_image" << num_of_image;
-
     // ------ load cascade files ----
     CascadeClassifier face_cascade = loadCascade("haarcascade_frontalface_alt.xml");
     if(face_cascade.empty()) return;
@@ -78,6 +74,40 @@ void processJAFFE(string input, string output) {
     FLANDMARK_Model * model = flandmark_init("flandmark_model.dat");
     int num_of_landmark = model->data.options.M;
     double *points = new double[2 * num_of_landmark];
+
+
+    // test ----
+
+//    // load image
+//    Mat img_gray;
+//    Mat img = imread("/Volumes/Data/Dropbox/PACKT/test.tiff", CV_LOAD_IMAGE_COLOR);
+//    cvtColor(img, img_gray, CV_RGB2GRAY);
+//    equalizeHist(img_gray, img_gray);
+//
+//    vector<Rect> faces;
+//    face_cascade.detectMultiScale( img_gray, faces, 1.1, 3);
+//
+//    // draw landmarks
+//    for(int j = 0 ; j < faces.size(); j++){
+//        int bbox[4] = { faces[j].x, faces[j].y, faces[j].x + faces[j].width, faces[j].y + faces[j].height };
+//        flandmark_detect(new IplImage(img_gray), bbox, model, points);
+//
+//        // draw landmarks
+//        for(int j = 0 ; j < num_of_landmark; j++){
+//            Point centerLeft = Point((int)points[2 * j], (int)points[2* j + 1]);
+//            circle(img, centerLeft, 5, Scalar(255, 255, 255), -1);
+//            circle(img, centerLeft, 3, Scalar(0, 0, 255), -1);
+//        }
+//    }
+////    imwrite("/Volumes/Data/Dropbox/PACKT/test_result_allface.png", img);
+//    imshow("face detect", img);
+//    waitKey(0);
+//
+//    return;
+
+    //  num_of_image = 100;
+    FileStorage fs( output + "/list.yml" , FileStorage::WRITE);
+    fs << "num_of_image" << num_of_image;
 
     for(int img_id = 0 ; img_id < num_of_image; img_id++) {
         Mat img, img_gray;

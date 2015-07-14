@@ -134,7 +134,7 @@ float evaluate(cv::Mat& predicted, cv::Mat& actual) {
         else
             f++;
     }
-    return (t * 1.0) / (t + f);
+    return (t * 1.0) / (t + f) * 100;
 }
 void mlp(int num_of_label, Mat train_features, Mat train_labels, vector<string> train_paths, Mat test_features, Mat test_labels, vector<string> test_paths ){
     cout << "Training MLP: trainset: " << train_features.size() << " testset: " << test_features.size() << endl;

@@ -51,6 +51,12 @@ int main(int argc, char* argv[]) {
             output_folder = argv[i + 1];
         }
     }
+    Mat face = imread("/Volumes/Data/Dropbox/PACKT/test.tiff", CV_LOAD_IMAGE_GRAYSCALE);
+    resize(face, face, Size(80, 80));
+
+    Mat result = extractFeature(face, "dense-sift");
+
+    return 1;
 
     // *********************
     // extract feature
@@ -118,7 +124,7 @@ int main(int argc, char* argv[]) {
 
     // --- compute kmeans
     Mat labels, centers;
-    int bin_size = 1000;
+    int bin_size = 200;
     kmeans(rawFeatureData, bin_size, labels, TermCriteria( TermCriteria::COUNT+TermCriteria::EPS, 100, 1.0),
            3, KMEANS_PP_CENTERS, centers);
 
@@ -215,8 +221,27 @@ int main(int argc, char* argv[]) {
     fs << "centers" << centers;
 
     fs.release();
+
+    cout << "Save features: " << output_path << endl;
     return 0;
 }
+
+void visualizeKeypoints(Mat gray, vector<KeyPoint> keypoints, String feature_name){
+
+    Mat img;
+    cvtColor(gray, img, CV_GRAY2BGR);
+    cout << "channels : " << img.channels() << endl;
+    for(int i = 0 ; i < keypoints.size() ; i ++){
+        circle(img, keypoints[i].pt, keypoints[i].size, (255, 255 , 255), 1);
+    }
+
+    resize(img, img , Size(200, 200));
+    imwrite("/Volumes/Data/Dropbox/PACKT/feature_" + feature_name +".png", img);
+
+    imshow("keypoint", img);
+    waitKey(0);
+}
+
 Mat extractBrisk(Mat img){
     Mat descriptors;
     vector<KeyPoint> keypoints;
@@ -247,6 +272,16 @@ Mat extractSift(Mat img){
 
     return descriptors;
 }
+Mat extractSurf(Mat img){
+    Mat descriptors;
+    vector<KeyPoint> keypoints;
+
+    Ptr<Feature2D> surf = xfeatures2d::SURF::create();
+    surf->detect(img, keypoints, Mat());
+    surf->compute(img, keypoints, descriptors);
+
+    return descriptors;
+}
 Mat extractDenseSift(Mat img){
     Mat descriptors;
     vector<KeyPoint> keypoints;
@@ -254,6 +289,8 @@ Mat extractDenseSift(Mat img){
     Ptr<Feature2D> sift = xfeatures2d::SIFT::create();
     createDenseFeature(keypoints, img);
     sift->compute(img, keypoints, descriptors);
+
+    visualizeKeypoints(img, keypoints, "dense");
 
     return descriptors;
 }
@@ -276,6 +313,8 @@ Mat extractFeature(Mat img, string feature_name){
         descriptors = extractKaze(img);
     } else if(feature_name.compare("sift") == 0){
         descriptors = extractSift(img);
+    } else if(feature_name.compare("surf") == 0){
+        descriptors = extractSurf(img);
     } else if(feature_name.compare("dense-sift") == 0){
         descriptors = extractDenseSift(img);
     } else if(feature_name.compare("daisy") == 0){
