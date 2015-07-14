@@ -1,47 +1,23 @@
 package com.example.panorama;
 
-import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
 
 
-public class MainActivity extends ActionBarActivity {
-
-
-    Button captureBtn, galleryBtn;
+public class Panorama extends ActionBarActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        captureBtn = (Button) findViewById(R.id.capture);
-        captureBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d("MainActivity", "captureBtn onClick");
-                startActivity(new Intent(getApplicationContext(), Panorama.class));
-            }
-        });
-
-        galleryBtn = (Button) findViewById(R.id.gallery);
-        galleryBtn.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v) {
-                Log.d("MainActivity", "galleryBtn onClick");
-            }
-        });
+        setContentView(R.layout.activity_panorama);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+        getMenuInflater().inflate(R.menu.menu_panorama, menu);
         return true;
     }
 
