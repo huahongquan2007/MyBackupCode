@@ -1,6 +1,7 @@
 package com.example.panorama;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -10,22 +11,29 @@ import android.graphics.Paint;
 import android.graphics.PixelFormat;
 import android.graphics.PorterDuff;
 import android.hardware.Camera;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import org.opencv.android.Utils;
+import org.opencv.core.CvType;
+import org.opencv.core.Mat;
+
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 
 public class Panorama extends Activity {
+
+    static {
+        System.loadLibrary("opencv_java3");
+        System.loadLibrary("MyLib");
+    }
 
     private Button captureBtn, saveBtn;
 
@@ -38,7 +46,11 @@ public class Panorama extends Activity {
     private boolean safeToTakePicture = true;
     private Camera mCam;
     private int CAMERA_ID = 0;
-    private int FRONT = 1;
+
+
+    List<Mat> listMat = new ArrayList<>();
+
+    ProgressDialog ringProgressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,8 +78,8 @@ public class Panorama extends Activity {
         @Override
         public void onClick(View v) {
             if(mCam != null && safeToTakePicture){
-                mCam.takePicture(shutterCallback, rawCallback, jpegCallback);
                 safeToTakePicture = false;
+                mCam.takePicture(shutterCallback, rawCallback, jpegCallback);
             }
 
         }
@@ -80,23 +92,22 @@ public class Panorama extends Activity {
     };
 
     Camera.PictureCallback rawCallback = new Camera.PictureCallback() {
-        public void onPictureTaken(byte[] data, Camera camera) {
-            Log.d("Panorama", "onPictureTaken - raw");
-
-        }
+        public void onPictureTaken(byte[] data, Camera camera) { Log.d("Panorama", "onPictureTaken - raw"); }
     };
 
     Camera.PictureCallback jpegCallback = new Camera.PictureCallback() {
         public void onPictureTaken(byte[] data, Camera camera) {
             Log.d("Panorama", "onPictureTaken - jpeg");
 
-            mCam.startPreview();
-            safeToTakePicture = true;
-
             Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-//            Bitmap viewBitmap = Bitmap.createBitmap(mSurfaceView.getWidth(), mSurfaceView.getHeight(), Bitmap.Config.ARGB_8888);
-//            Canvas c = new Canvas(viewBitmap);
-//            mSurfaceView.draw(c);
+            // Draw image
+            Matrix matrix = new Matrix();
+            matrix.postRotate(90);
+            bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, false);
+
+            Mat mat = new Mat(bitmap.getHeight(), bitmap.getWidth(), CvType.CV_8UC3);
+            Utils.bitmapToMat(bitmap, mat);
+            listMat.add(mat);
 
             Canvas canvas = null;
             try {
@@ -104,15 +115,6 @@ public class Panorama extends Activity {
                 synchronized (mSurfaceOnTopHolder) {
                     // Clear canvas
                     canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
-
-                    // Draw image
-//                    Matrix matrix = new Matrix();
-//                    matrix.postRotate(90);
-//                    bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, false);
-//                    Bitmap scaleImage = Bitmap.createScaledBitmap(bitmap, mSurfaceViewOnTop.getWidth(), mSurfaceViewOnTop.getHeight(), false);
-                    Matrix matrix = new Matrix();
-                    matrix.postRotate(90);
-                    bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, false);
 
                     float scale = 1.0f * mSurfaceView.getHeight() / bitmap.getHeight();
                     Bitmap scaleImage = Bitmap.createScaledBitmap(bitmap, (int)(scale * bitmap.getWidth()), mSurfaceView.getHeight() , false);
@@ -128,12 +130,9 @@ public class Panorama extends Activity {
                     mSurfaceOnTopHolder.unlockCanvasAndPost(canvas);
                 }
             }
-        }
-    };
 
-    View.OnClickListener saveOnClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
+            mCam.startPreview();
+            safeToTakePicture = true;
         }
     };
 
@@ -176,6 +175,56 @@ public class Panorama extends Activity {
         }
 
     };
+
+    View.OnClickListener saveOnClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+
+            Log.d("Panorama", "List Mat: " + listMat.size());
+
+            if(listMat.size() > 0 ){
+                Thread thread = new Thread(imageProcessingJava);
+                thread.start();
+            }
+
+            // TODO remove listMat
+            listMat.clear();
+        }
+    };
+
+    private Runnable imageProcessingJava = new Runnable() {
+        @Override
+        public void run() {
+            showProcessingDialog();
+
+            try {
+                NativePanorama.processPanorama(null, 0L);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            closeProcessingDialog();
+        }
+    };
+
+    private void showProcessingDialog(){
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ringProgressDialog = ProgressDialog.show(Panorama.this, "",	"Panorama", true);
+                ringProgressDialog.setCancelable(false);
+            }
+        });
+    }
+    private void closeProcessingDialog(){
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ringProgressDialog.dismiss();
+            }
+        });
+    }
 
     private Camera.Size getBestPreviewSize(int width, int height, Camera.Parameters parameters){
         Camera.Size bestSize = null;
