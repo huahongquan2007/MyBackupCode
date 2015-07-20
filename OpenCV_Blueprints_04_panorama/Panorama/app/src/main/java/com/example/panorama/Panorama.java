@@ -22,7 +22,9 @@ import android.widget.Toast;
 import org.opencv.android.Utils;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.imgproc.Imgproc;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -92,7 +94,9 @@ public class Panorama extends Activity {
     };
 
     Camera.PictureCallback rawCallback = new Camera.PictureCallback() {
-        public void onPictureTaken(byte[] data, Camera camera) { Log.d("Panorama", "onPictureTaken - raw"); }
+        public void onPictureTaken(byte[] data, Camera camera) {
+            Log.d("Panorama", "onPictureTaken - raw");
+        }
     };
 
     Camera.PictureCallback jpegCallback = new Camera.PictureCallback() {
@@ -105,7 +109,7 @@ public class Panorama extends Activity {
             matrix.postRotate(90);
             bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, false);
 
-            Mat mat = new Mat(bitmap.getHeight(), bitmap.getWidth(), CvType.CV_8UC3);
+            Mat mat = new Mat();
             Utils.bitmapToMat(bitmap, mat);
             listMat.add(mat);
 
@@ -186,9 +190,6 @@ public class Panorama extends Activity {
                 Thread thread = new Thread(imageProcessingJava);
                 thread.start();
             }
-
-            // TODO remove listMat
-            listMat.clear();
         }
     };
 
@@ -198,8 +199,51 @@ public class Panorama extends Activity {
             showProcessingDialog();
 
             try {
-                NativePanorama.processPanorama(null, 0L);
 
+                int elems=  listMat.size();
+                Log.v("Matobjdata", "number of Matobject read = " + elems);
+                //Log.v("Matobjdata", "from native = " + ans);
+                long[] tempobjadr = new long[elems];
+                for (int i=0;i<elems;i++)
+                {
+                    tempobjadr[i]=  listMat.get(i).getNativeObjAddr();
+                }
+
+                Mat result = new Mat();
+                NativePanorama.processPanorama(tempobjadr, result.getNativeObjAddr());
+                Log.d("Text", "length: " + result.size());
+
+                Bitmap bitmap = Bitmap.createBitmap(result.width(), result.height(), Bitmap.Config.ARGB_8888);
+                Utils.matToBitmap(result, bitmap);
+
+                saveBitmap("/sdcard/testPanorama.bmp", bitmap);
+
+                final Bitmap out = bitmap;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Canvas canvas = null;
+                        try {
+                            canvas = mSurfaceOnTopHolder.lockCanvas(null);
+                            synchronized (mSurfaceOnTopHolder) {
+                                // Clear canvas
+
+                                Paint paint = new Paint();
+                                paint.setAlpha(200);
+                                canvas.drawBitmap(out, 0, 0, paint);
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        } finally {
+                            if (canvas != null) {
+                                mSurfaceOnTopHolder.unlockCanvasAndPost(canvas);
+                            }
+                        }
+                    }
+                });
+
+                // TODO remove listMat
+                listMat.clear();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -212,6 +256,7 @@ public class Panorama extends Activity {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                mCam.stopPreview();
                 ringProgressDialog = ProgressDialog.show(Panorama.this, "",	"Panorama", true);
                 ringProgressDialog.setCancelable(false);
             }
@@ -221,6 +266,7 @@ public class Panorama extends Activity {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                mCam.startPreview();
                 ringProgressDialog.dismiss();
             }
         });
@@ -260,5 +306,24 @@ public class Panorama extends Activity {
         isPreview = false;
 
         super.onPause();
+    }
+
+    private void saveBitmap(String filename, Bitmap bmp){
+        FileOutputStream out = null;
+        try {
+            out = new FileOutputStream(filename);
+            bmp.compress(Bitmap.CompressFormat.PNG, 100, out); // bmp is your Bitmap instance
+            // PNG is a lossless format, the compression factor (100) is ignored
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (out != null) {
+                    out.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
