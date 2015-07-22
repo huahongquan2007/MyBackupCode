@@ -10,8 +10,10 @@ import android.graphics.Paint;
 import android.graphics.PixelFormat;
 import android.graphics.PorterDuff;
 import android.hardware.Camera;
+import android.os.Environment;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SurfaceHolder;
@@ -20,16 +22,30 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import org.opencv.android.Utils;
+import org.opencv.core.Mat;
+import org.opencv.imgcodecs.Imgcodecs;
+import org.opencv.imgproc.Imgproc;
+
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends ActionBarActivity {
+    static{
+        System.loadLibrary("opencv_java3");
+        System.loadLibrary("MyLib");
+    }
 
     private Button captureBtn, saveBtn; // used to interact with capture and save Button in UI
     private SurfaceView mSurfaceView, mSurfaceViewOnTop; // used to display the camera frame in UI
     private Camera mCam;
     private boolean isPreview; // Is the camera frame displaying?
     private boolean safeToTakePicture = true; // Is it safe to capture a picture?
+
+    private List<Mat> listImage = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,7 +86,12 @@ public class MainActivity extends ActionBarActivity {
             matrix.postRotate(90);
             bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, false);
 
-            // TODO: Save the image to a List to pass to OpenCV method
+
+            Mat mat = new Mat();
+            Utils.bitmapToMat(bitmap, mat);
+            listImage.add(mat);
+
+            Log.d("Vision", "Height " + mat.rows() + " Width: " + mat.cols());
 
             Canvas canvas = null;
             try {
@@ -116,7 +137,36 @@ public class MainActivity extends ActionBarActivity {
         public void run() {
             showProcessingDialog();
 
-            // TODO: implement Open CV parts
+            try {
+                // Create a long array to store all image address
+                int elems=  listImage.size();
+                long[] tempobjadr = new long[elems];
+                for (int i=0;i<elems;i++){
+                    tempobjadr[i]=  listImage.get(i).getNativeObjAddr();
+                }
+                // Create a Mat to store the final panorama image
+                Mat result = new Mat();
+
+                // Call the Open CV C++ Code to perform stitching process
+                NativePanorama.processPanorama(tempobjadr, result.getNativeObjAddr());
+
+                Log.d("Vision", "Height " + result.rows() + " Width: " + result.cols());
+                // Save the image to internal storage
+                File sdcard = Environment.getExternalStorageDirectory();
+                final String fileName = sdcard.getAbsolutePath() + "/opencv_" +  System.currentTimeMillis() + ".png";
+                Imgcodecs.imwrite(fileName, result);
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getApplicationContext(), "File saved at: " + fileName, Toast.LENGTH_LONG).show();
+                    }
+                });
+
+                listImage.clear();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
             closeProcessingDialog();
         }
@@ -193,6 +243,27 @@ public class MainActivity extends ActionBarActivity {
         }
         return bestSize;
     }
+
+    private void saveBitmap(Bitmap bmp){
+        String filename = "/sdcard/testPano.bmp";
+        FileOutputStream out = null;
+        try {
+            out = new FileOutputStream(filename);
+            bmp.compress(Bitmap.CompressFormat.PNG, 100, out); // bmp is your Bitmap instance
+            // PNG is a lossless format, the compression factor (100) is ignored
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (out != null) {
+                    out.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
