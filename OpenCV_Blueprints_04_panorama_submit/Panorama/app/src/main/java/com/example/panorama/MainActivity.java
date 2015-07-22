@@ -12,7 +12,6 @@ import android.graphics.PorterDuff;
 import android.hardware.Camera;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SurfaceHolder;
@@ -23,7 +22,6 @@ import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.List;
-
 
 public class MainActivity extends ActionBarActivity {
 
