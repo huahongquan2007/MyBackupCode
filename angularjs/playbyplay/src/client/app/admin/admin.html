@@ -6,6 +6,11 @@
                     <div ht-widget-header title="{{vm.title}}"></div>
                     <div class="widget-content user">
                         <h3>TODO: Implement Your Features</h3>
+                        <ul>
+                            <li ng-repeat="person in vm.people">
+                                {{person.firstName}}
+                            </li>
+                        </ul>
                     </div>
                     <div class="widget-foot">
                         <div class="clearfix"></div>
