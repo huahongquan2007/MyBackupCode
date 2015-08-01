@@ -1,0 +1,21 @@
+{
+  "name": "contacts",
+  "version": "0.0.0",
+  "homepage": "https://github.com/quanhua92/MyBackupCode",
+  "authors": [
+    "Quan Hua <quanhua92@gmail.com>"
+  ],
+  "description": "a contacts application from tutsplus",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular": "~1.4.3",
+    "bootstrap": "~3.3.5"
+  }
+}
