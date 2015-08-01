@@ -1,5 +1,5 @@
 angular.module('ContactsApp')
-    .controller('ListController', function($scope, Contact){
+    .controller('ListController', function($scope, Contact, $location){
         $scope.contacts = Contact.query();
         $scope.fields = ['firstName', 'lastName'];
 
@@ -10,4 +10,8 @@ angular.module('ContactsApp')
 
         $scope.sort.field = 'firstName';
         $scope.sort.order = false;
+
+        $scope.show = function(id){
+            $location.url('/contact/' + id);
+        }
     });
