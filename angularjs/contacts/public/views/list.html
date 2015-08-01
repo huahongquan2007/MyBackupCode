@@ -9,4 +9,11 @@
             </th>
         </tr>
     </thead>
+    <tbody>
+        <tr ng-repeat="contact in contacts | filter:query | orderBy: sort.field : sort.order">
+            <td ng-repeat="field in fields">
+                {{contact[field][0]}}
+            </td>
+        </tr>
+    </tbody>
 </table>
