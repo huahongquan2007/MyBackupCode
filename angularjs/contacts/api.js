@@ -6,11 +6,6 @@ var express = require('express'),
     router = express.Router();
 
 router
-    .use(function(req, res, next){
-        // mock the signed in user
-        if(!req.user) req.user = { id: 1 };
-        next();
-    })
     .use(bodyParser.json())
 
     .route('/contact')

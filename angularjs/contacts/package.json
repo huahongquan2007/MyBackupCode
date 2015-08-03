@@ -6,7 +6,8 @@
   "dependencies": {
     "body-parser": "^1.13.3",
     "bourne": "^0.4.0",
-    "express": "^4.13.2"
+    "express": "^4.13.2",
+    "express-session": "^1.11.3"
   },
   "devDependencies": {},
   "scripts": {
