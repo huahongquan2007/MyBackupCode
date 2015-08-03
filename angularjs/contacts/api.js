@@ -34,7 +34,7 @@ router
     })
     .route('/contact/:id')
         .get(function(req, res){
-            db.findOne(req.dbQuery, function(err, data){
+            db.findOne(res.dbQuery, function(err, data){
                 res.json(data);
             });
         })
@@ -42,12 +42,12 @@ router
             var contact = req.body;
             delete contact.$promise;
             delete contact.$resolved;
-            db.update(req.dbQuery, contact, function(err, data){
+            db.update(res.dbQuery, contact, function(err, data){
                res.json(data[0]);
             });
         })
         .delete(function(req, res){
-            db.delete(req.dbQuery, function(){
+            db.delete(res.dbQuery, function(){
                 res.json(null);
             })
         });
