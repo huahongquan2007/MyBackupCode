@@ -12,6 +12,19 @@ angular.module('ContactsApp', ['ngRoute', 'ngResource', 'ngMessages'])
             .when('/contact/:id', {
                 controller: 'SingleController',
                 templateUrl: 'views/single.html'
+            })
+            .when('/settings', {
+                controller: 'SettingsController',
+                templateUrl: 'views/settings.html'
+            })
+            .otherwise({
+                redirect: '/contacts'
             });
         $locationProvider.html5Mode(true); //remove /#1/ in /#1/contacts
+    })
+    .value('options', {})
+    .run(function(options, Fields){
+        Fields.get().success(function(data){
+            options.displayed_fields = data;
+        });
     });
