@@ -53,7 +53,7 @@ angular.module('ContactsApp')
         $rootScope.PAGE = "settings";
 
         $scope.allFields = [];
-        $scope.field = options.displayed_fields;
+        $scope.fields = options.displayed_fields;
 
         Fields.headers().then(function(data){
             $scope.allFields = data;

@@ -53,7 +53,14 @@ router
     .get('/logout', function( req, res){
         req.session.userId = null;
         res.redirect('/');
-        console.log('logout');
+    })
+    .use(function( req, res, next){
+        if(req.session.userId) {
+            db.findOne({id: req.session.userId}, function(err, data){
+                req.user = data;
+            });
+        }
+        next();
     })
     .get('/options/displayed_fields', function(req, res){
         if(!req.user){
@@ -63,18 +70,10 @@ router
         }
     })
     .post('/options/displayed_fields', function(req, res){
-        res.user.options.displayed_fields = req.body.fields;
+        req.user.options.displayed_fields = req.body.fields;
         db.update({id: req.user.id}, req.user, function(err, data){
             res.json(data[0].options.displayed_fields);
         })
-    })
-    .use(function( req, res, next){
-        if(req.session.userId) {
-            db.findOne({id: req.session.userId}, function(err, data){
-                req.user = data;
-            })
-        }
-        next();
     });
 
 module.exports = router;
