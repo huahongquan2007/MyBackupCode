@@ -1,13 +1,21 @@
 <!DOCTYPE html>
-<html ng-app>
+<html ng-app="myApp">
 <head>
     <meta charset="UTF-8">
     <title>Simple app</title>
 </head>
 <body>
-    <input ng-model="name" type="text" placeholder="Your name">
-    <h1>Hello {{ name }}</h1>
+    <div ng-controller="MyController">
+        <input ng-model="name" type="text" placeholder="Your name">
+        <h1>Hello {{ name }}</h1>
+    </div>
 
     <script src="bower_components/angularjs/angular.min.js"></script>
+    <script>
+        angular.module("myApp", [])
+                .controller("MyController", function () {
+
+                });
+    </script>
 </body>
 </html>
