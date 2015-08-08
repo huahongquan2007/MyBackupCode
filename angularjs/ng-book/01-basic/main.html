@@ -3,12 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <title>Simple app</title>
+    <style type="text/css">
+        input.ng-invalid{
+            border: 2px solid red;
+        }
+        input.ng-valid{
+            border: 2px solid green;
+        }
+    </style>
 </head>
 <body>
     <div ng-controller="MyController">
-        <input ng-model="name" type="text" placeholder="Your name">
-        <h1>Hello {{ name }}</h1>
-        <h5>{{ clock.now }}</h5>
+        <h1>{{ person }}</h1>
+        and their name:
+        <h2>{{ person.name }}</h2>
+
+        <form name="form" novalidate>
+            <label name="email">Your email</label>
+            <input type="email"
+                   name="email"
+                   ng-model="email"
+                   placeholder="Email Address"
+                    required/>
+        </form>
     </div>
 
     <script src="bower_components/angularjs/angular.min.js"></script>
