@@ -3,8 +3,9 @@
  */
 angular.module("myApp", [])
     .controller("MyController", function ($scope, $timeout) {
+        $scope.clock = {};
         var updateClock = function () {
-            $scope.clock = new Date();
+            $scope.clock.now = new Date();
             $timeout(function(){
                 updateClock();
             }, 1000);
