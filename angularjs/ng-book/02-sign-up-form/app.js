@@ -23,21 +23,32 @@ angular.module('myApp', ['ngMessages'])
     .directive('ensureUnique', ['$http', function($http) {
         return {
             required: 'ngModel',
-            link: function(scope, ele, attrs, c) {
-                scope.$watch(attrs.ngModel, function(n) {
-                    if (!n) return;
+            link: function(scope, ele, attrs, ctrl) {
+                var url = attrs.ensureUnique;
+
+                // TODO: don't know why it is undefined here
+                ctrl.$parsers.push(function(val) {
+                    if (!val || val.length === 0) {
+                        return;
+                    }
+
+                    ngModel.$setValidity('checkingAvailability', true);
+                    ngModel.$setValidity('usernameAvailability', false);
+
                     $http({
-                        method: 'POST',
-                        url: '/api/check/' + attrs.ensureUnique,
-                         data: {
-                             field: attrs.ensureUnique,
-                             value: scope.ngModel
-                         }
-                    }).success(function(data) {
-                        c.$setValidity('unique', data.isUnique);
-                    }).error(function(data) {
-                        c.$setValidity('unique', false);
-                    })
+                        method: 'GET',
+                        url: url,
+                        params: {
+                            username: val
+                        }
+                    }).success(function() {
+                        ngModel.$setValidity('checkingAvailability', false);
+                        ngModel.$setValidity('usernameAvailability', true);
+                    })['catch'](function() {
+                        ngModel.$setValidity('checkingAvailability', false);
+                        ngModel.$setValidity('usernameAvailability', false);
+                    });
+                    return val;
                 })
             }
         }
