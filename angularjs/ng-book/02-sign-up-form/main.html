@@ -34,13 +34,13 @@
             <div class="row">
                 <div class="large-12 columns">
                     <label>Your name</label>
-                    <input type="text"
+                    <input ng-class="{error: signup_form.name.$dirty && signup_form.name.$invalid}" type="text"
                             placeholder="Name"
                             name="name"
                             ng-model="signup.name"
                             ng-minlength="3"
-                            ng-maxlength="20" required/>
-                    <div class="error" ng-show="signup_form.name.$dirty && signup_form.name.$invalid && signup_form.submitted">
+                            ng-maxlength="20" required ng-focus/>
+                    <div class="error" ng-show="signup_form.name.$dirty && signup_form.name.$invalid && !signup_form.name.$focused">
                         <small class="error" ng-show="signup_form.name.$error.required">
                             Your name is required
                         </small>
