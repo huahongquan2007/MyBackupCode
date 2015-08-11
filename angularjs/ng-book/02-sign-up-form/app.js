@@ -1,4 +1,4 @@
-angular.module('myApp', [])
+angular.module('myApp', ['ngMessages'])
     .directive('ngFocus', [function() {
         var FOCUS_CLASS = "ng-focused"
         return {
