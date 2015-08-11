@@ -20,4 +20,15 @@ angular.module('myApp', [])
                 })
             }
         }
-    }]);
+    }])
+    .controller('signupController', function($scope) {
+        $scope.signup_form = {};
+        $scope.signup_form.submitted = false;
+        $scope.signupForm = function() {
+            if( $scope.signup_form.$valid) {
+                // submit as normal
+            } else {
+                $scope.signup_form.submitted = true;
+            }
+        }
+    });

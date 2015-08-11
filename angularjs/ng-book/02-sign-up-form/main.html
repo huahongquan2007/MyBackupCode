@@ -27,7 +27,7 @@
     </style>
 </head>
 <body>
-    <form name="signup_form" novalidate ng-submit="signupForm()">
+    <form name="signup_form" novalidate ng-submit="signupForm()" ng-controller="signupController">
         <fieldset>
             <legend>Signup</legend>
 
@@ -40,7 +40,7 @@
                             ng-model="signup.name"
                             ng-minlength="3"
                             ng-maxlength="20" required/>
-                    <div class="error" ng-show="signup_form.name.$dirty && signup_form.name.$invalid">
+                    <div class="error" ng-show="signup_form.name.$dirty && signup_form.name.$invalid && signup_form.submitted">
                         <small class="error" ng-show="signup_form.name.$error.required">
                             Your name is required
                         </small>
@@ -63,7 +63,7 @@
                            ng-model="signup.email"
                            ng-minlength="3"
                            ng-maxlength="20" required />
-                    <div class="error" ng-show="signup_form.email.$dirty && signup_form.email.$invalid">
+                    <div class="error" ng-show="signup_form.email.$dirty && signup_form.email.$invalid && signup_form.submitted">
                         <small class="error" ng-show="signup_form.email.$error.required">
                             Your email is required.
                         </small>
@@ -89,7 +89,7 @@
                         ng-minlength="3"
                         ng-maxlength="20"
                         ensure-unique="username" required/>
-                <div class="error" ng-show="signup_form.username.$dirty && signup_form.username.$invalid">
+                <div class="error" ng-show="signup_form.username.$dirty && signup_form.username.$invalid && signup_form.submitted">
                     <small class="error" ng-show="signup_form.username.$error.required">
                         Please input a username
                     </small>
@@ -106,7 +106,7 @@
             </div>
 
 
-            <button type="submit" class="button radius" ng-disabled="signup_form.$invalid">Submit</button>
+            <button type="submit" class="button radius">Submit</button>
         </fieldset>
     </form>
     <script src="bower_components/angularjs/angular.min.js"></script>
