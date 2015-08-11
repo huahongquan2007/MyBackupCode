@@ -40,16 +40,12 @@
                             ng-model="signup.name"
                             ng-minlength="3"
                             ng-maxlength="20" required ng-focus/>
-                    <div class="error" ng-messages="signup_form.name.$error" ng-messages-multiple>
-                        <div ng-message="required">
-                            Your name is required
-                        </div>
+                    <div class="error" ng-messages="signup_form.name.$error" ng-messages-multiple >
                         <div ng-message="minlength">
-                            Your name is required to be at least 3 characters
+                            Oh come on, your name must be longer than 2 characters.
                         </div>
-                        <div ng-message="maxlength">
-                            Your name cannot be longer than 20 characters
-                        </div>
+                        <div ng-messages-include="templates/errors.html"></div>
+
                     </div>
                 </div>
             </div>
