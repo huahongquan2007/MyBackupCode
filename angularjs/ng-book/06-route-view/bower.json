@@ -1,0 +1,20 @@
+{
+  "name": "06-route-view",
+  "version": "0.0.0",
+  "homepage": "https://github.com/quanhua92/MyBackupCode",
+  "authors": [
+    "Quan Hua <quanhua92@gmail.com>"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angularjs": "~1.4.4",
+    "angular-route": "~1.4.4"
+  }
+}
