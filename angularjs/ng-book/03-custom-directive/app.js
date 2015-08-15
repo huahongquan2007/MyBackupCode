@@ -3,6 +3,13 @@ angular.module("myApp", [])
        return {
            restrict: 'EAC',
            replace: true,
-           template: '<a href="http://google.com">Click me to go to google</a>'
+           scope: {
+               myUrl: '=someAttr',
+               myLinkText: '@'
+           },
+           template: '\
+               <div>\
+               <label>My Url Field:</label>\
+               <input type="text" ng-model="myUrl"/><a href="{{myUrl}}">{{myLinkText}}</a>'
        }
     });
