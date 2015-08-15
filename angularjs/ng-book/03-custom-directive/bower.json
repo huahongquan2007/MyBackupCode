@@ -1,0 +1,19 @@
+{
+  "name": "03-custom-directive",
+  "version": "0.0.0",
+  "homepage": "https://github.com/quanhua92/MyBackupCode",
+  "authors": [
+    "Quan Hua <quanhua92@gmail.com>"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angularjs": "~1.4.4"
+  }
+}
