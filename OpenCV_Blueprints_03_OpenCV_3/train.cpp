@@ -145,8 +145,6 @@ void mlp(int num_of_label, Mat train_features, Mat train_labels, vector<string> 
         labels.at<float>(i, idx) = 1.0f;
     }
 
-    cout << "Labels: " << endl << labels.t() << endl;
-
     Mat labels_test = Mat::zeros( test_labels.rows, 1, CV_32S);
     for(int i = 0 ; i < test_labels.rows; i ++){
         labels_test.at<unsigned int>(i, 0) = test_labels.at<int>(i, 0);
@@ -156,34 +154,17 @@ void mlp(int num_of_label, Mat train_features, Mat train_labels, vector<string> 
 
     layers.row(0) = cv::Scalar(train_features.cols);
     layers.row(1) = cv::Scalar(20);
-    //23
-    // 25 63
-    // 20 11 -> 61
-    // 18 65
-    // 19 68
-    // 21 68
-    // 20 70
     layers.row(2) = cv::Scalar(num_of_label);
 
     Ptr<ml::ANN_MLP> mlp = ml::ANN_MLP::create();
     mlp->setLayerSizes(layers);
-//    mlp->setBackpropMomentumScale(0.1f);
-//    mlp->setBackpropWeightScale(0.05f);
     mlp->setTrainMethod(ml::ANN_MLP::BACKPROP);
     mlp->setActivationFunction(ml::ANN_MLP::SIGMOID_SYM, 0, 0);
     mlp->setTermCriteria(TermCriteria(TermCriteria::EPS+TermCriteria::COUNT, 100000, 0.00001f));
 
-//    ANN_MLP_TrainParams params;
-//    params.train_method = CvANN_MLP_TrainParams::BACKPROP;
-//    params.bp_dw_scale = 0.05f;
-//    params.bp_moment_scale = 0.1f;
-//    params.term_crit = TermCriteria( TermCriteria::EPS+TermCriteria::COUNT, 10000, 0.00001f);
-
     // train
     Ptr<ml::TrainData> trainData = ml::TrainData::create(train_features, ml::SampleTypes::ROW_SAMPLE, labels);
     mlp->train(trainData);
-
-    cout << "Done train" << endl;
 
     cv::Mat response(1, num_of_label, CV_32FC1);
     cv::Mat predicted(test_labels.rows, num_of_label, CV_32FC1);
@@ -209,25 +190,16 @@ void svm(int num_of_label, Mat train_features, Mat train_labels, vector<string> 
         labels.at<unsigned int>(i, 0) = train_labels.at<int>(i, 0);
     }
 
-    cout << "Labels: " << labels.t() << endl;
-
     Mat labels_test = Mat::zeros( test_labels.rows, 1, CV_32S);
     for(int i = 0 ; i < test_labels.rows; i ++){
         labels_test.at<unsigned int>(i, 0) = test_labels.at<int>(i, 0);
     }
-
-    cout << "TrainData. Type: " << train_features.type() << endl;
-    cout << train_features.row(0) << endl;
-    cout << "Label. Type: " << labels.type() << endl;
-    cout << labels.t() << endl;
 
     Ptr<ml::SVM> svm = ml::SVM::create();
 //    svm->setType(SVM::C_SVC);
 //    svm->setKernel(SVM::RBF);
     Ptr<ml::TrainData> trainData = ml::TrainData::create(train_features, ml::SampleTypes::ROW_SAMPLE, labels);
     svm->trainAuto(trainData);
-
-    cout << "Done Train" << endl;
 
     cv::Mat predicted = Mat::zeros(test_labels.rows, num_of_label, CV_32F);
     for(int i = 0; i < test_features.rows; i++) {
@@ -252,8 +224,6 @@ void knn(int num_of_label, Mat train_features, Mat train_labels, vector<string> 
         labels.at<unsigned int>(i, 0) = train_labels.at<int>(i, 0);
     }
 
-    cout << "Labels: " << labels.t() << endl;
-
     Mat labels_test = Mat::zeros( test_labels.rows, 1, CV_32SC1);
     for(int i = 0 ; i < test_labels.rows; i ++){
         labels_test.at<int>(i, 0) = test_labels.at<int>(i, 0);
@@ -262,15 +232,12 @@ void knn(int num_of_label, Mat train_features, Mat train_labels, vector<string> 
     Ptr<ml::KNearest> knn = ml::KNearest::create();
     Ptr<ml::TrainData> trainData = ml::TrainData::create(train_features, ml::SampleTypes::ROW_SAMPLE, labels);
     knn->train(trainData);
-//    CvKNearest knn(train_features, labels, cv::Mat(), false, K);
 
     cv::Mat predicted = Mat::zeros(test_labels.rows, num_of_label, CV_32F);
     for(int i = 0; i < test_features.rows; i++) {
         cv::Mat sample = test_features.row(i);
         Mat bestLabels;
         knn->findNearest(sample, K, bestLabels);
-        cout << bestLabels << endl;
-//        cout << "DONE " << bestLabels.at<float>(0,0) << endl;
         predicted.at<float>(i, bestLabels.at<float>(0,0)) = 1.0f;
     }
 
@@ -294,7 +261,6 @@ void bayes(int num_of_label, Mat train_features, Mat train_labels, vector<string
         labels_test.at<int>(i, 0) = test_labels.at<int>(i, 0);
     }
 
-//    CvNormalBayesClassifier bayes(train_features, labels);
     Ptr<ml::NormalBayesClassifier> bayes = ml::NormalBayesClassifier::create();
     Ptr<ml::TrainData> trainData = ml::TrainData::create(train_features, ml::SampleTypes::ROW_SAMPLE, labels);
     bayes->train(trainData);

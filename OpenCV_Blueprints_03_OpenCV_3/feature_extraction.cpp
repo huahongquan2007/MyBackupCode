@@ -1,17 +1,12 @@
 #include <iostream>
 
 #include "opencv2/opencv.hpp"
-#include "opencv2/highgui.hpp"
-#include <opencv2/features2d.hpp>
 #include "opencv2/xfeatures2d.hpp"
-#include <opencv2/imgproc.hpp>
-#include <vector>
 
 using namespace std;
 using namespace cv;
 
 Mat extractFeature(Mat face, string feature_name);
-Mat extractImageFeature(Mat img, string feature_type);
 void createDenseFeature(vector<KeyPoint> &keypoints, Mat image, float initFeatureScale=1.f, int featureScaleLevels=1,
                                     float featureScaleMul=0.1f,
                                     int initXyStep=6, int initImgBound=0,
@@ -51,12 +46,6 @@ int main(int argc, char* argv[]) {
             output_folder = argv[i + 1];
         }
     }
-    Mat face = imread("/Volumes/Data/Dropbox/PACKT/test.tiff", CV_LOAD_IMAGE_GRAYSCALE);
-    resize(face, face, Size(80, 80));
-
-    Mat result = extractFeature(face, "dense-sift");
-
-    return 1;
 
     // *********************
     // extract feature
@@ -75,32 +64,20 @@ int main(int argc, char* argv[]) {
 
     int num_of_image = 0;
     in["num_of_image"] >> num_of_image;
-//    num_of_image = 50;
 
     cout << "num of image : " << num_of_image << endl;
     vector<Mat> features_vector;
 
     // extract image features from facial components
     for(int i = 0 ; i < num_of_image; i++){
-        string eyeLeftPath, eyeRightPath, mouthPath;
-        in["img_" + to_string(i) + "_eyeLeft"] >> eyeLeftPath;
-        in["img_" + to_string(i) + "_eyeRight"] >> eyeRightPath;
-        in["img_" + to_string(i) + "_mouth"] >> mouthPath;
 
         string facePath;
         in["img_" + to_string(i) + "_face"] >> facePath;
 
         Mat face = imread(facePath, CV_LOAD_IMAGE_GRAYSCALE);
         resize(face, face, Size(80, 80));
-//        Mat result = extractImageFeature(face, feature_name);
 
-//        Mat eyeLeft = imread(eyeLeftPath, CV_LOAD_IMAGE_GRAYSCALE);
-//        Mat eyeRight = imread(eyeRightPath, CV_LOAD_IMAGE_GRAYSCALE);
-//        Mat mouth = imread(mouthPath, CV_LOAD_IMAGE_GRAYSCALE);
-//
         Mat result = extractFeature(face, feature_name);
-
-        cout << "Feature size: " << result.rows << endl;
 
         features_vector.push_back(result);
     }
@@ -132,6 +109,7 @@ int main(int argc, char* argv[]) {
     cur_idx = 0;
     int num_of_test = 0;
     RNG rng;
+
     Mat featureDataOverBins = Mat::zeros(num_of_image, bin_size, CV_32FC1); //[num_of_image * bin_size]
     for(int i = 0 ; i < num_of_image; i++){ // for each image
         Mat feature = Mat::zeros(1, bin_size, CV_32FC1);
@@ -144,7 +122,7 @@ int main(int argc, char* argv[]) {
         normalize( feature, feature );
 
         string path;
-        in["img_" + to_string(i) + "_eyeLeft"] >> path;
+        in["img_" + to_string(i) + "_face"] >> path;
 
         // extract label
         string fileName = path.substr(input_folder.length() + 1, path.length());
@@ -199,8 +177,6 @@ int main(int argc, char* argv[]) {
     }
     cout << "feature_size: " << feature_size << endl;
 
-    // NO PCA
-//    int feature_size = bin_size;
     fs << "feature_size" << feature_size;
     // save result
 
@@ -236,7 +212,6 @@ void visualizeKeypoints(Mat gray, vector<KeyPoint> keypoints, String feature_nam
     }
 
     resize(img, img , Size(200, 200));
-    imwrite("/Volumes/Data/Dropbox/PACKT/feature_" + feature_name +".png", img);
 
     imshow("keypoint", img);
     waitKey(0);
@@ -290,8 +265,6 @@ Mat extractDenseSift(Mat img){
     createDenseFeature(keypoints, img);
     sift->compute(img, keypoints, descriptors);
 
-    visualizeKeypoints(img, keypoints, "dense");
-
     return descriptors;
 }
 Mat extractDaisy(Mat img){
@@ -322,159 +295,12 @@ Mat extractFeature(Mat img, string feature_name){
     }
     return descriptors;
 }
-//Mat extractFeature(Mat eyeLeft, Mat eyeRight, Mat mouth, string feature_type){
-//    // extract image features from each region
-//    Mat eyeLeftFeature = extractImageFeature(eyeLeft, feature_type);
-//    Mat eyeRightFeature = extractImageFeature(eyeRight, feature_type);
-//    Mat mouthFeature = extractImageFeature(mouth , feature_type);
-//
-//    // create a result Mat to contain all features
-//    int num_of_col = eyeLeftFeature.cols;
-//    int num_of_row = eyeLeftFeature.rows + eyeRightFeature.rows + mouthFeature.rows;
-//    Mat result = Mat::zeros(num_of_row, num_of_col, eyeLeftFeature.type());
-//
-//    // copy features into result Mat
-//    if(eyeLeftFeature.rows > 0) eyeLeftFeature.copyTo(result.rowRange(0, eyeLeftFeature.rows));
-//    if(eyeRightFeature.rows > 0) eyeRightFeature.copyTo(result.rowRange(eyeLeftFeature.rows, eyeLeftFeature.rows + eyeRightFeature.rows));
-//    if(mouthFeature.rows > 0) mouthFeature.copyTo(result.rowRange(eyeLeftFeature.rows + eyeRightFeature.rows, result.rows));
-//
-//    return result;
-//}
-Mat extractImageFeature(Mat img, string feature_type){
-
-    vector<KeyPoint> keypoints;
-    Mat descriptors;
-
-    Ptr<Feature2D> detector;
-
-    // if / switch here
-    if(feature_type.compare("brisk") == 0){
-//        detector = FastFeatureDetector::create();
-//        detector->detect(img, keypoints, Mat());
-        Ptr<DescriptorExtractor> extractor = BRISK::create();
-        extractor->detect(img, keypoints, Mat());
-        extractor->compute(img, keypoints, descriptors);
-    }else if(feature_type.compare("kaze") == 0){
-        Ptr<DescriptorExtractor> extractor = KAZE::create();
-        extractor->detect(img, keypoints, Mat());
-        extractor->compute(img, keypoints, descriptors);
-    }
-    else if(feature_type.compare("dense-orb") == 0){
-        createDenseFeature(keypoints, img);
-        cout << "num of keypoints in elseif: " << keypoints.size() << endl;
-        detector = xfeatures2d::SIFT::create();
-        equalizeHist(img, img);
-        detector->compute(img, keypoints, descriptors);
-//        detector->compute(img, keypoints, descriptors);
-    }else if(feature_type.compare("sift") == 0){
-        detector = xfeatures2d::SIFT::create();
-        detector->detect(img, keypoints, Mat());
-        detector->compute(img, keypoints, descriptors);
-    }else if(feature_type.compare("daisy") == 0){
-        Ptr<FeatureDetector> brisk = xfeatures2d::SURF::create();
-        brisk->detect(img, keypoints, Mat());
-        Ptr<DescriptorExtractor> daisy = xfeatures2d::DAISY::create();
-        daisy->compute(img, keypoints, descriptors);
-    }else if(feature_type.compare("gabor") == 0){
-        int kernel_size = 31;
-        double sigma = 1, theta = 0, lambd = 51, gamma = 0.03, psi = 0;
-
-        Mat img0 , img45, img90, img135;
-        cv::Mat kernel = cv::getGaborKernel(cv::Size(kernel_size,kernel_size), sigma, theta, lambd, gamma, psi);
-        cv::filter2D(img, img0, CV_32F, kernel);
-
-        theta = 45;
-        kernel = cv::getGaborKernel(cv::Size(kernel_size,kernel_size), sigma, theta, lambd, gamma, psi);
-        cv::filter2D(img, img45, CV_32F, kernel);
-
-        theta = 90;
-        kernel = cv::getGaborKernel(cv::Size(kernel_size,kernel_size), sigma, theta, lambd, gamma, psi);
-        cv::filter2D(img, img90, CV_32F, kernel);
-
-        theta = 135;
-        kernel = cv::getGaborKernel(cv::Size(kernel_size,kernel_size), sigma, theta, lambd, gamma, psi);
-        cv::filter2D(img, img135, CV_32F, kernel);
-
-//        descriptors = (img0 + img45 + img90 + img135) / 4;
-        cout << "before descriptos" << endl;
-        int w = 40;
-        descriptors = Mat::zeros(4, w * w, img0.type());
-
-        resize(img0, img0, Size(w, w));
-        img0 = img0.reshape(0, 1);
-        img0.copyTo(descriptors.row(0));
-
-        resize(img45, img45, Size(w, w));
-        img45 = img45.reshape(0, 1);
-        img45.copyTo(descriptors.row(1));
-
-        resize(img90, img90, Size(w, w));
-        img90 = img90.reshape(0, 1);
-        img90.copyTo(descriptors.row(2));
-
-        resize(img135, img135, Size(w, w));
-        img135 = img135.reshape(0, 1);
-        img135.copyTo(descriptors.row(3));
-//        descriptors = img45;
-//        descriptors = img;
-
-        cout << "feature descriptors: " << descriptors.size() << endl;
-
-//        Mat viz;
-//        img0.convertTo(viz,CV_8U,1.0/255.0);     // move to proper[0..255] range to show it
-//        equalizeHist(viz, viz);
-//        imshow("img0", viz);
-//
-//        img45.convertTo(viz,CV_8U,1.0/255.0);     // move to proper[0..255] range to show it
-//        equalizeHist(viz, viz);
-//        imshow("img45", viz);
-//
-//        img90.convertTo(viz,CV_8U,1.0/255.0);     // move to proper[0..255] range to show it
-//        equalizeHist(viz, viz);
-//        imshow("img90", viz);
-//
-//
-//        descriptors.convertTo(viz,CV_8U,1.0/255.0);     // move to proper[0..255] range to show it
-//        equalizeHist(viz, viz);
-//        imshow("img", img);
-//        imshow("d",viz);
-//        resize(kernel, kernel, Size(200, 200));
-//        imshow("k",kernel);
-//
-//        waitKey(0);
-
-    }
-
-//    cout << "feature_type: " << feature_type << endl;
-//    cout << "image size: " << img.size() << endl;
-//    cout << "num of keyupoints: " << keypoints.size() << endl;
-//    for(int i = 0 ; i < keypoints.size() ; i ++){
-//        cout << i << " " << keypoints[i].pt << endl;
-//    }
-//    cout << "Done" << endl;
-
-//    detector->detectAndCompute(img, Mat(), keypoints, descriptors, false);
-    // We can detect keypoint with detect method
-//    b->detect(img1, keyImg1, Mat());
-//    // and compute their descriptors with method  compute
-//    b->compute(img1, keyImg1, descImg1);
-//    // or detect and compute descriptors in one step
-//    b->detectAndCompute(img2, Mat(),keyImg2, descImg2,false);
-
-    return descriptors;
-}
 
 void createDenseFeature(vector<KeyPoint> &keypoints, Mat image, float initFeatureScale, int featureScaleLevels,
                                     float featureScaleMul,
                                     int initXyStep, int initImgBound,
                                     bool varyXyStepWithScale,
                                     bool varyImgBoundWithScale){
-//    vector<KeyPoint> keypoints;
-
-    if(image.rows < 100){
-        cout << "is mouth" << endl;
-    }
-
     float curScale = static_cast<float>(initFeatureScale);
     int curStep = initXyStep;
     int curBound = initImgBound;
@@ -492,6 +318,4 @@ void createDenseFeature(vector<KeyPoint> &keypoints, Mat image, float initFeatur
         if( varyXyStepWithScale ) curStep = static_cast<int>( curStep * featureScaleMul + 0.5f );
         if( varyImgBoundWithScale ) curBound = static_cast<int>( curBound * featureScaleMul + 0.5f );
     }
-    cout << "Keypoints in function size: " << keypoints.size() << endl;
-//    return keypoints;
 }

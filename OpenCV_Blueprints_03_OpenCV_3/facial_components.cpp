@@ -75,8 +75,6 @@ void processJAFFE(string input, string output) {
     int num_of_landmark = model->data.options.M;
     double *points = new double[2 * num_of_landmark];
 
-
-    //  num_of_image = 100;
     FileStorage fs( output + "/list.yml" , FileStorage::WRITE);
     fs << "num_of_image" << num_of_image;
 
@@ -90,40 +88,48 @@ void processJAFFE(string input, string output) {
         vector<Rect> faces;
         face_cascade.detectMultiScale( img_gray, faces, 1.1, 3);
 
-        for(int i = 0 ; i < faces.size() ; i++){
-            int bbox[4] = { faces[i].x, faces[i].y, faces[i].x + faces[i].width, faces[i].y + faces[i].height };
-            flandmark_detect(new IplImage(img_gray), bbox, model, points);
-
-            // left eye
-            Point centerLeft = Point( (int) (points[2 * 6] + points[2 * 2]) / 2, (int) (points[2 * 6 + 1] + points[2 * 2 + 1]) / 2 );
-            int widthLeft = abs(points[2 * 6] - points[2 * 2]);
-
-
-            // right eye
-            Point centerRight = Point( (int) (points[2 * 1] + points[2 * 5]) / 2, (int) (points[2 * 1 + 1] + points[2 * 5 + 1]) / 2 );
-            int widthRight = abs(points[2 * 1] - points[2 * 5]);
-
-            // face
-            int widthFace = (centerLeft.x + widthLeft) - (centerRight.x - widthRight);
-            int heightFace = widthFace * 1.2;
-            Mat face = img(Rect( centerRight.x - widthFace/4  , centerRight.y - heightFace/4, widthFace, heightFace ));
-
-            //
-            // extract label
-            cout << "ImagePath: " << imgPath[img_id] << endl;
-            string fileName = imgPath[img_id].substr(input.length() + 1, imgPath[i].length());
-            string ex_code = fileName.substr(3, 2);
-
-            // save image
-            string curFileName = fileName;
-
-            curFileName = fileName;
-            curFileName.replace(fileName.length() - 4, 4, "face.tiff");
-
-            resize(face, face, Size(FACE_IMG_WIDTH, FACE_IMG_HEIGHT));
-            imwrite( output + "/" + curFileName, face);
-            fs << "img_" + to_string(img_id) + "_face" << output + "/" + curFileName;
+        // Get the largest face region
+        int i = 0;
+        int max_width = 0;
+        for(int index = 0 ; index < faces.size() ; index++){
+            if(faces[i].width > max_width){
+                i = index;
+                max_width = faces[i].width;
+            }
         }
+
+        int bbox[4] = { faces[i].x, faces[i].y, faces[i].x + faces[i].width, faces[i].y + faces[i].height };
+        flandmark_detect(new IplImage(img_gray), bbox, model, points);
+
+        // left eye
+        Point centerLeft = Point( (int) (points[2 * 6] + points[2 * 2]) / 2, (int) (points[2 * 6 + 1] + points[2 * 2 + 1]) / 2 );
+        int widthLeft = abs(points[2 * 6] - points[2 * 2]);
+
+
+        // right eye
+        Point centerRight = Point( (int) (points[2 * 1] + points[2 * 5]) / 2, (int) (points[2 * 1 + 1] + points[2 * 5 + 1]) / 2 );
+        int widthRight = abs(points[2 * 1] - points[2 * 5]);
+
+        // face
+        int widthFace = (centerLeft.x + widthLeft) - (centerRight.x - widthRight);
+        int heightFace = widthFace * 1.2;
+        Mat face = img(Rect( centerRight.x - widthFace/4  , centerRight.y - heightFace/4, widthFace, heightFace ));
+
+        //
+        // extract label
+        cout << "ImagePath: " << imgPath[img_id] << endl;
+        string fileName = imgPath[img_id].substr(input.length() + 1, imgPath[i].length());
+
+        // save image
+        string curFileName = fileName;
+
+        curFileName = fileName;
+        curFileName.replace(fileName.length() - 4, 4, "face.tiff");
+
+        resize(face, face, Size(FACE_IMG_WIDTH, FACE_IMG_HEIGHT));
+        imwrite( output + "/" + curFileName, face);
+        fs << "img_" + to_string(img_id) + "_face" << output + "/" + curFileName;
+
     }
 
 }
