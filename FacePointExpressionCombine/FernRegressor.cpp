@@ -300,6 +300,6 @@ void FernRegressor::Load(FileNode in){
         in[name] >> regression_output[i];
     }
 
-    cout << "REGRESISON OUTPUT" << endl;
-    cout << regression_output[0].t() << endl;
+    // cout << "REGRESISON OUTPUT" << endl;
+    // cout << regression_output[0].t() << endl;
 }

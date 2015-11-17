@@ -53,64 +53,27 @@ classes = {'1','2','3','4','5','6','7','8','9','10'}
 -- geometry: width and height of input images
 geometry = {32,32}
 
-if opt.network == '' then
-   -- define model to train
-   model = nn.Sequential()
-
-   if opt.model == 'convnet' then
-      ------------------------------------------------------------
-      -- convolutional network 
-      ------------------------------------------------------------
-      -- stage 1 : mean suppresion -> filter bank -> squashing -> max pooling
-      model:add(nn.SpatialConvolutionMM(1, 32, 5, 5))
-      model:add(nn.Tanh())
-      model:add(nn.SpatialMaxPooling(3, 3, 3, 3))
-      -- stage 2 : mean suppresion -> filter bank -> squashing -> max pooling
-      model:add(nn.SpatialConvolutionMM(32, 64, 5, 5))
-      model:add(nn.Tanh())
-      model:add(nn.SpatialMaxPooling(2, 2, 2, 2))
-      -- stage 3 : standard 2-layer MLP:
-      model:add(nn.Reshape(64*2*2))
-      model:add(nn.Linear(64*2*2, 200))
-      model:add(nn.Tanh())
-      model:add(nn.Linear(200, #classes))
-      ------------------------------------------------------------
-
-   elseif opt.model == 'mlp' then
-      ------------------------------------------------------------
-      -- regular 2-layer MLP
-      ------------------------------------------------------------
-      model:add(nn.Reshape(1024))
-      model:add(nn.Linear(1024, 2048))
-      model:add(nn.Tanh())
-      model:add(nn.Linear(2048,#classes))
-      ------------------------------------------------------------
-
-   elseif opt.model == 'linear' then
-      ------------------------------------------------------------
-      -- simple linear model: logistic regression
-      ------------------------------------------------------------
-      model:add(nn.Reshape(1024))
-      model:add(nn.Linear(1024,#classes))
-      ------------------------------------------------------------
-
-   else
-      print('Unknown model type')
-      cmd:text()
-      error()
-   end
-else
-   print('<trainer> reloading previously trained network')
-   model = torch.load(opt.network)
-end
-
--- retrieve parameters and gradients
-parameters,gradParameters = model:getParameters()
+model = nn.Sequential()
 
 
+------------------------------------------------------------
+-- convolutional network 
+------------------------------------------------------------
+-- stage 1 : mean suppresion -> filter bank -> squashing -> max pooling
+model:add(nn.SpatialConvolutionMM(1, 32, 5, 5))
+model:add(nn.Tanh())
+model:add(nn.SpatialMaxPooling(3, 3, 3, 3))
+-- stage 2 : mean suppresion -> filter bank -> squashing -> max pooling
+model:add(nn.SpatialConvolutionMM(32, 64, 5, 5))
+model:add(nn.Tanh())
+model:add(nn.SpatialMaxPooling(2, 2, 2, 2))
+-- stage 3 : standard 2-layer MLP:
+model:add(nn.Reshape(64*2*2))
+model:add(nn.Linear(64*2*2, 200))
+model:add(nn.Tanh())
+model:add(nn.Linear(200, #classes))
 ----------------------------------------------------------------------
 -- loss function: negative log-likelihood
---
 model:add(nn.LogSoftMax())
 criterion = nn.ClassNLLCriterion()
 
@@ -131,121 +94,9 @@ trainData:normalizeGlobal(mean, std)
 testData = mnist.loadTestSet(nbTestingPatches, geometry)
 testData:normalizeGlobal(mean, std)
 
-confusion = optim.ConfusionMatrix(classes)
+trainer = nn.StochasticGradient(model, criterion)
+trainer.learningRate = 0.001
+trainer.maxIteration = 5 -- just do 5 epochs of training.
+trainer:train(trainData)
 
--- log results to files
-trainLogger = optim.Logger(paths.concat(opt.save, 'train.log'))
-testLogger = optim.Logger(paths.concat(opt.save, 'test.log'))
-
--- training function
-function train(dataset)
-  epoch = epoch or 1
-  -- local vars
-  local time = sys.clock()
-
-  -- do one epoch
-  print('<trainer> on training set:')
-  print("<trainer> online epoch # " .. epoch .. ' [batchSize = ' .. opt.batchSize .. ']')
-  for t = 1,dataset:size(),opt.batchSize do
-    -- create mini batch
-    local inputs = torch.Tensor(opt.batchSize, 1 , geometry[1],geometry[2])
-    local targets = torch.Tensor(opt.batchSize)
-    local k = 1
-    for i = t,math.min(t+opt.batchSize-1,dataset:size()) do
-       -- load new sample
-       local sample = dataset[i]
-       local input = sample[1]:clone()
-       local _,target = sample[2]:clone():max(1)
-       target = target:squeeze()
-       inputs[k] = input
-       targets[k] = target
-       k = k + 1
-    end
-    -- create closure to evaluate f(X) and df/dX
-    local feval = function(x)
-      -- just in case:
-      collectgarbage()
-
-      -- get new parameters
-      if x ~= parameters then
-        parameters:copy(x)
-      end
-
-      -- reset gradients
-      gradParameters:zero()
-
-      -- evaluate function for complete mini batch
-      local outputs = model:forward(inputs)
-      local f = criterion:forward(outputs, targets)
-
-      -- estimate df/dW
-      local df_do = criterion:backward(outputs, targets)
-      model:backward(inputs, df_do)
-
-      -- penalties (L1 and L2):
-      if opt.coefL1 ~= 0 or opt.coefL2 ~= 0 then
-        -- locals:
-        local norm,sign= torch.norm,torch.sign
-
-        -- Loss:
-        f = f + opt.coefL1 * norm(parameters,1)
-        f = f + opt.coefL2 * norm(parameters,2)^2/2
-
-        -- Gradients:
-        gradParameters:add( sign(parameters):mul(opt.coefL1) + parameters:clone():mul(opt.coefL2) )
-      end
-
-      -- update confusion
-      for i = 1,opt.batchSize do
-        confusion:add(outputs[i], targets[i])
-      end
-
-      -- return f and df/dX
-      return f,gradParameters
-    end
-    -- optimize on current mini-batch
-    if opt.optimization == 'LBFGS' then
-
-       -- Perform LBFGS step:
-       lbfgsState = lbfgsState or {
-          maxIter = opt.maxIter,
-          lineSearch = optim.lswolfe
-       }
-       optim.lbfgs(feval, parameters, lbfgsState)
-     
-       -- disp report:
-       print('LBFGS step')
-       print(' - progress in batch: ' .. t .. '/' .. dataset:size())
-       print(' - nb of iterations: ' .. lbfgsState.nIter)
-       print(' - nb of function evalutions: ' .. lbfgsState.funcEval)
-
-    elseif opt.optimization == 'SGD' then
-
-       -- Perform SGD step:
-       sgdState = sgdState or {
-          learningRate = opt.learningRate,
-          momentum = opt.momentum,
-          learningRateDecay = 5e-7
-       }
-       optim.sgd(feval, parameters, sgdState)
-    
-       -- disp progress
-       xlua.progress(t, dataset:size())
-
-    else
-       error('unknown optimization method')
-    end
-  end
-   -- time taken
-  time = sys.clock() - time
-  time = time / dataset:size()
-  print("<trainer> time to learn 1 sample = " .. (time*1000) .. 'ms')
-   -- print confusion matrix
-  print(confusion)
-  trainLogger:add{['% mean class accuracy (train set)'] = confusion.totalValid * 100}
-  confusion:zero()
-end    
--- verbose
-train(trainData)
-print('<mnist> using model:')
-print('123')
+print('done')
