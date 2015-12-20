@@ -24,7 +24,7 @@ import parsing.ParseFeed;
 /** EarthquakeCityMap
  * An application with an interactive map displaying earthquake data.
  * Author: UC San Diego Intermediate Software Development MOOC team
- * @author Your name here
+ * @author Quan Hua
  * Date: July 17, 2015
  * */
 public class EarthquakeCityMap extends PApplet {
@@ -49,6 +49,7 @@ public class EarthquakeCityMap extends PApplet {
 	//feed with magnitude 2.5+ Earthquakes
 	private String earthquakesURL = "http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_week.atom";
 
+	List<SimplePointMarker> simpleMarkers;
 	
 	public void setup() {
 		size(950, 600, OPENGL);
@@ -60,7 +61,7 @@ public class EarthquakeCityMap extends PApplet {
 		else {
 			map = new UnfoldingMap(this, 200, 50, 700, 500, new Google.GoogleMapProvider());
 			// IF YOU WANT TO TEST WITH A LOCAL FILE, uncomment the next line
-			//earthquakesURL = "2.5_week.atom";
+			earthquakesURL = "2.5_week.atom";
 		}
 		
 	    map.zoomToLevel(2);
@@ -88,6 +89,11 @@ public class EarthquakeCityMap extends PApplet {
 	    int yellow = color(255, 255, 0);
 	    
 	    //TODO: Add code here as appropriate
+	    simpleMarkers = new ArrayList<>();
+	    for(PointFeature feature : earthquakes){
+	    	simpleMarkers.add(createMarker(feature));
+	    }
+	   
 	}
 		
 	// A suggested helper method that takes in an earthquake feature and 
@@ -95,22 +101,70 @@ public class EarthquakeCityMap extends PApplet {
 	// TODO: Implement this method and call it from setUp, if it helps
 	private SimplePointMarker createMarker(PointFeature feature)
 	{
+		SimplePointMarker marker = new SimplePointMarker(feature.getLocation());
+		Object magObj = feature.getProperty("magnitude");
+		float mag = Float.parseFloat(magObj.toString());
+		marker.setColor(getColor(mag));
+		marker.setRadius(getRadius(mag));
 		// finish implementing and use this method, if it helps.
-		return new SimplePointMarker(feature.getLocation());
+		return marker;
 	}
 	
 	public void draw() {
 	    background(10);
 	    map.draw();
 	    addKey();
+	    drawHintKey();
 	}
 
-
+	private int getColor(float mag){
+		int color;
+		if(mag < 4.0){
+			color = color(0, 0, 255);
+		}else if(mag < 5.0){
+			color = color(255,255,0);
+		} else{
+			color = color(255, 0, 0);
+		}
+		return  color;
+	}
+	private int getRadius(float mag){
+		int radius;
+		if(mag < 4.0){
+			radius = 4;
+		}else if(mag < 5.0){
+			radius = 7;
+		} else{
+			radius = 10;
+		}
+		return radius;
+	}
 	// helper method to draw key in GUI
 	// TODO: Implement this method to draw the key
 	private void addKey() 
 	{	
 		// Remember you can use Processing's graphics methods here
-	
+		for(SimplePointMarker marker : simpleMarkers){
+			map.addMarker(marker);
+		}
+	}
+	private void drawHintKey(){
+		fill(color(255, 255, 255));
+		rect(30, 50, 150, 250);
+		fill(color(255, 0, 0));
+		ellipse(50, 110, 20, 20);
+		fill(color(255, 255, 0));
+		ellipse(50, 160, 10, 10);
+		fill(color(0, 0, 255));
+		ellipse(50, 210, 5, 5);
+		
+		fill(50);
+		text("Earthquake Key", 60, 70);
+		fill(50);
+		text("5.0+ Magnitude", 60, 110);
+		fill(50);
+		text("3.0+ Magnitude", 60, 160);
+		fill(50);
+		text("Below 4.0", 60, 210);
 	}
 }
