@@ -13,6 +13,13 @@
 		4DC1999F1BB201E100AA75E7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4DC1999E1BB201E100AA75E7 /* Assets.xcassets */; };
 		4DC199A21BB201E100AA75E7 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4DC199A01BB201E100AA75E7 /* LaunchScreen.storyboard */; };
 		4DC199AA1BB2049F00AA75E7 /* RGBAImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DC199A91BB2049F00AA75E7 /* RGBAImage.swift */; };
+		A053FB4D1C4BF86B00AE9A1C /* BlurFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = A053FB461C4BF86B00AE9A1C /* BlurFilter.swift */; };
+		A053FB4E1C4BF86B00AE9A1C /* BrightnessFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = A053FB471C4BF86B00AE9A1C /* BrightnessFilter.swift */; };
+		A053FB4F1C4BF86B00AE9A1C /* ContrastFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = A053FB481C4BF86B00AE9A1C /* ContrastFilter.swift */; };
+		A053FB501C4BF86B00AE9A1C /* Filter.swift in Sources */ = {isa = PBXBuildFile; fileRef = A053FB491C4BF86B00AE9A1C /* Filter.swift */; };
+		A053FB511C4BF86B00AE9A1C /* GrayFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = A053FB4A1C4BF86B00AE9A1C /* GrayFilter.swift */; };
+		A053FB521C4BF86B00AE9A1C /* ImageProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A053FB4B1C4BF86B00AE9A1C /* ImageProcessor.swift */; };
+		A053FB531C4BF86B00AE9A1C /* MotionFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = A053FB4C1C4BF86B00AE9A1C /* MotionFilter.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,6 +31,13 @@
 		4DC199A11BB201E100AA75E7 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		4DC199A31BB201E100AA75E7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4DC199A91BB2049F00AA75E7 /* RGBAImage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RGBAImage.swift; sourceTree = "<group>"; };
+		A053FB461C4BF86B00AE9A1C /* BlurFilter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BlurFilter.swift; sourceTree = "<group>"; };
+		A053FB471C4BF86B00AE9A1C /* BrightnessFilter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BrightnessFilter.swift; sourceTree = "<group>"; };
+		A053FB481C4BF86B00AE9A1C /* ContrastFilter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContrastFilter.swift; sourceTree = "<group>"; };
+		A053FB491C4BF86B00AE9A1C /* Filter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Filter.swift; sourceTree = "<group>"; };
+		A053FB4A1C4BF86B00AE9A1C /* GrayFilter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GrayFilter.swift; sourceTree = "<group>"; };
+		A053FB4B1C4BF86B00AE9A1C /* ImageProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageProcessor.swift; sourceTree = "<group>"; };
+		A053FB4C1C4BF86B00AE9A1C /* MotionFilter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MotionFilter.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -56,6 +70,7 @@
 		4DC199961BB201E100AA75E7 /* Filterer */ = {
 			isa = PBXGroup;
 			children = (
+				A053FB451C4BF84200AE9A1C /* FilterModel */,
 				4DC199971BB201E100AA75E7 /* AppDelegate.swift */,
 				4DC199991BB201E100AA75E7 /* ViewController.swift */,
 				4DC199A91BB2049F00AA75E7 /* RGBAImage.swift */,
@@ -65,6 +80,20 @@
 				4DC199A31BB201E100AA75E7 /* Info.plist */,
 			);
 			path = Filterer;
+			sourceTree = "<group>";
+		};
+		A053FB451C4BF84200AE9A1C /* FilterModel */ = {
+			isa = PBXGroup;
+			children = (
+				A053FB461C4BF86B00AE9A1C /* BlurFilter.swift */,
+				A053FB471C4BF86B00AE9A1C /* BrightnessFilter.swift */,
+				A053FB481C4BF86B00AE9A1C /* ContrastFilter.swift */,
+				A053FB491C4BF86B00AE9A1C /* Filter.swift */,
+				A053FB4A1C4BF86B00AE9A1C /* GrayFilter.swift */,
+				A053FB4B1C4BF86B00AE9A1C /* ImageProcessor.swift */,
+				A053FB4C1C4BF86B00AE9A1C /* MotionFilter.swift */,
+			);
+			path = FilterModel;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -137,9 +166,16 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A053FB501C4BF86B00AE9A1C /* Filter.swift in Sources */,
+				A053FB521C4BF86B00AE9A1C /* ImageProcessor.swift in Sources */,
 				4DC1999A1BB201E100AA75E7 /* ViewController.swift in Sources */,
 				4DC199AA1BB2049F00AA75E7 /* RGBAImage.swift in Sources */,
+				A053FB4E1C4BF86B00AE9A1C /* BrightnessFilter.swift in Sources */,
+				A053FB531C4BF86B00AE9A1C /* MotionFilter.swift in Sources */,
+				A053FB511C4BF86B00AE9A1C /* GrayFilter.swift in Sources */,
+				A053FB4D1C4BF86B00AE9A1C /* BlurFilter.swift in Sources */,
 				4DC199981BB201E100AA75E7 /* AppDelegate.swift in Sources */,
+				A053FB4F1C4BF86B00AE9A1C /* ContrastFilter.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -10,7 +10,12 @@ import UIKit
 
 class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
 
+    var originalImage: UIImage?
     var filteredImage: UIImage?
+    var isOriginalImage: Bool = true
+    var imageProcessor: ImageProcessor? = nil
+
+    
     
     @IBOutlet var imageView: UIImageView!
     
@@ -23,6 +28,10 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         super.viewDidLoad()
         secondaryMenu.backgroundColor = UIColor.whiteColor().colorWithAlphaComponent(0.5)
         secondaryMenu.translatesAutoresizingMaskIntoConstraints = false
+        
+        imageProcessor = ImageProcessor()
+        isOriginalImage = true
+        originalImage = self.imageView.image
     }
 
     // MARK: Share
@@ -69,6 +78,9 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         dismissViewControllerAnimated(true, completion: nil)
         if let image = info[UIImagePickerControllerOriginalImage] as? UIImage {
             imageView.image = image
+            
+            originalImage = image
+            isOriginalImage = true
         }
     }
     
@@ -119,15 +131,50 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     // MARK: Filter
     
     @IBAction func FilterGray(sender: AnyObject) {
-        
+        if let imageProcessor = imageProcessor {
+            filteredImage = imageProcessor.filter(originalImage!, filterName: Filter.GRAY)
+        }
+        toggleImageView();
     }
     @IBAction func FilterBlur(sender: AnyObject) {
+        if let imageProcessor = imageProcessor {
+            filteredImage = imageProcessor.filter(originalImage!, filterName: Filter.BLUR)
+        }
+        toggleImageView();
     }
     @IBAction func FilterMotion(sender: AnyObject) {
+        if let imageProcessor = imageProcessor {
+            filteredImage = imageProcessor.filter(originalImage!, filterName: Filter.MOTION)
+        }
+        toggleImageView();
     }
     @IBAction func FilterBright(sender: AnyObject) {
+        if let imageProcessor = imageProcessor {
+            filteredImage = imageProcessor.filter(originalImage!, filterName: Filter.BRIGHTNESS)
+        }
+        toggleImageView();
     }
     @IBAction func FilterContrast(sender: AnyObject) {
+        if let imageProcessor = imageProcessor {
+            filteredImage = imageProcessor.filter(originalImage!, filterName: Filter.CONTRAST)
+        }
+        toggleImageView();
+    }
+    
+    // MARK: Compare
+    
+    @IBAction func Compare(sender: AnyObject) {
+        toggleImageView();
+    }
+    
+    func toggleImageView(){
+        isOriginalImage = !isOriginalImage
+        
+        if (isOriginalImage){
+            self.imageView.image = originalImage!
+        } else {
+            self.imageView.image = filteredImage
+        }
     }
     
 }
