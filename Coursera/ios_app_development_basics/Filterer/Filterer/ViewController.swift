@@ -23,6 +23,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     @IBOutlet var bottomMenu: UIView!
     
     @IBOutlet var filterButton: UIButton!
+    @IBOutlet weak var compareButton: UIButton!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -32,6 +33,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         imageProcessor = ImageProcessor()
         isOriginalImage = true
         originalImage = self.imageView.image
+        compareButton.enabled = false
     }
 
     // MARK: Share
@@ -81,6 +83,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
             
             originalImage = image
             isOriginalImage = true
+            compareButton.enabled = false
         }
     }
     
@@ -134,30 +137,35 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         if let imageProcessor = imageProcessor {
             filteredImage = imageProcessor.filter(originalImage!, filterName: Filter.GRAY)
         }
+        compareButton.enabled = true
         toggleImageView();
     }
     @IBAction func FilterBlur(sender: AnyObject) {
         if let imageProcessor = imageProcessor {
             filteredImage = imageProcessor.filter(originalImage!, filterName: Filter.BLUR)
         }
+        compareButton.enabled = true
         toggleImageView();
     }
     @IBAction func FilterMotion(sender: AnyObject) {
         if let imageProcessor = imageProcessor {
             filteredImage = imageProcessor.filter(originalImage!, filterName: Filter.MOTION)
         }
+        compareButton.enabled = true
         toggleImageView();
     }
     @IBAction func FilterBright(sender: AnyObject) {
         if let imageProcessor = imageProcessor {
             filteredImage = imageProcessor.filter(originalImage!, filterName: Filter.BRIGHTNESS)
         }
+        compareButton.enabled = true
         toggleImageView();
     }
     @IBAction func FilterContrast(sender: AnyObject) {
         if let imageProcessor = imageProcessor {
             filteredImage = imageProcessor.filter(originalImage!, filterName: Filter.CONTRAST)
         }
+        compareButton.enabled = true
         toggleImageView();
     }
     

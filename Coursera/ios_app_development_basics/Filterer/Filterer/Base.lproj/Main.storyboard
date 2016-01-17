@@ -91,6 +91,7 @@
                     </view>
                     <connections>
                         <outlet property="bottomMenu" destination="JNF-wb-wwY" id="jTm-2q-PDu"/>
+                        <outlet property="compareButton" destination="tPg-2N-f93" id="3Gv-x5-BnP"/>
                         <outlet property="filterButton" destination="C6B-1F-j0K" id="6Kf-1q-zun"/>
                         <outlet property="imageView" destination="aND-Em-4Dd" id="vbi-rB-DhQ"/>
                         <outlet property="secondaryMenu" destination="ePS-oG-ZHP" id="Be7-JW-Iwe"/>
