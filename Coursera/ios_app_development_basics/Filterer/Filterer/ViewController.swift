@@ -19,6 +19,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     
     @IBOutlet var imageView: UIImageView!
     
+    @IBOutlet weak var imageViewTop: UIImageView!
     @IBOutlet var secondaryMenu: UIView!
     @IBOutlet var bottomMenu: UIView!
     
@@ -34,6 +35,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         isOriginalImage = true
         originalImage = self.imageView.image
         compareButton.enabled = false
+        imageViewTop.alpha = 0
     }
 
     // MARK: Share
@@ -84,6 +86,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
             originalImage = image
             isOriginalImage = true
             compareButton.enabled = false
+            imageViewTop.alpha = 0
         }
     }
     
@@ -138,6 +141,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
             filteredImage = imageProcessor.filter(originalImage!, filterName: Filter.GRAY)
         }
         compareButton.enabled = true
+        setImageViewTop();
         toggleImageView();
     }
     @IBAction func FilterBlur(sender: AnyObject) {
@@ -145,6 +149,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
             filteredImage = imageProcessor.filter(originalImage!, filterName: Filter.BLUR)
         }
         compareButton.enabled = true
+        setImageViewTop();
         toggleImageView();
     }
     @IBAction func FilterMotion(sender: AnyObject) {
@@ -152,6 +157,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
             filteredImage = imageProcessor.filter(originalImage!, filterName: Filter.MOTION)
         }
         compareButton.enabled = true
+        setImageViewTop();
         toggleImageView();
     }
     @IBAction func FilterBright(sender: AnyObject) {
@@ -159,6 +165,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
             filteredImage = imageProcessor.filter(originalImage!, filterName: Filter.BRIGHTNESS)
         }
         compareButton.enabled = true
+        setImageViewTop();
         toggleImageView();
     }
     @IBAction func FilterContrast(sender: AnyObject) {
@@ -166,6 +173,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
             filteredImage = imageProcessor.filter(originalImage!, filterName: Filter.CONTRAST)
         }
         compareButton.enabled = true
+        setImageViewTop();
         toggleImageView();
     }
     
@@ -175,13 +183,20 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         toggleImageView();
     }
     
+    func setImageViewTop(){
+        self.imageViewTop.image = filteredImage
+    }
     func toggleImageView(){
         isOriginalImage = !isOriginalImage
         
         if (isOriginalImage){
-            self.imageView.image = originalImage!
+            UIView.animateWithDuration(0.4) {
+                self.imageViewTop.alpha = 0.0
+            }
         } else {
-            self.imageView.image = filteredImage
+            UIView.animateWithDuration(0.4) {
+                self.imageViewTop.alpha = 1.0
+            }
         }
     }
     
