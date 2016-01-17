@@ -115,6 +115,20 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
                 }
         }
     }
-
+    
+    // MARK: Filter
+    
+    @IBAction func FilterGray(sender: AnyObject) {
+        
+    }
+    @IBAction func FilterBlur(sender: AnyObject) {
+    }
+    @IBAction func FilterMotion(sender: AnyObject) {
+    }
+    @IBAction func FilterBright(sender: AnyObject) {
+    }
+    @IBAction func FilterContrast(sender: AnyObject) {
+    }
+    
 }
 
