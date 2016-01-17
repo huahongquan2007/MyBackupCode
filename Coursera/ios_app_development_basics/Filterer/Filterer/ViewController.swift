@@ -36,8 +36,24 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         originalImage = self.imageView.image
         compareButton.enabled = false
         imageViewTop.alpha = 0
+        
+        let gestureTop = UILongPressGestureRecognizer(target: self, action: "didLongPress:")
+        gestureTop.minimumPressDuration = 0.001;
+        self.imageViewTop.addGestureRecognizer(gestureTop)
+        self.imageViewTop.userInteractionEnabled = true
+        
+        let gestureBottom = UILongPressGestureRecognizer(target: self, action: "didLongPress:")
+        gestureBottom.minimumPressDuration = 0.001;
+        self.imageView.addGestureRecognizer(gestureBottom)
+        self.imageView.userInteractionEnabled = true
+        
     }
-
+    
+    func didLongPress(gesture: UILongPressGestureRecognizer){
+        if(gesture.state == UIGestureRecognizerState.Began || gesture.state == UIGestureRecognizerState.Ended){
+            toggleImageView()
+        }
+    }
     // MARK: Share
     @IBAction func onShare(sender: AnyObject) {
         let activityController = UIActivityViewController(activityItems: ["Check out our really cool app", imageView.image!], applicationActivities: nil)
