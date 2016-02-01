@@ -1,0 +1,9 @@
+c:\users\quan-vmware\documents\visual studio 2015\Projects\AutoCheck\AutoCheck\bin\Debug\AutoCheck.exe.config
+c:\users\quan-vmware\documents\visual studio 2015\Projects\AutoCheck\AutoCheck\bin\Debug\AutoCheck.exe
+c:\users\quan-vmware\documents\visual studio 2015\Projects\AutoCheck\AutoCheck\bin\Debug\AutoCheck.pdb
+c:\users\quan-vmware\documents\visual studio 2015\Projects\AutoCheck\AutoCheck\obj\Debug\AutoCheck.csprojResolveAssemblyReference.cache
+c:\users\quan-vmware\documents\visual studio 2015\Projects\AutoCheck\AutoCheck\obj\Debug\AutoCheck.Form1.resources
+c:\users\quan-vmware\documents\visual studio 2015\Projects\AutoCheck\AutoCheck\obj\Debug\AutoCheck.Properties.Resources.resources
+c:\users\quan-vmware\documents\visual studio 2015\Projects\AutoCheck\AutoCheck\obj\Debug\AutoCheck.csproj.GenerateResource.Cache
+c:\users\quan-vmware\documents\visual studio 2015\Projects\AutoCheck\AutoCheck\obj\Debug\AutoCheck.exe
+c:\users\quan-vmware\documents\visual studio 2015\Projects\AutoCheck\AutoCheck\obj\Debug\AutoCheck.pdb
